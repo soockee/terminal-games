@@ -2,25 +2,29 @@ package main
 
 import (
 	"image/color"
+	"os"
+
+	"log/slog"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
-	"github.com/rs/zerolog"
-	"github.com/rs/zerolog/log"
 )
 
 func main() {
-	zerolog.SetGlobalLevel(DebugFlag)
-
 	ebiten.SetWindowSize(ScreenWidth, ScreenHeight)
 	ebiten.SetWindowTitle("Snake in Go")
-	log.Debug().Msg("a debug message")
+	h := slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{
+		Level: slog.LevelDebug,
+	})
+	slog.SetDefault(slog.New(h))
+
+	slog.Debug("Creating Game...")
 	game := &Game{
 		board: NewBoard(),
 	}
 
 	if err := ebiten.RunGame(game); err != nil {
-		log.Err(err).Msg("Failed to run game")
+		slog.Any("err", err)
 	}
 }
 
@@ -31,18 +35,12 @@ type Game struct {
 func (g *Game) Update() error {
 	g.board.ticks++
 
-	for dx, row := range g.board.cells {
-		for dy := range row {
-			if dx == 0 || dx == CellsDX-1 || dy == 0 || dy == CellsDY-1 {
-				continue
-			}
-			g.board.cells[dx][dy] = EmptyCell
-		}
-	}
-	g.board.cells[g.board.snake.snakeHeadDX][g.board.snake.snakeHeadDY] = SnakeHead
-
 	g.board.UpdateActors()
 
+	if g.board.hitWall {
+		slog.Info("Game Lost")
+		os.Exit(0)
+	}
 	return nil
 }
 
@@ -55,7 +53,7 @@ func (g *Game) DrawGrid(screen *ebiten.Image) {
 			rectWidth := float32(GridSize - Offset)
 			rectHeight := float32(GridSize - Offset)
 
-			vector.DrawFilledRect(screen, rectX, rectY, rectWidth, rectHeight, CellMapping[cell], false)
+			vector.DrawFilledRect(screen, rectX, rectY, rectWidth, rectHeight, CellTypeMapping[cell.cellType], false)
 		}
 	}
 }

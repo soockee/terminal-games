@@ -1,68 +1,107 @@
 package main
 
 import (
-	"math/rand"
+	"log/slog"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
-	"golang.org/x/exp/maps"
 )
 
-type Snake struct {
-	snakeHeadDX int
-	snakeHeadDY int
+type snakeHead struct {
+	pos  CellPosition
+	next *snakeBody
+}
+type snakeBody struct {
+	pos  CellPosition
+	next *snakeBody
+}
 
-	direction  InputAction
+func newSnakeHead(cellposition CellPosition) *snakeHead {
+	return &snakeHead{
+		pos: cellposition,
+	}
+}
+func newSnakeBody(cellposition CellPosition) *snakeBody {
+	return &snakeBody{
+		pos: cellposition,
+	}
+}
+
+func (s *Snake) appendBody(pos CellPosition) {
+	if s.snakeHead.next == nil {
+		s.snakeHead.next = newSnakeBody(pos)
+		slog.Debug("Append Body to Head")
+		return
+	}
+
+	current := s.snakeHead.next
+	for current.next != nil {
+		current = current.next
+	}
+	current.next = newSnakeBody(pos)
+	slog.Debug("Append Body to Body")
+}
+
+type Snake struct {
+	snakeHead *snakeHead
+
+	direction  ebiten.Key
 	snakeSpeed int
 }
 
 func NewSnake() *Snake {
 	snake := &Snake{}
-	snake.RandomizeSnakePosition()
-	snake.snakeSpeed = 30
-	snake.direction = moveRight
+	snake.snakeHead = newSnakeHead(randomPosition())
+	snake.snakeSpeed = 2
 	return snake
 }
 
-func (s *Snake) RandomizeSnakePosition() {
-	randomDX := rand.Intn((CellsDX - 1)) + 1
-	randomDY := rand.Intn((CellsDY - 1)) + 1
+type directions map[ebiten.Key]CellPosition
 
-	s.snakeHeadDX = randomDX
-	s.snakeHeadDY = randomDY
-}
-
-type inputActions map[ebiten.Key]InputAction
-
-var inputActionMoveMapping = inputActions{
-	ebiten.KeyUp:    moveUp,
-	ebiten.KeyDown:  moveDown,
-	ebiten.KeyLeft:  moveLeft,
-	ebiten.KeyRight: moveRight,
-}
-
-type InputAction func(*Snake)
+var possibleMoves = [4]ebiten.Key{ebiten.KeyUp, ebiten.KeyDown, ebiten.KeyLeft, ebiten.KeyRight}
 
 func (s *Snake) CheckDirection() {
-	for _, key := range maps.Keys(inputActionMoveMapping) {
+	for _, key := range possibleMoves {
 		if inpututil.IsKeyJustPressed(key) {
-			s.direction = inputActionMoveMapping[key]
+			s.direction = key
 		}
 	}
 }
 
-func moveUp(s *Snake) {
-	s.snakeHeadDY--
+func (s *Snake) move(k ebiten.Key) (head *CellPosition, tail *CellPosition) {
+	head = &CellPosition{s.snakeHead.pos.dx, s.snakeHead.pos.dy}
+	switch k {
+	case ebiten.KeyUp:
+		s.snakeHead.pos.dy--
+	case ebiten.KeyDown:
+		s.snakeHead.pos.dy++
+	case ebiten.KeyLeft:
+		s.snakeHead.pos.dx--
+	case ebiten.KeyRight:
+		s.snakeHead.pos.dx++
+	default:
+		slog.Warn("invalid move key")
+	}
+
+	if s.snakeHead.next != nil {
+		delta := s.snakeHead.next.pos.calculcateDelta(*head)
+		tail = s.snakeHead.next.updateBody(delta)
+	} else {
+		tail = head
+	}
+	return head, tail
 }
 
-func moveDown(s *Snake) {
-	s.snakeHeadDY++
+func (cp1 CellPosition) calculcateDelta(cp2 CellPosition) CellPosition {
+	return CellPosition{cp1.dx - cp2.dx, cp1.dy - cp2.dy}
 }
 
-func moveLeft(s *Snake) {
-	s.snakeHeadDX--
-}
-
-func moveRight(s *Snake) {
-	s.snakeHeadDX++
+func (s *snakeBody) updateBody(delta CellPosition) *CellPosition {
+	tail := &CellPosition{s.pos.dx, s.pos.dy}
+	s.pos.dx -= 1 * delta.dx
+	s.pos.dy -= 1 * delta.dy
+	if s.next != nil {
+		tail = s.next.updateBody(s.next.pos.calculcateDelta(*tail))
+	}
+	return tail
 }
