@@ -23,4 +23,4 @@ jobs:
             goarch: ${{ matrix.goarch }}
             goversion: "https://go.dev/dl/go1.22.1.linux-amd64.tar.gz"
             project_path: "./snake"
-            binary_name: "snake"
+            binary_name: "snake.wasm"
