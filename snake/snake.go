@@ -61,33 +61,49 @@ func NewSnake(input *input.Handler) *Snake {
 func (s *Snake) CheckDirection() {
 	if s.input.ActionIsPressed(ActionMoveUp) {
 		slog.Debug("Up")
-		s.direction = ActionMoveUp
+		if s.direction != ActionMoveDown {
+			s.direction = ActionMoveUp
+		}
 	}
 	if s.input.ActionIsPressed(ActionMoveDown) {
 		slog.Debug("Down")
-		s.direction = ActionMoveDown
+		if s.direction != ActionMoveUp {
+			s.direction = ActionMoveDown
+		}
 	}
 	if s.input.ActionIsPressed(ActionMoveLeft) {
 		slog.Debug("Left")
-		s.direction = ActionMoveLeft
+		if s.direction != ActionMoveRight {
+			s.direction = ActionMoveLeft
+		}
 	}
 	if s.input.ActionIsPressed(ActionMoveRight) {
 		slog.Debug("Right")
-		s.direction = ActionMoveRight
+		if s.direction != ActionMoveLeft {
+			s.direction = ActionMoveRight
+		}
 	}
 	if info, ok := s.input.JustPressedActionInfo(ActionClick); ok {
 		if info.Pos.Y < fieldHeight {
 			slog.Debug("Up")
-			s.direction = ActionMoveUp
+			if s.direction != ActionMoveDown {
+				s.direction = ActionMoveUp
+			}
 		} else if info.Pos.Y < fieldHeight*3 && info.Pos.Y > fieldHeight*2 {
 			slog.Debug("Down")
-			s.direction = ActionMoveDown
+			if s.direction != ActionMoveUp {
+				s.direction = ActionMoveDown
+			}
 		} else if info.Pos.Y < fieldHeight*2 && info.Pos.Y > fieldHeight && info.Pos.X < fieldWidth {
 			slog.Debug("Left")
-			s.direction = ActionMoveLeft
+			if s.direction != ActionMoveRight {
+				s.direction = ActionMoveLeft
+			}
 		} else if info.Pos.Y < fieldHeight*2 && info.Pos.Y > fieldHeight && info.Pos.X > fieldWidth {
 			slog.Debug("Right")
-			s.direction = ActionMoveRight
+			if s.direction != ActionMoveLeft {
+				s.direction = ActionMoveRight
+			}
 		}
 	}
 }
