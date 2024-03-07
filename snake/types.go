@@ -36,6 +36,15 @@ const (
 	Wall
 )
 
+type InputOverlayType int
+
+const (
+	UpField InputOverlayType = iota
+	DownField
+	LeftField
+	RightField
+)
+
 type Direction CellPosition
 
 var (
@@ -43,7 +52,13 @@ var (
 		SnakeHead: color.RGBA{255, 0, 0, 255},
 		SnakeBody: color.RGBA{100, 50, 0, 255},
 		Food:      color.RGBA{0, 255, 0, 255},
-		EmptyCell: color.RGBA{255, 255, 255, 255},
+		EmptyCell: color.RGBA{255, 255, 255, 0},
 		Wall:      color.RGBA{0, 0, 0, 255},
+	}
+	OverlayTypeMapping = map[InputOverlayType]color.Color{
+		UpField:    color.RGBA{17, 66, 50, 128},
+		DownField:  color.RGBA{17, 66, 50, 128},
+		LeftField:  color.RGBA{135, 169, 34, 255},
+		RightField: color.RGBA{92, 131, 116, 255},
 	}
 )

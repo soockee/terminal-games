@@ -32,6 +32,14 @@ type Game struct {
 	board *Board
 }
 
+func NewGame() *Game {
+	game := &Game{}
+
+	game.board = NewBoard()
+
+	return game
+}
+
 func (g *Game) Update() error {
 	g.board.ticks++
 
@@ -45,7 +53,8 @@ func (g *Game) Update() error {
 }
 
 func (g *Game) DrawGrid(screen *ebiten.Image) {
-	screen.Fill(color.White)
+	screen.Fill(color.RGBA{247, 246, 187, 128})
+	g.DrawInputOverlay(screen)
 	for dx, row := range g.board.cells {
 		for dy, cell := range row {
 			rectX := float32(dx * GridSize)
@@ -56,6 +65,13 @@ func (g *Game) DrawGrid(screen *ebiten.Image) {
 			vector.DrawFilledRect(screen, rectX, rectY, rectWidth, rectHeight, CellTypeMapping[cell.cellType], false)
 		}
 	}
+}
+
+func (g *Game) DrawInputOverlay(screen *ebiten.Image) {
+	vector.DrawFilledRect(screen, 0, 0, ScreenWidth, float32(fieldHeight), OverlayTypeMapping[UpField], false)
+	vector.DrawFilledRect(screen, 0, float32(fieldHeight), float32(fieldWidth), float32(fieldHeight), OverlayTypeMapping[LeftField], false)
+	vector.DrawFilledRect(screen, float32(fieldWidth), float32(fieldHeight), float32(fieldWidth), float32(fieldHeight), OverlayTypeMapping[RightField], false)
+	vector.DrawFilledRect(screen, 0, float32(fieldHeight*2), ScreenWidth, float32(fieldHeight), OverlayTypeMapping[DownField], false)
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {

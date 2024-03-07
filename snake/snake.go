@@ -3,8 +3,7 @@ package main
 import (
 	"log/slog"
 
-	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/inpututil"
+	input "github.com/quasilyte/ebitengine-input"
 )
 
 type snakeHead struct {
@@ -45,39 +44,64 @@ func (s *Snake) appendBody(pos CellPosition) {
 type Snake struct {
 	snakeHead *snakeHead
 
-	direction  ebiten.Key
+	direction  input.Action
 	snakeSpeed int
+	input      *input.Handler
 }
 
-func NewSnake() *Snake {
-	snake := &Snake{}
-	snake.snakeHead = newSnakeHead(randomPosition())
-	snake.snakeSpeed = 2
+func NewSnake(input *input.Handler) *Snake {
+	snake := &Snake{
+		snakeHead:  newSnakeHead(randomPosition()),
+		snakeSpeed: 100,
+		input:      input,
+	}
 	return snake
 }
 
-type directions map[ebiten.Key]CellPosition
-
-var possibleMoves = [4]ebiten.Key{ebiten.KeyUp, ebiten.KeyDown, ebiten.KeyLeft, ebiten.KeyRight}
-
 func (s *Snake) CheckDirection() {
-	for _, key := range possibleMoves {
-		if inpututil.IsKeyJustPressed(key) {
-			s.direction = key
+	if s.input.ActionIsPressed(ActionMoveUp) {
+		slog.Debug("Up")
+		s.direction = ActionMoveUp
+	}
+	if s.input.ActionIsPressed(ActionMoveDown) {
+		slog.Debug("Down")
+		s.direction = ActionMoveDown
+	}
+	if s.input.ActionIsPressed(ActionMoveLeft) {
+		slog.Debug("Left")
+		s.direction = ActionMoveLeft
+	}
+	if s.input.ActionIsPressed(ActionMoveRight) {
+		slog.Debug("Right")
+		s.direction = ActionMoveRight
+	}
+	if info, ok := s.input.JustPressedActionInfo(ActionClick); ok {
+		if info.Pos.Y < fieldHeight {
+			slog.Debug("Up")
+			s.direction = ActionMoveUp
+		} else if info.Pos.Y < fieldHeight*3 && info.Pos.Y > fieldHeight*2 {
+			slog.Debug("Down")
+			s.direction = ActionMoveDown
+		} else if info.Pos.Y < fieldHeight*2 && info.Pos.Y > fieldHeight && info.Pos.X < fieldWidth {
+			slog.Debug("Left")
+			s.direction = ActionMoveLeft
+		} else if info.Pos.Y < fieldHeight*2 && info.Pos.Y > fieldHeight && info.Pos.X > fieldWidth {
+			slog.Debug("Right")
+			s.direction = ActionMoveRight
 		}
 	}
 }
 
-func (s *Snake) move(k ebiten.Key) (head *CellPosition, tail *CellPosition) {
+func (s *Snake) move(action input.Action) (head *CellPosition, tail *CellPosition) {
 	head = &CellPosition{s.snakeHead.pos.dx, s.snakeHead.pos.dy}
-	switch k {
-	case ebiten.KeyUp:
+	switch action {
+	case ActionMoveUp:
 		s.snakeHead.pos.dy--
-	case ebiten.KeyDown:
+	case ActionMoveDown:
 		s.snakeHead.pos.dy++
-	case ebiten.KeyLeft:
+	case ActionMoveLeft:
 		s.snakeHead.pos.dx--
-	case ebiten.KeyRight:
+	case ActionMoveRight:
 		s.snakeHead.pos.dx++
 	default:
 		slog.Warn("invalid move key")

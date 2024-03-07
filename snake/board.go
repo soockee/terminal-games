@@ -2,6 +2,8 @@ package main
 
 import (
 	"math/rand"
+
+	input "github.com/quasilyte/ebitengine-input"
 )
 
 const (
@@ -12,22 +14,47 @@ const (
 )
 
 type Board struct {
-	cells   [][]*Cell
-	snake   *Snake
-	food    CellPosition
-	ticks   int
-	hitWall bool
-	hitBody bool
+	cells       [][]*Cell
+	snake       *Snake
+	food        CellPosition
+	ticks       int
+	hitWall     bool
+	hitBody     bool
+	inputSystem input.System
+	FieldWidth  float64
+	FieldHeight float64
 }
+
+const (
+	ActionMoveUp input.Action = iota
+	ActionMoveDown
+	ActionMoveRight
+	ActionMoveLeft
+	ActionClick
+)
 
 func NewBoard() *Board {
 	board := Board{
 		cells:   make([][]*Cell, CellsDX),
-		snake:   NewSnake(),
 		food:    randomPosition(),
 		hitWall: false,
 		hitBody: false,
 	}
+
+	board.inputSystem.Init(input.SystemConfig{
+		DevicesEnabled: input.AnyDevice,
+	})
+	keymap := input.Keymap{
+		ActionMoveUp:    {input.KeyGamepadUp, input.KeyUp, input.KeyW},
+		ActionMoveDown:  {input.KeyGamepadDown, input.KeyDown, input.KeyS},
+		ActionMoveLeft:  {input.KeyGamepadLeft, input.KeyLeft, input.KeyA},
+		ActionMoveRight: {input.KeyGamepadRight, input.KeyRight, input.KeyD},
+		ActionClick:     {input.KeyTouchTap, input.KeyMouseLeft},
+	}
+
+	snake := NewSnake(board.inputSystem.NewHandler(0, keymap))
+
+	board.snake = snake
 	for i := range board.cells {
 		board.cells[i] = make([]*Cell, CellsDY)
 	}
@@ -49,6 +76,7 @@ func NewBoard() *Board {
 }
 
 func (b *Board) UpdateActors() {
+	b.inputSystem.Update()
 	b.snake.CheckDirection()
 	if b.ticks > b.snake.snakeSpeed {
 		head, tail := b.snake.move(b.snake.direction)
