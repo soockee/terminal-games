@@ -17,6 +17,7 @@ type Board struct {
 	food    CellPosition
 	ticks   int
 	hitWall bool
+	hitBody bool
 }
 
 func NewBoard() *Board {
@@ -25,6 +26,7 @@ func NewBoard() *Board {
 		snake:   NewSnake(),
 		food:    randomPosition(),
 		hitWall: false,
+		hitBody: false,
 	}
 	for i := range board.cells {
 		board.cells[i] = make([]*Cell, CellsDY)
@@ -61,6 +63,10 @@ func (b *Board) UpdateActors() {
 		}
 		if b.cells[b.snake.snakeHead.pos.dx][b.snake.snakeHead.pos.dy].cellType == Wall {
 			b.hitWall = true
+			return
+		}
+		if b.cells[b.snake.snakeHead.pos.dx][b.snake.snakeHead.pos.dy].cellType == SnakeBody {
+			b.hitBody = true
 			return
 		}
 		if b.snake.snakeHead.next == nil {

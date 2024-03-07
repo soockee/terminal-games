@@ -37,7 +37,7 @@ func (g *Game) Update() error {
 
 	g.board.UpdateActors()
 
-	if g.board.hitWall {
+	if g.board.hitWall || g.board.hitBody {
 		slog.Info("Game Lost")
 		os.Exit(0)
 	}
