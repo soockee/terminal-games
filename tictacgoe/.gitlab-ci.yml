@@ -50,6 +50,6 @@ release:
     assets:
       links:
         - name: 'Linux executable'
-          url: 'https://gitlab.com/Soockee/tictacgoe/-/jobs/${GE_JOB_ID}/artifacts/raw/build/linux-amd64-tictacgoe'
+          url: 'https://github/soockee/tictacgoe/-/jobs/${GE_JOB_ID}/artifacts/raw/build/linux-amd64-tictacgoe'
         - name: 'Windows executable'
-          url: 'https://gitlab.com/Soockee/tictacgoe/-/jobs/${GE_JOB_ID}/artifacts/raw/build/windows-amd64-tictacgoe.exe'
+          url: 'https://github/soockee/tictacgoe/-/jobs/${GE_JOB_ID}/artifacts/raw/build/windows-amd64-tictacgoe.exe'

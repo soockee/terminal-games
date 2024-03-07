@@ -3,10 +3,11 @@ package tictacgoe
 import (
 	"bytes"
 
+	"github/soockee/terminal-games/tictacgoe/assets"
+
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/rs/zerolog/log"
-	"gitlab.com/soockee/tictacgoe/assets"
 	"golang.org/x/image/font"
 
 	"github.com/eihigh/canvas"

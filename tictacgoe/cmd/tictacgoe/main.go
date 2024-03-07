@@ -1,10 +1,11 @@
 package main
 
 import (
+	"github/soockee/terminal-games/tictacgoe/internal/tictacgoe"
+
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
-	"gitlab.com/soockee/tictacgoe/internal/tictacgoe"
 )
 
 func main() {

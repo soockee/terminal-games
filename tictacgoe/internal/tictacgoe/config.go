@@ -3,10 +3,11 @@ package tictacgoe
 import (
 	"bytes"
 
+	"github/soockee/terminal-games/tictacgoe/assets/fonts"
+	"github/soockee/terminal-games/tictacgoe/configs"
+
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
-	"gitlab.com/soockee/tictacgoe/assets/fonts"
-	"gitlab.com/soockee/tictacgoe/configs"
 	"golang.org/x/image/font"
 	"golang.org/x/image/font/opentype"
 )

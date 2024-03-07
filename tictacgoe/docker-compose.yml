@@ -10,7 +10,7 @@ services:
       - GOARCH=amd64
 
     command:
-      go build -o build/windows-amd64-tictacgoe.exe gitlab.com/soockee/tictacgoe/cmd/tictacgoe
+      go build -o build/windows-amd64-tictacgoe.exe github/soockee/tictacgoe/cmd/tictacgoe
 
   build-linux-amd64:
     image: golang
@@ -23,7 +23,7 @@ services:
     command: >
       bash -c "apt update
       && apt-get install -y xorg-dev
-      && go build -o build/linux-amd64-tictacgoe gitlab.com/soockee/tictacgoe/cmd/tictacgoe"
+      && go build -o build/linux-amd64-tictacgoe github/soockee/tictacgoe/cmd/tictacgoe"
   
   build-wasm:
     image: golang
@@ -36,7 +36,7 @@ services:
     command: >
       bash -c "apt update
       && apt-get install -y xorg-dev
-      && go build -o build/tictacgoe.wasm gitlab.com/soockee/tictacgoe/cmd/tictacgoe"
+      && go build -o build/tictacgoe.wasm github/soockee/tictacgoe/cmd/tictacgoe"
 
   test:
     image: golang

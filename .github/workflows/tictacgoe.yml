@@ -23,5 +23,5 @@ jobs:
             goos: ${{ matrix.goos }}
             goarch: ${{ matrix.goarch }}
             goversion: "https://go.dev/dl/go1.22.1.linux-amd64.tar.gz"
-            project_path: "./tictacgoe"
+            project_path: "./tictacgoe/cmd/tictacgoe"
             binary_name: "tictacgoe.wasm"
