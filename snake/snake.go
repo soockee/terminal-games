@@ -52,7 +52,7 @@ type Snake struct {
 func NewSnake(input *input.Handler) *Snake {
 	snake := &Snake{
 		snakeHead:  newSnakeHead(randomPosition()),
-		snakeSpeed: 100,
+		snakeSpeed: 2,
 		input:      input,
 	}
 	return snake
