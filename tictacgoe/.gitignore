@@ -18,7 +18,7 @@
 !go.mod
 
 
-!assets/*/**
+!assets/**
 !configs/*
 
 !README.md
