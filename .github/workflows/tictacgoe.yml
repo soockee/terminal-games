@@ -8,6 +8,7 @@ permissions:
 
 jobs:
     releases-matrix:
+        if: startsWith(github.ref, 'refs/tags/v') && contains(github.ref, '-tictacgoe')
         name: Release Go Binary
         runs-on: ubuntu-latest
         strategy:
