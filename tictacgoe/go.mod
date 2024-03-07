@@ -7,7 +7,7 @@ require (
 	github.com/hajimehoshi/ebiten/v2 v2.4.3
 	github.com/rs/zerolog v1.32.0
 	github.com/spf13/viper v1.13.0
-	golang.org/x/image v0.0.0-20220902085622-e7cb96979f69
+	golang.org/x/image v0.10.0
 )
 
 require (
@@ -37,7 +37,7 @@ require (
 	golang.org/x/exp v0.0.0-20210722180016-6781d3edade3 // indirect
 	golang.org/x/mobile v0.0.0-20220722155234-aaac322e2105 // indirect
 	golang.org/x/sys v0.12.0 // indirect
-	golang.org/x/text v0.3.7 // indirect
+	golang.org/x/text v0.11.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
