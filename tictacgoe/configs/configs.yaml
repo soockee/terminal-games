@@ -1,0 +1,4 @@
+screen:
+  screenWidth: 1280
+  screenHeight: 1080
+  boardSize: 3

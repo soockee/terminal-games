@@ -1,0 +1,47 @@
+version: "3.8"
+services:
+  build-windows-amd64:
+    image: golang
+    volumes:
+      - ./:/app
+    working_dir: /app
+    environment:
+      - GOOS=windows
+      - GOARCH=amd64
+
+    command:
+      go build -o build/windows-amd64-tictacgoe.exe gitlab.com/soockee/tictacgoe/cmd/tictacgoe
+
+  build-linux-amd64:
+    image: golang
+    volumes:
+      - ./:/app
+    working_dir: /app
+    environment:
+      - GOOS=linux
+      - GOARCH=amd64
+    command: >
+      bash -c "apt update
+      && apt-get install -y xorg-dev
+      && go build -o build/linux-amd64-tictacgoe gitlab.com/soockee/tictacgoe/cmd/tictacgoe"
+  
+  build-wasm:
+    image: golang
+    volumes:
+      - ./:/app
+    working_dir: /app
+    environment:
+      - GOOS=js
+      - GOARCH=wasm
+    command: >
+      bash -c "apt update
+      && apt-get install -y xorg-dev
+      && go build -o build/tictacgoe.wasm gitlab.com/soockee/tictacgoe/cmd/tictacgoe"
+
+  test:
+    image: golang
+    volumes:
+      - ./:/app
+    working_dir: /app
+    command: >
+      bash -c 'bash -c "apt update && apt-get install -y xorg-dev xvfb";bash -c "Xvfb :99 &"; bash -c "DISPLAY=:99 go test ./..."'
