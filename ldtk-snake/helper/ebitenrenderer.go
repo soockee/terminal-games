@@ -14,7 +14,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
-	"github.com/solarlune/ldtkgo"
+	"github.com/soockee/ldtkgo"
 
 	_ "image/png" // Importing for loading PNGs
 )

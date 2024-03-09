@@ -3,40 +3,27 @@ package main
 import (
 	"image"
 	"log"
-	"os"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/solarlune/ldtkgo"
-	"github.com/soockee/terminal-games/ldtk-snake/helper"
-	"github.com/soockee/terminal-games/ldtk-snake/scene"
+	"github.com/soockee/terminal-games/ldtk-snake/config"
+	"github.com/soockee/terminal-games/ldtk-snake/scenes"
 )
 
+type Scene interface {
+	Update()
+	Draw(screen *ebiten.Image)
+}
+
 type Game struct {
-	bounds      image.Rectangle
-	scene       scene.Scene
-	ldtkProject *ldtkgo.Project
+	bounds image.Rectangle
+	scene  *scenes.SnakeScene
 }
 
 func NewGame() *Game {
 	g := &Game{
 		bounds: image.Rectangle{},
+		scene:  &scenes.SnakeScene{},
 	}
-
-	dir, err := os.Getwd()
-
-	if err != nil {
-		panic(err)
-	}
-
-	g.ldtkProject, err = ldtkgo.Open("assets/ldtk/simple.ldtk", os.DirFS(dir))
-
-	if err != nil {
-		panic(err)
-	}
-
-	renderer := helper.NewEbitenRenderer(helper.NewDiskLoader("assets/ldtk"))
-
-	g.scene = scene.NewScene(g.ldtkProject, renderer)
 
 	return g
 }
@@ -57,14 +44,10 @@ func (g *Game) Layout(width, height int) (int, int) {
 }
 
 func main() {
-	g := NewGame()
-	ebiten.SetWindowSize(g.ldtkProject.WorldGridWidth, g.ldtkProject.WorldGridHeight)
-
+	ebiten.SetWindowSize(config.C.LDtkProject.WorldGridWidth, config.C.LDtkProject.WorldGridHeight)
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeDisabled)
-
 	ebiten.SetWindowTitle("LDtk Snake")
-
-	if err := ebiten.RunGame(g); err != nil {
+	if err := ebiten.RunGame(NewGame()); err != nil {
 		log.Fatal(err)
 	}
 }
