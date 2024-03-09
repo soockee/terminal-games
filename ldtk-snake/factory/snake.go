@@ -24,7 +24,7 @@ func CreateSnake(ecs *ecs.ECS, iid string) *donburi.Entry {
 	dresolv.SetObject(snake, obj)
 	components.Object.Set(snake, obj)
 	components.Snake.SetValue(snake, components.SnakeData{
-		Speed: 5,
+		Speed: 1,
 	})
 
 	components.Sprite.SetValue(snake, components.SpriteData{Image: config.C.GetSprite(entity)})
