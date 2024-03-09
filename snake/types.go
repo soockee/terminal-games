@@ -51,7 +51,7 @@ var (
 	CellTypeMapping = map[CellType]color.Color{
 		SnakeHead: color.RGBA{255, 0, 0, 255},
 		SnakeBody: color.RGBA{100, 50, 0, 255},
-		Food:      color.RGBA{0, 255, 0, 255},
+		Food:      color.RGBA{190, 0, 190, 255},
 		EmptyCell: color.RGBA{255, 255, 255, 0},
 		Wall:      color.RGBA{0, 0, 0, 255},
 	}
