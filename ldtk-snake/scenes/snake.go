@@ -62,9 +62,12 @@ func (s *SnakeScene) configure() {
 	ecs := ecs.NewECS(donburi.NewWorld())
 
 	ecs.AddSystem(systems.UpdateSnake)
+	ecs.AddSystem(systems.UpdateObjects)
+	ecs.AddSystem(systems.UpdateSettings)
 
 	ecs.AddRenderer(layers.Default, systems.DrawSnake)
 	ecs.AddRenderer(layers.Default, systems.DrawWall)
+	ecs.AddRenderer(layers.Default, systems.DrawDebug)
 
 	s.ecs = ecs
 

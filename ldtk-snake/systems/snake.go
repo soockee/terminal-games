@@ -18,11 +18,11 @@ func UpdateSnake(ecs *ecs.ECS) {
 	snakeData := components.Snake.Get(snakeEntry)
 	snakeObject := dresolv.GetObject(snakeEntry)
 	control := components.Control.Get(snakeEntry)
-	hitWall := checkWallCollision(snakeObject, snakeData)
-	if hitWall {
+
+	move(control.InputHandler, snakeObject, snakeData)
+	if checkWallCollision(snakeObject, snakeData) {
 		slog.Info("Hit the Wall")
 	}
-	move(control.InputHandler, snakeObject, snakeData)
 }
 
 func DrawSnake(ecs *ecs.ECS, screen *ebiten.Image) {
@@ -58,20 +58,26 @@ func move(inputHandler *input.Handler, snakeObject *resolv.Object, snakeData *co
 func checkWallCollision(snakeObject *resolv.Object, snakeData *components.SnakeData) bool {
 	switch snakeData.Direction {
 	case components.ActionMoveUp:
-		check := snakeObject.Check(0, -snakeData.Speed, tags.Wall.Name())
-		if check != nil {
+		if check := snakeObject.Check(0, -snakeData.Speed, tags.Wall.Name()); check != nil {
+			slog.Info("Check Up", slog.Any("Check Info", check))
 			return true
 		}
 	case components.ActionMoveDown:
 		if check := snakeObject.Check(0, snakeData.Speed, tags.Wall.Name()); check != nil {
+			slog.Info("Check Down", slog.Any("Check Info", check))
+
 			return true
 		}
 	case components.ActionMoveLeft:
 		if check := snakeObject.Check(-snakeData.Speed, 0, tags.Wall.Name()); check != nil {
+			slog.Info("Check Left", slog.Any("Check Info", check))
+
 			return true
 		}
 	case components.ActionMoveRight:
-		if check := snakeObject.Check(snakeData.Speed, snakeData.Speed, tags.Wall.Name()); check != nil {
+		if check := snakeObject.Check(snakeData.Speed, 0, tags.Wall.Name()); check != nil {
+			slog.Info("Check Right", slog.Any("Check Info", check))
+
 			return true
 		}
 	}
