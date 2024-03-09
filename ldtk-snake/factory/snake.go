@@ -20,11 +20,11 @@ func CreateSnake(ecs *ecs.ECS, iid string) *donburi.Entry {
 	width := float64(entity.Width)
 	height := float64(entity.Height)
 
-	obj := resolv.NewObject(X, Y, width, height)
+	obj := resolv.NewObject(X, Y, width, height, entity.Tags...)
 	dresolv.SetObject(snake, obj)
+	components.Object.Set(snake, obj)
 	components.Snake.SetValue(snake, components.SnakeData{
-		Speed:     1,
-		Direction: components.ActionMoveRight,
+		Speed: 5,
 	})
 
 	components.Sprite.SetValue(snake, components.SpriteData{Image: config.C.GetSprite(entity)})

@@ -17,8 +17,11 @@ func UpdateSnake(ecs *ecs.ECS) {
 	snakeEntry, _ := components.Snake.First(ecs.World)
 	snakeData := components.Snake.Get(snakeEntry)
 	snakeObject := dresolv.GetObject(snakeEntry)
-	// slog.Info("t", snakeObject)
 	control := components.Control.Get(snakeEntry)
+	hitWall := checkWallCollision(snakeObject, snakeData)
+	if hitWall {
+		slog.Info("Hit the Wall")
+	}
 	move(control.InputHandler, snakeObject, snakeData)
 }
 
@@ -33,21 +36,44 @@ func DrawSnake(ecs *ecs.ECS, screen *ebiten.Image) {
 }
 
 // move temporarily uses a speed of type int whiel figuring out the collision
-func move(inputHandler *input.Handler, snake *resolv.Object, snakeData *components.SnakeData) {
+func move(inputHandler *input.Handler, snakeObject *resolv.Object, snakeData *components.SnakeData) {
 	if inputHandler.ActionIsPressed(components.ActionMoveUp) {
-		slog.Info("Up")
-		snake.Position.Y -= snakeData.Speed
+		snakeData.Direction = components.ActionMoveUp
+		snakeObject.Position.Y -= snakeData.Speed
 	}
 	if inputHandler.ActionIsPressed(components.ActionMoveDown) {
-		slog.Info("Down")
-		snake.Position.Y += snakeData.Speed
+		snakeData.Direction = components.ActionMoveDown
+		snakeObject.Position.Y += snakeData.Speed
 	}
 	if inputHandler.ActionIsPressed(components.ActionMoveLeft) {
-		slog.Info("Left")
-		snake.Position.X -= snakeData.Speed
+		snakeData.Direction = components.ActionMoveLeft
+		snakeObject.Position.X -= snakeData.Speed
 	}
 	if inputHandler.ActionIsPressed(components.ActionMoveRight) {
-		slog.Info("Right")
-		snake.Position.X += snakeData.Speed
+		snakeData.Direction = components.ActionMoveRight
+		snakeObject.Position.X += snakeData.Speed
 	}
+}
+
+func checkWallCollision(snakeObject *resolv.Object, snakeData *components.SnakeData) bool {
+	switch snakeData.Direction {
+	case components.ActionMoveUp:
+		check := snakeObject.Check(0, -snakeData.Speed, tags.Wall.Name())
+		if check != nil {
+			return true
+		}
+	case components.ActionMoveDown:
+		if check := snakeObject.Check(0, snakeData.Speed, tags.Wall.Name()); check != nil {
+			return true
+		}
+	case components.ActionMoveLeft:
+		if check := snakeObject.Check(-snakeData.Speed, 0, tags.Wall.Name()); check != nil {
+			return true
+		}
+	case components.ActionMoveRight:
+		if check := snakeObject.Check(snakeData.Speed, snakeData.Speed, tags.Wall.Name()); check != nil {
+			return true
+		}
+	}
+	return false
 }

@@ -19,10 +19,10 @@ func CreateWall(ecs *ecs.ECS, idd string) *donburi.Entry {
 	width := float64(entity.Width)
 	height := float64(entity.Height)
 
-	obj := resolv.NewObject(X, Y, width, height)
+	obj := resolv.NewObject(X, Y, width, height, entity.Tags...)
 	dresolv.SetObject(wall, obj)
 
-	components.Object.SetValue(wall, *resolv.NewObject(X, Y, width, height))
+	components.Object.Set(wall, obj)
 	components.Sprite.SetValue(wall, components.SpriteData{Image: config.C.GetSprite(entity)})
 
 	obj.SetShape(resolv.NewRectangle(X, Y, width, height))
