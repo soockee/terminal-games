@@ -1,31 +1,33 @@
 package scene
 
 import (
-	"image"
-
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/solarlune/ldtkgo"
+	"github.com/soockee/terminal-games/ldtk-snake/helper"
+	"github.com/soockee/terminal-games/ldtk-snake/systems"
 )
 
 type Scene struct {
-	EbitenRenderer *EbitenRenderer
+	EbitenRenderer *helper.EbitenRenderer
 	BGImage        *ebiten.Image
 	CurrentLevel   int
 	ActiveLayers   []bool
 	ldtkProject    *ldtkgo.Project
+	systems        []systems.System
 }
 
-func NewScene(ldtkProject *ldtkgo.Project) Scene {
+func NewScene(ldtkProject *ldtkgo.Project, ebitenRenderer *helper.EbitenRenderer) Scene {
 
 	s := Scene{
-		ActiveLayers: []bool{true, true, true, true},
-		ldtkProject:  ldtkProject,
+		ActiveLayers:   []bool{true, true, true, true},
+		ldtkProject:    ldtkProject,
+		EbitenRenderer: ebitenRenderer,
 	}
 
-	s.EbitenRenderer = NewEbitenRenderer(NewDiskLoader("assets/ldtk"))
-
 	s.RenderLevel()
+
+	s.systems = append(s.systems, systems.NewSnake(helper.GetEntityByName("Snakehead", s.CurrentLevel, s.ldtkProject), s.EbitenRenderer))
 
 	return s
 }
@@ -51,7 +53,9 @@ func (s *Scene) RenderLevel() {
 }
 
 func (g *Scene) Update() error {
-
+	for _, system := range g.systems {
+		system.Update()
+	}
 	return nil
 
 }
@@ -60,7 +64,7 @@ func (g *Scene) Draw(screen *ebiten.Image) {
 
 	level := g.ldtkProject.Levels[g.CurrentLevel]
 
-	screen.Fill(level.BGColor) // We want to use the BG Color when possible
+	screen.Fill(level.BGColor)
 
 	if g.BGImage != nil {
 		opt := &ebiten.DrawImageOptions{}
@@ -76,26 +80,11 @@ func (g *Scene) Draw(screen *ebiten.Image) {
 		}
 	}
 
-	// We'll additionally render the entities onscreen.
-	for _, layer := range level.Layers {
-		// In truth, we don't have to check to see if it's an entity layer before looping through,
-		// because only Entity layers have entities in the Entities slice.
-		for _, entity := range layer.Entities {
-
-			if entity.TileRect != nil {
-
-				tileset := g.EbitenRenderer.Tilesets[entity.TileRect.Tileset.Path]
-				tileRect := entity.TileRect
-				tile := tileset.SubImage(image.Rect(tileRect.X, tileRect.Y, tileRect.X+tileRect.W, tileRect.Y+tileRect.H)).(*ebiten.Image)
-
-				opt := &ebiten.DrawImageOptions{}
-				opt.GeoM.Translate(float64(entity.Position[0]), float64(entity.Position[1]))
-
-				screen.DrawImage(tile, opt)
-
-			}
-		}
+	for _, system := range g.systems {
+		system.Draw(screen)
 	}
 }
 
-func (g *Scene) Layout(w, h int) (int, int) { return 256, 256 }
+func (g *Scene) Layout(w, h int) (int, int) {
+	return g.ldtkProject.WorldGridWidth, g.ldtkProject.WorldGridWidth
+}

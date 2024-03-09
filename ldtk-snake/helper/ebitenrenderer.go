@@ -1,4 +1,4 @@
-package scene
+package helper
 
 // ebitenRenderer is an example rendering system that uses ebiten to render LDTK levels to multiple *ebiten.Images, one for each layer.
 // Note that the approach I've taken here works fine, but would only really be usable for levels with smaller layers that wouldn't

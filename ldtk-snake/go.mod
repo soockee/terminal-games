@@ -12,6 +12,7 @@ require (
 	github.com/ebitengine/purego v0.6.0 // indirect
 	github.com/jezek/xgb v1.1.0 // indirect
 	github.com/quasilyte/gmath v0.0.0-20221217210116-fba37a2e15c7 // indirect
+	github.com/solarlune/resolv v0.7.0 // indirect
 	github.com/tidwall/gjson v1.9.3 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.0 // indirect

@@ -7,6 +7,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/solarlune/ldtkgo"
+	"github.com/soockee/terminal-games/ldtk-snake/helper"
 	"github.com/soockee/terminal-games/ldtk-snake/scene"
 )
 
@@ -33,7 +34,9 @@ func NewGame() *Game {
 		panic(err)
 	}
 
-	g.scene = scene.NewScene(g.ldtkProject)
+	renderer := helper.NewEbitenRenderer(helper.NewDiskLoader("assets/ldtk"))
+
+	g.scene = scene.NewScene(g.ldtkProject, renderer)
 
 	return g
 }
