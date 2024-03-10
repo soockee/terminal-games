@@ -6,7 +6,6 @@ import (
 	"github.com/soockee/terminal-games/ldtk-snake/archetypes"
 	"github.com/soockee/terminal-games/ldtk-snake/components"
 	"github.com/soockee/terminal-games/ldtk-snake/config"
-	dresolv "github.com/soockee/terminal-games/ldtk-snake/resolv"
 	"github.com/yohamta/donburi"
 	"github.com/yohamta/donburi/ecs"
 )
@@ -21,7 +20,6 @@ func CreateSnake(ecs *ecs.ECS, iid string) *donburi.Entry {
 	height := float64(entity.Height)
 
 	obj := resolv.NewObject(X, Y, width, height, entity.Tags...)
-	dresolv.SetObject(snake, obj)
 	components.Object.Set(snake, obj)
 	components.Snake.SetValue(snake, components.SnakeData{
 		Speed: 1,

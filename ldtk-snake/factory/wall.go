@@ -5,7 +5,6 @@ import (
 	"github.com/soockee/terminal-games/ldtk-snake/archetypes"
 	"github.com/soockee/terminal-games/ldtk-snake/components"
 	"github.com/soockee/terminal-games/ldtk-snake/config"
-	dresolv "github.com/soockee/terminal-games/ldtk-snake/resolv"
 	"github.com/yohamta/donburi"
 	"github.com/yohamta/donburi/ecs"
 )
@@ -20,8 +19,6 @@ func CreateWall(ecs *ecs.ECS, idd string) *donburi.Entry {
 	height := float64(entity.Height)
 
 	obj := resolv.NewObject(X, Y, width, height, entity.Tags...)
-	dresolv.SetObject(wall, obj)
-
 	components.Object.Set(wall, obj)
 	components.Sprite.SetValue(wall, components.SpriteData{Image: config.C.GetSprite(entity)})
 

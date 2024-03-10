@@ -49,8 +49,6 @@ func (s *SnakeScene) DrawLevel(screen *ebiten.Image) {
 }
 
 func (s *SnakeScene) Draw(screen *ebiten.Image) {
-	// screen.Fill(color.RGBA{20, 20, 40, 255})
-	// s.DrawLevel(screen)
 	s.ecs.Draw(screen)
 }
 
@@ -60,8 +58,6 @@ func (s *SnakeScene) Layout(w, h int) (int, int) {
 
 func (s *SnakeScene) configure() {
 	ecs := ecs.NewECS(donburi.NewWorld())
-
-	factory.CreateSettings(ecs)
 
 	ecs.AddSystem(systems.UpdateSnake)
 	ecs.AddSystem(systems.UpdateObjects)
@@ -73,6 +69,7 @@ func (s *SnakeScene) configure() {
 
 	s.ecs = ecs
 
+	factory.CreateSettings(ecs)
 	space := factory.CreateSpace(s.ecs)
 
 	entities := config.C.GetEntities()
