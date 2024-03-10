@@ -13,6 +13,12 @@ const (
 	ActionMoveRight
 	ActionMoveLeft
 	ActionClick
+	ActionDebug
+	ActionHelp
+)
+const (
+	SnakeHandler uint8 = iota
+	SettingsHandler
 )
 
 type ControlData struct {

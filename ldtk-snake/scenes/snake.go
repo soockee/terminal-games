@@ -61,6 +61,8 @@ func (s *SnakeScene) Layout(w, h int) (int, int) {
 func (s *SnakeScene) configure() {
 	ecs := ecs.NewECS(donburi.NewWorld())
 
+	factory.CreateSettings(ecs)
+
 	ecs.AddSystem(systems.UpdateSnake)
 	ecs.AddSystem(systems.UpdateObjects)
 	ecs.AddSystem(systems.UpdateSettings)

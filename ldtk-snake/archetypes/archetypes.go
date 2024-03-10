@@ -24,6 +24,10 @@ var (
 		components.Object,
 		components.Sprite,
 	)
+	Settings = newArchetype(
+		components.Settings,
+		components.Control,
+	)
 )
 
 type archetype struct {

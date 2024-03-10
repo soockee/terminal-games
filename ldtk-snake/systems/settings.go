@@ -1,32 +1,30 @@
 package systems
 
 import (
-	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/inpututil"
+	"log/slog"
+
 	"github.com/soockee/terminal-games/ldtk-snake/components"
 	"github.com/yohamta/donburi/ecs"
 )
 
 func UpdateSettings(ecs *ecs.ECS) {
-	settings := GetOrCreateSettings(ecs)
+	ent, ok := components.Settings.First(ecs.World)
+	if !ok {
+		slog.Warn("settings object not found")
+		return
+	}
+	settings := components.Settings.Get(ent)
+	control := components.Control.Get(ent)
 
-	if inpututil.IsKeyJustPressed(ebiten.KeyF1) {
+	if control.InputHandler.ActionIsJustPressed(components.ActionDebug) {
 		settings.Debug = !settings.Debug
 	}
-
-	if inpututil.IsKeyJustPressed(ebiten.KeyF2) {
+	if control.InputHandler.ActionIsJustPressed(components.ActionDebug) {
 		settings.ShowHelpText = !settings.ShowHelpText
 	}
 }
 
-func GetOrCreateSettings(ecs *ecs.ECS) *components.SettingsData {
-	if _, ok := components.Settings.First(ecs.World); !ok {
-		ent := ecs.World.Entry(ecs.World.Create(components.Settings))
-		components.Settings.SetValue(ent, components.SettingsData{
-			ShowHelpText: true,
-		})
-	}
-
-	ent, _ := components.Settings.First(ecs.World)
-	return components.Settings.Get(ent)
+func GetSettings(ecs *ecs.ECS) (*components.SettingsData, bool) {
+	ent, ok := components.Settings.First(ecs.World)
+	return components.Settings.Get(ent), ok
 }

@@ -10,7 +10,10 @@ import (
 )
 
 func DrawDebug(ecs *ecs.ECS, screen *ebiten.Image) {
-	settings := GetOrCreateSettings(ecs)
+	settings, ok := GetSettings(ecs)
+	if !ok {
+		return
+	}
 	if !settings.Debug {
 		return
 	}

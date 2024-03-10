@@ -29,7 +29,7 @@ func CreateSnake(ecs *ecs.ECS, iid string) *donburi.Entry {
 
 	components.Sprite.SetValue(snake, components.SpriteData{Image: config.C.GetSprite(entity)})
 	components.Control.SetValue(snake, components.ControlData{
-		InputHandler: components.InputSytem.NewHandler(0, input.Keymap{
+		InputHandler: components.InputSytem.NewHandler(components.SnakeHandler, input.Keymap{
 			components.ActionMoveUp:    {input.KeyGamepadUp, input.KeyUp, input.KeyW},
 			components.ActionMoveDown:  {input.KeyGamepadDown, input.KeyDown, input.KeyS},
 			components.ActionMoveLeft:  {input.KeyGamepadLeft, input.KeyLeft, input.KeyA},
