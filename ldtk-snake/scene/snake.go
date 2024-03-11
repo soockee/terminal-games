@@ -1,4 +1,4 @@
-package scenes
+package scene
 
 import (
 	"log/slog"
@@ -9,7 +9,7 @@ import (
 	"github.com/soockee/terminal-games/ldtk-snake/factory"
 	"github.com/soockee/terminal-games/ldtk-snake/layers"
 	dresolv "github.com/soockee/terminal-games/ldtk-snake/resolv"
-	"github.com/soockee/terminal-games/ldtk-snake/systems"
+	"github.com/soockee/terminal-games/ldtk-snake/system"
 	"github.com/soockee/terminal-games/ldtk-snake/tags"
 	"github.com/yohamta/donburi"
 	"github.com/yohamta/donburi/ecs"
@@ -17,21 +17,28 @@ import (
 )
 
 type SnakeScene struct {
-	CurrentLevel int
-	ecs          *decs.ECS
-	once         sync.Once
+	ecs           *decs.ECS
+	onceConfigure sync.Once
 }
 
-func (s *SnakeScene) Update() {
-	s.once.Do(s.configure)
+func (s *SnakeScene) Update() error {
+	s.onceConfigure.Do(s.configure)
 	s.ecs.Update()
+	return nil
 }
 
-func (s *SnakeScene) DrawLevel(screen *ebiten.Image) {
+func (s *SnakeScene) Draw(screen *ebiten.Image) {
+	s.drawLevel(screen)
+	s.ecs.Draw(screen)
+}
 
-	level := config.C.LDtkProject.Levels[s.CurrentLevel]
+func (s *SnakeScene) Layout(w, h int) (int, int) {
+	return config.C.LDtkProject.Levels[config.C.CurrentLevel].Width, config.C.LDtkProject.Levels[config.C.CurrentLevel].Height
+}
 
-	screen.Fill(level.BGColor)
+func (s *SnakeScene) drawLevel(screen *ebiten.Image) {
+
+	level := config.C.LDtkProject.Levels[config.C.CurrentLevel]
 
 	if config.C.BGImage != nil {
 		opt := &ebiten.DrawImageOptions{}
@@ -41,36 +48,36 @@ func (s *SnakeScene) DrawLevel(screen *ebiten.Image) {
 		screen.DrawImage(config.C.BGImage, opt)
 	}
 
-	for i, layer := range config.C.EbitenRenderer.RenderedLayers {
-		if config.C.ActiveLayers[i] {
+	for _, layer := range config.C.EbitenRenderer.RenderedLayers {
+		if config.C.ActiveLayers[layer.Layer.Identifier] {
 			screen.DrawImage(layer.Image, &ebiten.DrawImageOptions{})
 		}
 	}
 }
 
-func (s *SnakeScene) Draw(screen *ebiten.Image) {
-	s.ecs.Draw(screen)
-}
-
-func (s *SnakeScene) Layout(w, h int) (int, int) {
-	return config.C.LDtkProject.WorldGridWidth, config.C.LDtkProject.WorldGridWidth
-}
-
 func (s *SnakeScene) configure() {
 	ecs := ecs.NewECS(donburi.NewWorld())
 
-	ecs.AddSystem(systems.UpdateSnake)
-	ecs.AddSystem(systems.UpdateObjects)
-	ecs.AddSystem(systems.UpdateSettings)
+	ecs.AddSystem(system.UpdateSnake)
+	ecs.AddSystem(system.UpdateFood)
+	ecs.AddSystem(system.UpdateObjects)
 
-	ecs.AddRenderer(layers.Default, systems.DrawSnake)
-	ecs.AddRenderer(layers.Default, systems.DrawWall)
-	ecs.AddRenderer(layers.Default, systems.DrawDebug)
+	ecs.AddRenderer(layers.Default, system.DrawSnake)
+	ecs.AddRenderer(layers.Default, system.DrawFood)
+	ecs.AddRenderer(layers.Default, system.DrawWall)
+	ecs.AddRenderer(layers.Default, system.DrawDebug)
 
 	s.ecs = ecs
 
-	factory.CreateSettings(ecs)
+	settings := factory.CreateSettings(ecs)
+	if settings == nil {
+		slog.Warn("failed to create settings")
+	}
+
 	space := factory.CreateSpace(s.ecs)
+	if space == nil {
+		slog.Warn("failed to create space")
+	}
 
 	entities := config.C.GetEntities()
 
@@ -82,7 +89,6 @@ func (s *SnakeScene) configure() {
 		for name, f := range Tags {
 			for _, ldtkTag := range entity.Tags {
 				if name == ldtkTag {
-					slog.Info("Create resolv obj", slog.Any("entity", entity))
 					dresolv.Add(space, f(ecs, entity.IID))
 				}
 			}

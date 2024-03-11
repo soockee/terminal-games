@@ -1,9 +1,9 @@
-package systems
+package system
 
 import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/soockee/ldtkgo"
-	"github.com/soockee/terminal-games/ldtk-snake/components"
+	"github.com/soockee/terminal-games/ldtk-snake/component"
 	dresolv "github.com/soockee/terminal-games/ldtk-snake/resolv"
 	"github.com/soockee/terminal-games/ldtk-snake/tags"
 	"github.com/yohamta/donburi"
@@ -18,7 +18,7 @@ type Wall struct {
 func DrawWall(ecs *ecs.ECS, screen *ebiten.Image) {
 	tags.Wall.Each(ecs.World, func(e *donburi.Entry) {
 		o := dresolv.GetObject(e)
-		sprite := components.Sprite.Get(e)
+		sprite := component.Sprite.Get(e)
 
 		dx := 0.0
 		for dx < o.Size.X {

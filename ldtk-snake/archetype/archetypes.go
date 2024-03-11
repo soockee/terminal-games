@@ -1,7 +1,7 @@
-package archetypes
+package archetype
 
 import (
-	"github.com/soockee/terminal-games/ldtk-snake/components"
+	"github.com/soockee/terminal-games/ldtk-snake/component"
 	"github.com/soockee/terminal-games/ldtk-snake/layers"
 	"github.com/soockee/terminal-games/ldtk-snake/tags"
 	"github.com/yohamta/donburi"
@@ -11,22 +11,35 @@ import (
 var (
 	Snake = newArchetype(
 		tags.Snake,
-		components.Snake,
-		components.Object,
-		components.Sprite,
-		components.Control,
+		component.Snake,
+		component.Object,
+		component.Sprite,
 	)
 	Space = newArchetype(
-		components.Space,
+		component.Space,
 	)
 	Wall = newArchetype(
 		tags.Wall,
-		components.Object,
-		components.Sprite,
+		component.Object,
+		component.Sprite,
+	)
+	Food = newArchetype(
+		tags.Food,
+		component.Object,
+		component.Sprite,
 	)
 	Settings = newArchetype(
-		components.Settings,
-		components.Control,
+		component.Settings,
+	)
+	Button = newArchetype(
+		tags.Button,
+		component.Object,
+		component.Sprite,
+		component.Button,
+		component.Control,
+	)
+	Controls = newArchetype(
+		component.Control,
 	)
 )
 

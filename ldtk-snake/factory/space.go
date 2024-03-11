@@ -2,15 +2,15 @@ package factory
 
 import (
 	"github.com/solarlune/resolv"
-	"github.com/soockee/terminal-games/ldtk-snake/archetypes"
-	"github.com/soockee/terminal-games/ldtk-snake/components"
+	"github.com/soockee/terminal-games/ldtk-snake/archetype"
+	"github.com/soockee/terminal-games/ldtk-snake/component"
 	"github.com/soockee/terminal-games/ldtk-snake/config"
 	"github.com/yohamta/donburi"
 	"github.com/yohamta/donburi/ecs"
 )
 
 func CreateSpace(ecs *ecs.ECS) *donburi.Entry {
-	space := archetypes.Space.Spawn(ecs)
+	space := archetype.Space.Spawn(ecs)
 
 	cfg := config.C
 	var spaceData *resolv.Space
@@ -19,7 +19,7 @@ func CreateSpace(ecs *ecs.ECS) *donburi.Entry {
 		CellHeight := cfg.LDtkProject.WorldGridHeight / cfg.LDtkProject.Levels[0].Layers[0].CellHeight
 		spaceData = resolv.NewSpace(cfg.LDtkProject.WorldGridWidth, cfg.LDtkProject.WorldGridWidth, cellWidth, CellHeight)
 	}
-	components.Space.Set(space, spaceData)
+	component.Space.Set(space, spaceData)
 
 	return space
 }

@@ -9,8 +9,8 @@ import (
 	"github.com/yohamta/donburi/ecs"
 )
 
-func CreateWall(ecs *ecs.ECS, idd string) *donburi.Entry {
-	wall := archetype.Wall.Spawn(ecs)
+func CreateFood(ecs *ecs.ECS, idd string) *donburi.Entry {
+	food := archetype.Food.Spawn(ecs)
 
 	entity := config.C.GetEntityByIID(idd, config.C.CurrentLevel)
 	X := float64(entity.Position[0])
@@ -19,10 +19,10 @@ func CreateWall(ecs *ecs.ECS, idd string) *donburi.Entry {
 	height := float64(entity.Height)
 
 	obj := resolv.NewObject(X, Y, width, height, entity.Tags...)
-	component.Object.Set(wall, obj)
-	component.Sprite.SetValue(wall, component.SpriteData{Image: config.C.GetSprite(entity)})
+	component.Object.Set(food, obj)
+	component.Sprite.SetValue(food, component.SpriteData{Image: config.C.GetSprite(entity)})
 
 	obj.SetShape(resolv.NewRectangle(X, Y, width, height))
 
-	return wall
+	return food
 }

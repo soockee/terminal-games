@@ -6,23 +6,23 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/soockee/terminal-games/ldtk-snake/config"
-	"github.com/soockee/terminal-games/ldtk-snake/scenes"
+	"github.com/soockee/terminal-games/ldtk-snake/scene"
 )
 
 type Scene interface {
-	Update()
+	Update() error
 	Draw(screen *ebiten.Image)
 }
 
 type Game struct {
 	bounds image.Rectangle
-	scene  *scenes.SnakeScene
+	scene  Scene
 }
 
 func NewGame() *Game {
 	g := &Game{
 		bounds: image.Rectangle{},
-		scene:  &scenes.SnakeScene{},
+		scene:  &scene.StartScene{},
 	}
 
 	return g
@@ -44,8 +44,8 @@ func (g *Game) Layout(width, height int) (int, int) {
 }
 
 func main() {
-	ebiten.SetWindowSize(config.C.LDtkProject.WorldGridWidth, config.C.LDtkProject.WorldGridHeight)
-	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeDisabled)
+	ebiten.SetWindowSize(config.C.LDtkProject.Levels[config.C.CurrentLevel].Width, config.C.LDtkProject.Levels[config.C.CurrentLevel].Height)
+	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
 	ebiten.SetWindowTitle("LDtk Snake")
 	if err := ebiten.RunGame(NewGame()); err != nil {
 		log.Fatal(err)

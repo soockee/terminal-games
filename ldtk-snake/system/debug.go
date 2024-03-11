@@ -1,11 +1,11 @@
-package systems
+package system
 
 import (
 	"image/color"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
-	"github.com/soockee/terminal-games/ldtk-snake/components"
+	"github.com/soockee/terminal-games/ldtk-snake/component"
 	"github.com/yohamta/donburi/ecs"
 )
 
@@ -17,11 +17,11 @@ func DrawDebug(ecs *ecs.ECS, screen *ebiten.Image) {
 	if !settings.Debug {
 		return
 	}
-	spaceEntry, ok := components.Space.First(ecs.World)
+	spaceEntry, ok := component.Space.First(ecs.World)
 	if !ok {
 		return
 	}
-	space := components.Space.Get(spaceEntry)
+	space := component.Space.Get(spaceEntry)
 
 	for y := 0; y < space.Height(); y++ {
 

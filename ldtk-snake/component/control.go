@@ -1,4 +1,4 @@
-package components
+package component
 
 import (
 	"log/slog"
@@ -15,10 +15,6 @@ const (
 	ActionClick
 	ActionDebug
 	ActionHelp
-)
-const (
-	SnakeHandler uint8 = iota
-	SettingsHandler
 )
 
 type ControlData struct {

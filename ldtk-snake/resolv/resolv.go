@@ -2,20 +2,20 @@ package resolv
 
 import (
 	"github.com/solarlune/resolv"
-	"github.com/soockee/terminal-games/ldtk-snake/components"
+	"github.com/soockee/terminal-games/ldtk-snake/component"
 	"github.com/yohamta/donburi"
 )
 
 func Add(space *donburi.Entry, objects ...*donburi.Entry) {
 	for _, obj := range objects {
-		components.Space.Get(space).Add(GetObject(obj))
+		component.Space.Get(space).Add(GetObject(obj))
 	}
 }
 
 func SetObject(entry *donburi.Entry, obj *resolv.Object) {
-	components.Object.Set(entry, obj)
+	component.Object.Set(entry, obj)
 }
 
 func GetObject(entry *donburi.Entry) *resolv.Object {
-	return components.Object.Get(entry)
+	return component.Object.Get(entry)
 }

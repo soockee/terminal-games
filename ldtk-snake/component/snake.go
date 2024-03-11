@@ -1,4 +1,4 @@
-package components
+package component
 
 import (
 	input "github.com/quasilyte/ebitengine-input"
