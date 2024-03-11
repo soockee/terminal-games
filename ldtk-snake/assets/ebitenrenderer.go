@@ -1,4 +1,4 @@
-package util
+package assets
 
 // ebitenRenderer is an example rendering system that uses ebiten to render LDTK levels to multiple *ebiten.Images, one for each layer.
 // Note that the approach I've taken here works fine, but would only really be usable for levels with smaller layers that wouldn't
@@ -8,6 +8,7 @@ package util
 // usable to allow larger layers.
 
 import (
+	"bytes"
 	"image"
 	"path/filepath"
 	"sort"
@@ -21,7 +22,7 @@ import (
 
 // TilesetLoader represents an interface that can be implemented to load a tileset from string, returning an *ebiten.Image.
 type TilesetLoader interface {
-	LoadTileset(string) *ebiten.Image
+	LoadImage(string) (*ebiten.Image, error)
 }
 
 // DiskLoader is an implementation of TilesetLoader that simply loads a Tileset image from disk using ebitenutil's NewImageFromFile() function.
@@ -39,11 +40,41 @@ func NewDiskLoader(basePath string) *DiskLoader {
 }
 
 // LoadTileset simply loads a Tileset image from disk using ebitenutil's NewImageFromFile() function.
-func (d *DiskLoader) LoadTileset(tilesetPath string) *ebiten.Image {
-	if img, _, err := ebitenutil.NewImageFromFile(filepath.Join(d.BasePath, tilesetPath)); err == nil {
-		return img
+func (d *DiskLoader) LoadTileset(tilesetPath string) (*ebiten.Image, error) {
+	img, _, err := ebitenutil.NewImageFromFile(filepath.Join(d.BasePath, tilesetPath))
+	if err == nil {
+		return img, nil
 	}
-	return nil
+	return nil, err
+}
+
+// EmbedLoader is an implementation of TilesetLoader that loads a Tileset image from embedded files.
+type EmbedLoader struct {
+	BasePath string
+	Filter   ebiten.Filter
+}
+
+// NewEmbedLoader creates a new EmbedLoader struct.
+func NewEmbedLoader(basePath string) *EmbedLoader {
+	return &EmbedLoader{
+		BasePath: basePath,
+		Filter:   ebiten.FilterNearest,
+	}
+}
+
+// LoadImage loads a Tileset image from the embedded file system.
+func (l *EmbedLoader) LoadImage(path string) (*ebiten.Image, error) {
+	fileBytes, err := assetsFS.ReadFile(l.BasePath + "/" + path)
+	if err != nil {
+		return nil, err
+	}
+
+	img, _, err := image.Decode(bytes.NewReader(fileBytes))
+	if err != nil {
+		return nil, err
+	}
+
+	return ebiten.NewImageFromImage(img), nil
 }
 
 // RenderedLayer represents an LDtk.Layer that was rendered out to an *ebiten.Image.
@@ -56,6 +87,7 @@ type RenderedLayer struct {
 type EbitenRenderer struct {
 	Tilesets       map[string]*ebiten.Image
 	CurrentTileset string
+	BGImage        *ebiten.Image // The optional image that is a ldtk background
 	RenderedLayers []*RenderedLayer
 	Loader         TilesetLoader // Loader for the renderer; defaults to a DiskLoader instance, though this can be switched out with something else as necessary.
 }
@@ -80,12 +112,13 @@ func (er *EbitenRenderer) Clear() {
 }
 
 // beginLayer gets called when necessary between rendering indidvidual Layers of a Level.
-func (er *EbitenRenderer) beginLayer(layer *ldtkgo.Layer, w, h int) {
-
+func (er *EbitenRenderer) beginLayer(layer *ldtkgo.Layer, w, h int) error {
 	_, exists := er.Tilesets[layer.Tileset.Path]
 
+	var err error
 	if !exists {
-		er.Tilesets[layer.Tileset.Path] = er.Loader.LoadTileset(layer.Tileset.Path)
+		er.Tilesets[layer.Tileset.Path], err = er.Loader.LoadImage(layer.Tileset.Path)
+		return err
 	}
 
 	er.CurrentTileset = layer.Tileset.Path
@@ -93,7 +126,7 @@ func (er *EbitenRenderer) beginLayer(layer *ldtkgo.Layer, w, h int) {
 	renderedImage := ebiten.NewImage(w, h)
 
 	er.RenderedLayers = append(er.RenderedLayers, &RenderedLayer{Image: renderedImage, Layer: layer})
-
+	return nil
 }
 
 // renderTile gets called by LDtkgo.Layer.RenderTiles(), and is currently provided the following arguments to handle rendering each tile in a Layer:
@@ -136,6 +169,11 @@ func (er *EbitenRenderer) renderTile(x, y, srcX, srcY, srcW, srcH int, flipBit b
 func (er *EbitenRenderer) Render(level *ldtkgo.Level) {
 
 	er.Clear()
+
+	if level.BGImage != nil {
+		bgImage, _ := er.Loader.LoadImage(level.BGImage.Path)
+		er.BGImage = bgImage
+	}
 
 	for _, layer := range level.Layers {
 

@@ -1,10 +1,11 @@
 package factory
 
 import (
+	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/solarlune/resolv"
+	"github.com/soockee/ldtkgo"
 	"github.com/soockee/terminal-games/ldtk-snake/archetype"
 	"github.com/soockee/terminal-games/ldtk-snake/component"
-	"github.com/soockee/terminal-games/ldtk-snake/config"
 	"github.com/soockee/terminal-games/ldtk-snake/system"
 	"github.com/soockee/terminal-games/ldtk-snake/util"
 	"github.com/yohamta/donburi"
@@ -16,10 +17,8 @@ var buttonhandlerMapping = map[string]func(w donburi.World){
 	"GithubButton": func(w donburi.World) { util.OpenUrl("https://github.com/soockee") },
 }
 
-func CreateButton(ecs *ecs.ECS, idd string) *donburi.Entry {
+func CreateButton(ecs *ecs.ECS, sprite *ebiten.Image, entity *ldtkgo.Entity) *donburi.Entry {
 	button := archetype.Button.Spawn(ecs)
-
-	entity := config.C.GetEntityByIID(idd, config.C.CurrentLevel)
 
 	width := float64(entity.Width)
 	height := float64(entity.Height)
@@ -37,7 +36,7 @@ func CreateButton(ecs *ecs.ECS, idd string) *donburi.Entry {
 		HandlerFunc: buttonhandlerMapping[entity.Identifier],
 	})
 
-	component.Sprite.SetValue(button, component.SpriteData{Image: config.C.GetSprite(entity)})
+	component.Sprite.SetValue(button, component.SpriteData{Image: sprite})
 
 	obj.SetShape(resolv.NewRectangle(X, Y, width, height))
 

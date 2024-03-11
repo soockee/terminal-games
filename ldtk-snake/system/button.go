@@ -44,7 +44,7 @@ func DrawButton(ecs *ecs.ECS, screen *ebiten.Image) {
 }
 
 func Start(w donburi.World) {
-	event.GamestateEvent.Publish(w, &event.Gamestate{
+	event.SceneStateEvent.Publish(w, &event.SceneStateData{
 		CurrentScene: component.SnakeScene,
 	})
 }

@@ -7,12 +7,8 @@ import (
 	"github.com/yohamta/donburi/ecs"
 )
 
-func CreateGamestate(ecs *ecs.ECS, scene *component.Scene) *donburi.Entry {
-	gamestate := archetype.Gamestate.Spawn(ecs)
-	if scene != nil {
-		component.Gamestate.SetValue(gamestate, component.GamestateData{
-			CurrentScene: *scene,
-		})
-	}
+func CreateGameState(ecs *ecs.ECS) *donburi.Entry {
+	gamestate := archetype.GameState.Spawn(ecs)
+	component.Gamestate.SetValue(gamestate, component.GameStateData{})
 	return gamestate
 }

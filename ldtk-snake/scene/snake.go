@@ -3,70 +3,34 @@ package scene
 import (
 	"sync"
 
-	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/soockee/terminal-games/ldtk-snake/assets"
 	"github.com/soockee/terminal-games/ldtk-snake/component"
-	"github.com/soockee/terminal-games/ldtk-snake/config"
 	pkgevents "github.com/soockee/terminal-games/ldtk-snake/event"
 	"github.com/soockee/terminal-games/ldtk-snake/factory"
 	"github.com/soockee/terminal-games/ldtk-snake/layers"
-	dresolv "github.com/soockee/terminal-games/ldtk-snake/resolv"
 	"github.com/soockee/terminal-games/ldtk-snake/system"
-	"github.com/soockee/terminal-games/ldtk-snake/tags"
-	"github.com/yohamta/donburi"
+	"github.com/yohamta/donburi/ecs"
 	decs "github.com/yohamta/donburi/ecs"
 )
 
 type SnakeScene struct {
-	ecs           *decs.ECS
-	onceConfigure sync.Once
+	ecs         *decs.ECS
+	ldtkProject *assets.LDtkProject
+	once        *sync.Once
 }
 
-func NewSnakeScene(ecs *decs.ECS) *SnakeScene {
+func NewSnakeScene(ecs *decs.ECS, project *assets.LDtkProject) *SnakeScene {
 	return &SnakeScene{
-		ecs: ecs,
-	}
-}
-func (s *SnakeScene) GetId() component.Scene {
-	return component.SnakeScene
-}
-
-func (s *SnakeScene) Update() error {
-	s.onceConfigure.Do(s.configure)
-	s.ecs.Update()
-	return nil
-}
-
-func (s *SnakeScene) Draw(screen *ebiten.Image) {
-	s.drawLevel(screen)
-	s.ecs.Draw(screen)
-}
-
-func (s *SnakeScene) Layout(w, h int) (int, int) {
-	return config.C.LDtkProject.Levels[config.C.CurrentLevel].Width, config.C.LDtkProject.Levels[config.C.CurrentLevel].Height
-}
-
-func (s *SnakeScene) drawLevel(screen *ebiten.Image) {
-
-	level := config.C.LDtkProject.Levels[config.C.CurrentLevel]
-
-	if config.C.BGImage != nil {
-		opt := &ebiten.DrawImageOptions{}
-		bgImage := level.BGImage
-		opt.GeoM.Translate(-bgImage.CropRect[0], -bgImage.CropRect[1])
-		opt.GeoM.Scale(bgImage.ScaleX, bgImage.ScaleY)
-		screen.DrawImage(config.C.BGImage, opt)
+		ecs:         ecs,
+		ldtkProject: project,
+		once: &sync.Once{},
 	}
 
-	for _, layer := range config.C.EbitenRenderer.RenderedLayers {
-		if config.C.ActiveLayers[layer.Layer.Identifier] {
-			screen.DrawImage(layer.Image, &ebiten.DrawImageOptions{})
-		}
-	}
 }
 
 func (s *SnakeScene) configure() {
-	config.C.CurrentLevel = config.LevelMapping[config.SnakeLevel1]
-	config.RenderLevel()
+	// config.C.CurrentLevel = config.LevelMapping[config.SnakeLevel1]
+	// config.RenderLevel()
 
 	s.ecs.AddSystem(system.UpdateSnake)
 	s.ecs.AddSystem(system.ProcessEvents)
@@ -80,25 +44,55 @@ func (s *SnakeScene) configure() {
 
 	factory.CreateSettings(s.ecs)
 
-	space := factory.CreateSpace(s.ecs)
+	cellWidth := s.ldtkProject.Project.Levels[s.getLevelId()].Width / s.ldtkProject.Project.Levels[s.getLevelId()].Layers[s.getLevelId()].CellWidth
+	CellHeight := s.ldtkProject.Project.Levels[s.getLevelId()].Height / s.ldtkProject.Project.Levels[s.getLevelId()].Layers[s.getLevelId()].CellHeight
+	space := factory.CreateSpace(
+		s.ecs,
+		s.ldtkProject.Project.Levels[s.getLevelId()].Width,
+		s.ldtkProject.Project.Levels[s.getLevelId()].Height,
+		cellWidth,
+		CellHeight,
+	)
 
-	entities := config.C.GetEntities()
+	CreateEntities(s, space)
 
-	Tags := map[string]func(*decs.ECS, string) *donburi.Entry{
-		tags.Snake.Name(): factory.CreateSnake,
-		tags.Wall.Name():  factory.CreateWall,
-	}
-	for _, entity := range entities {
-		for name, f := range Tags {
-			for _, ldtkTag := range entity.Tags {
-				if name == ldtkTag {
-					dresolv.Add(space, f(s.ecs, entity.IID))
-				}
-			}
-		}
-	}
+	// entities := s.ldtkProject.GetEntities(s.getLevelId())
+	// Tags := map[string]func(*decs.ECS, *ebiten.Image, *ldtkgo.Entity) *donburi.Entry{
+	// 	tags.Snake.Name(): factory.CreateSnake,
+	// 	tags.Wall.Name():  factory.CreateWall,
+	// }
+	// for _, entity := range entities {
+	// 	for name, f := range Tags {
+	// 		for _, ldtkTag := range entity.Tags {
+	// 			if name == ldtkTag {
+	// 				sprite, err := s.ldtkProject.GetSprite(entity)
+	// 				if err != nil {
+	// 					slog.Error("could not find sprite for entity")
+	// 				}
+	// 				dresolv.Add(space, f(s.ecs, sprite, entity))
+	// 			}
+	// 		}
+	// 	}
+	// }
 
 	// Subscribe events.
 	pkgevents.UpdateSettingEvent.Subscribe(s.ecs.World, system.HandleSettingsEvent)
 	pkgevents.MoveEvent.Subscribe(s.ecs.World, system.HandleMoveEvent)
+}
+
+func (s *SnakeScene) GetId() component.SceneId {
+	return component.SnakeScene
+}
+
+func (s *SnakeScene) getLevelId() int {
+	return int(s.GetId())
+}
+func (s *SnakeScene) getLdtkProject() *assets.LDtkProject {
+	return s.ldtkProject
+}
+func (s *SnakeScene) getEcs() *ecs.ECS {
+	return s.ecs
+}
+func (s *SnakeScene) Once() *sync.Once {
+	return s.once
 }

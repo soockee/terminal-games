@@ -4,15 +4,7 @@ import (
 	"github.com/yohamta/donburi"
 )
 
-type Scene int
-
-const (
-	StartScreen = iota
-	SnakeScene
-)
-
-type GamestateData struct {
-	CurrentScene Scene
+type GameStateData struct {
 }
 
-var Gamestate = donburi.NewComponentType[GamestateData]()
+var Gamestate = donburi.NewComponentType[GameStateData]()

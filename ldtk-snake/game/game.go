@@ -1,11 +1,9 @@
 package game
 
 import (
-	"log/slog"
-
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/soockee/terminal-games/ldtk-snake/assets"
 	"github.com/soockee/terminal-games/ldtk-snake/component"
-	"github.com/soockee/terminal-games/ldtk-snake/config"
 	"github.com/soockee/terminal-games/ldtk-snake/event"
 	pkgevents "github.com/soockee/terminal-games/ldtk-snake/event"
 	"github.com/soockee/terminal-games/ldtk-snake/factory"
@@ -15,69 +13,62 @@ import (
 	desc "github.com/yohamta/donburi/ecs"
 )
 
-type Scene interface {
-	ebiten.Game
-	GetId() component.Scene
-}
 type Game struct {
-	ecs   *desc.ECS
-	scene Scene
+	ecs         *desc.ECS
+	scene       scene.Scene
+	ldtkProject *assets.LDtkProject
 }
 
-func NewGame() *Game {
+func NewGame(project *assets.LDtkProject) *Game {
 	g := &Game{
-		ecs: desc.NewECS(donburi.NewWorld()),
+		ecs:         desc.NewECS(donburi.NewWorld()),
+		ldtkProject: project,
 	}
-	g.scene = scene.NewStartScene(g.ecs)
-	g.start()
-
+	g.start(component.StartScene)
 	return g
 }
 
 func (g *Game) Update() error {
-	g.scene.Update()
-	if gamestate, ok := component.Gamestate.First(g.ecs.World); ok {
-		gamestateData := component.Gamestate.Get(gamestate)
-		if gamestateData.CurrentScene == g.scene.GetId() {
-			return nil
-		}
-		if gamestateData.CurrentScene == component.SnakeScene {
-			g.reset()
-			g.scene = scene.NewSnakeScene(g.ecs)
-		} else if gamestateData.CurrentScene == component.StartScreen {
-			g.reset()
-			g.scene = scene.NewStartScene(g.ecs)
-		} else {
-			slog.Error("invalid game state")
+	if scenestate, ok := component.SceneState.First(g.ecs.World); ok {
+		gamestateData := component.SceneState.Get(scenestate)
+		if g.scene.GetId() != gamestateData.CurrentScene {
+			g.start(gamestateData.CurrentScene)
 		}
 	}
+	scene.Update(g.scene)
 	return nil
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
-	g.scene.Draw(screen)
+	scene.Draw(g.scene, screen)
 }
 
 func (g *Game) Layout(width, height int) (int, int) {
-	return config.C.LDtkProject.Levels[config.C.CurrentLevel].Width, config.C.LDtkProject.Levels[config.C.CurrentLevel].Height
+	return scene.Layout(g.scene)
 }
 
-func (g *Game) start() {
+func (g *Game) start(sceneId component.SceneId) {
 	g.ecs.AddSystem(system.UpdateControl)
 	factory.CreateControl(g.ecs)
-	factory.CreateGamestate(g.ecs, nil)
+	factory.CreateSceneState(g.ecs, sceneId)
 
-	pkgevents.GamestateEvent.Subscribe(g.ecs.World, handleGamestateEvent)
+	pkgevents.SceneStateEvent.Subscribe(g.ecs.World, handleSceneStateEvent)
+
+	g.scene = scene.CreateScene(sceneId, g.ecs, g.ldtkProject)
 }
 
 func (g *Game) reset() {
 	g.ecs = desc.NewECS(g.ecs.World)
-	g.start()
+	g.start(g.scene.GetId())
 }
 
-func handleGamestateEvent(w donburi.World, e *event.Gamestate) {
-	if gamestate, ok := component.Gamestate.First(w); ok {
-		gamestateData := component.Gamestate.Get(gamestate)
+func handleSceneStateEvent(w donburi.World, e *event.SceneStateData) {
+	if scenestate, ok := component.SceneState.First(w); ok {
+		gamestateData := component.SceneState.Get(scenestate)
 		gamestateData.CurrentScene = e.CurrentScene
 	}
+}
+
+func loadAssets() {
+	//assets.LoadFont()
 }

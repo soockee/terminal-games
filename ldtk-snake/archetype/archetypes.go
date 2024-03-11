@@ -40,8 +40,11 @@ var (
 	Controls = newArchetype(
 		component.Control,
 	)
-	Gamestate = newArchetype(
+	GameState = newArchetype(
 		component.Gamestate,
+	)
+	SceneState = newArchetype(
+		component.SceneState,
 	)
 )
 
