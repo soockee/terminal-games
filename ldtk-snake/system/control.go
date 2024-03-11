@@ -13,36 +13,43 @@ func UpdateControl(ecs *ecs.ECS) {
 	component.InputSytem.Update()
 
 	if control.InputHandler.ActionIsJustPressed(component.ActionMoveUp) {
+		slog.Info("Publish Click")
 		event.MoveEvent.Publish(ecs.World, &event.Move{
 			Direction: component.ActionMoveUp,
 		})
 	}
 	if control.InputHandler.ActionIsJustPressed(component.ActionMoveDown) {
+		slog.Info("Publish Click")
 		event.MoveEvent.Publish(ecs.World, &event.Move{
 			Direction: component.ActionMoveDown,
 		})
 	}
 	if control.InputHandler.ActionIsJustPressed(component.ActionMoveLeft) {
+		slog.Info("Publish Click")
 		event.MoveEvent.Publish(ecs.World, &event.Move{
 			Direction: component.ActionMoveLeft,
 		})
 	}
 	if control.InputHandler.ActionIsJustPressed(component.ActionMoveRight) {
+		slog.Info("Publish Click")
 		event.MoveEvent.Publish(ecs.World, &event.Move{
 			Direction: component.ActionMoveRight,
 		})
 	}
 	if control.InputHandler.ActionIsJustPressed(component.ActionClick) {
+		slog.Info("Publish Click")
 		event.MoveEvent.Publish(ecs.World, &event.Move{
 			Direction: component.ActionClick,
 		})
 	}
 	if control.InputHandler.ActionIsJustPressed(component.ActionDebug) {
+		slog.Info("Publish Click")
 		event.UpdateSettingEvent.Publish(ecs.World, &event.UpdateSetting{
 			Action: component.ActionDebug,
 		})
 	}
 	if control.InputHandler.ActionIsJustPressed(component.ActionHelp) {
+		slog.Info("Publish Click")
 		event.UpdateSettingEvent.Publish(ecs.World, &event.UpdateSetting{
 			Action: component.ActionHelp,
 		})

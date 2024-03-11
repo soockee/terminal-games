@@ -10,7 +10,6 @@ import (
 	"github.com/soockee/terminal-games/ldtk-snake/event"
 	dresolv "github.com/soockee/terminal-games/ldtk-snake/resolv"
 	"github.com/soockee/terminal-games/ldtk-snake/tags"
-	"github.com/soockee/terminal-games/ldtk-snake/util"
 
 	"github.com/yohamta/donburi"
 	"github.com/yohamta/donburi/ecs"
@@ -31,7 +30,7 @@ func HandleButtonClick(w donburi.World, e *event.Interaction) {
 			buttonObject := dresolv.GetObject(entity)
 			if isVecInObject(e.Position, buttonObject) {
 				button := component.Button.Get(entity)
-				button.HandlerFunc()
+				button.HandlerFunc(w)
 			}
 		})
 	}
@@ -44,11 +43,10 @@ func DrawButton(ecs *ecs.ECS, screen *ebiten.Image) {
 	})
 }
 
-func Start() {
-	slog.Info("Supposed to start the snake game")
-}
-func OpenGithub() {
-	util.OpenUrl("https://github.com/soockee")
+func Start(w donburi.World) {
+	event.GamestateEvent.Publish(w, &event.Gamestate{
+		CurrentScene: component.SnakeScene,
+	})
 }
 
 func isVecInObject(vec input.Vec, obj *resolv.Object) bool {

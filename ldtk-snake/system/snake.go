@@ -21,6 +21,7 @@ func UpdateSnake(ecs *ecs.ECS) {
 	if checkWallCollision(snakeObject, snakeData) {
 		slog.Info("Hit the Wall")
 	}
+
 }
 
 func DrawSnake(ecs *ecs.ECS, screen *ebiten.Image) {

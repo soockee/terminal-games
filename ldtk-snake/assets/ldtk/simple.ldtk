@@ -395,8 +395,8 @@
 			"worldX": 0,
 			"worldY": 0,
 			"worldDepth": 0,
-			"pxWid": 1280,
-			"pxHei": 720,
+			"pxWid": 256,
+			"pxHei": 256,
 			"__bgColor": "#696A79",
 			"bgColor": null,
 			"useAutoIdentifier": true,
@@ -412,8 +412,8 @@
 				{
 					"__identifier": "Entities",
 					"__type": "Entities",
-					"__cWid": 160,
-					"__cHei": 90,
+					"__cWid": 32,
+					"__cHei": 32,
 					"__gridSize": 8,
 					"__opacity": 1,
 					"__pxTotalOffsetX": 0,
@@ -550,8 +550,8 @@
 				{
 					"__identifier": "Background",
 					"__type": "Tiles",
-					"__cWid": 160,
-					"__cHei": 90,
+					"__cWid": 32,
+					"__cHei": 32,
 					"__gridSize": 8,
 					"__opacity": 1,
 					"__pxTotalOffsetX": 0,
@@ -579,7 +579,7 @@
 			"identifier": "Level_1",
 			"iid": "40f5ef40-d7b0-11ee-be11-17dfa2127cd6",
 			"uid": 15,
-			"worldX": 1280,
+			"worldX": 256,
 			"worldY": 0,
 			"worldDepth": 0,
 			"pxWid": 1280,
@@ -633,7 +633,7 @@
 							"defUid": 23,
 							"px": [800,648],
 							"fieldInstances": [],
-							"__worldX": 2080,
+							"__worldX": 1056,
 							"__worldY": 648
 						},
 						{
@@ -649,7 +649,7 @@
 							"defUid": 24,
 							"px": [512,528],
 							"fieldInstances": [],
-							"__worldX": 1792,
+							"__worldX": 768,
 							"__worldY": 528
 						}
 					]

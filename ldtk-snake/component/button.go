@@ -6,7 +6,7 @@ import (
 
 type ButtonData struct {
 	Clicked     bool
-	HandlerFunc func()
+	HandlerFunc func(donburi.World)
 }
 
 var Button = donburi.NewComponentType[ButtonData]()

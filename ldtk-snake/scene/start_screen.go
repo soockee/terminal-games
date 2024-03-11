@@ -4,6 +4,7 @@ import (
 	"sync"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/soockee/terminal-games/ldtk-snake/component"
 	"github.com/soockee/terminal-games/ldtk-snake/config"
 	pkgevents "github.com/soockee/terminal-games/ldtk-snake/event"
 	"github.com/soockee/terminal-games/ldtk-snake/factory"
@@ -19,6 +20,16 @@ import (
 type StartScene struct {
 	ecs  *decs.ECS
 	once sync.Once
+}
+
+func NewStartScene(ecs *decs.ECS) *StartScene {
+	return &StartScene{
+		ecs: ecs,
+	}
+}
+
+func (s *StartScene) GetId() component.Scene {
+	return component.StartScreen
 }
 
 func (s *StartScene) Update() error {
@@ -56,28 +67,21 @@ func (s *StartScene) Layout(w, h int) (int, int) {
 }
 
 func (s *StartScene) configure() {
-	ecs := ecs.NewECS(donburi.NewWorld())
+	s.ecs.AddSystem(system.UpdateObjects)
+	s.ecs.AddSystem(system.ProcessEvents)
+	s.ecs.AddSystem(system.UpdateButton)
 
-	ecs.AddSystem(system.UpdateObjects)
-	ecs.AddSystem(system.UpdateControl)
-	ecs.AddSystem(system.ProcessEvents)
-	ecs.AddSystem(system.UpdateButton)
+	s.ecs.AddRenderer(layers.Default, system.DrawDebug)
+	s.ecs.AddRenderer(layers.Default, system.DrawButton)
 
-	ecs.AddRenderer(layers.Default, system.DrawDebug)
-	ecs.AddRenderer(layers.Default, system.DrawButton)
-
-	s.ecs = ecs
-
-	factory.CreateControl(ecs)
-
-	factory.CreateSettings(ecs)
+	factory.CreateSettings(s.ecs)
 	space := factory.CreateSpace(s.ecs)
 
-	createEntities(ecs, space)
+	createEntities(s.ecs, space)
 
 	// Subscribe events.
-	pkgevents.UpdateSettingEvent.Subscribe(ecs.World, system.HandleSettingsEvent)
-	pkgevents.InteractionEvent.Subscribe(ecs.World, system.HandleButtonClick)
+	pkgevents.UpdateSettingEvent.Subscribe(s.ecs.World, system.HandleSettingsEvent)
+	pkgevents.InteractionEvent.Subscribe(s.ecs.World, system.HandleButtonClick)
 }
 
 func createEntities(ecs *ecs.ECS, space *donburi.Entry) {

@@ -6,13 +6,14 @@ import (
 	"github.com/soockee/terminal-games/ldtk-snake/component"
 	"github.com/soockee/terminal-games/ldtk-snake/config"
 	"github.com/soockee/terminal-games/ldtk-snake/system"
+	"github.com/soockee/terminal-games/ldtk-snake/util"
 	"github.com/yohamta/donburi"
 	"github.com/yohamta/donburi/ecs"
 )
 
-var buttonhandlerMapping = map[string]func(){
-	"StartButton": system.Start,
-	"GithubButton": system.OpenGithub,
+var buttonhandlerMapping = map[string]func(w donburi.World){
+	"StartButton":  system.Start,
+	"GithubButton": func(w donburi.World) { util.OpenUrl("https://github.com/soockee") },
 }
 
 func CreateButton(ecs *ecs.ECS, idd string) *donburi.Entry {

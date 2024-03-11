@@ -1,24 +1,33 @@
 package scene
 
 import (
-	"log/slog"
 	"sync"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/soockee/terminal-games/ldtk-snake/component"
 	"github.com/soockee/terminal-games/ldtk-snake/config"
+	pkgevents "github.com/soockee/terminal-games/ldtk-snake/event"
 	"github.com/soockee/terminal-games/ldtk-snake/factory"
 	"github.com/soockee/terminal-games/ldtk-snake/layers"
 	dresolv "github.com/soockee/terminal-games/ldtk-snake/resolv"
 	"github.com/soockee/terminal-games/ldtk-snake/system"
 	"github.com/soockee/terminal-games/ldtk-snake/tags"
 	"github.com/yohamta/donburi"
-	"github.com/yohamta/donburi/ecs"
 	decs "github.com/yohamta/donburi/ecs"
 )
 
 type SnakeScene struct {
 	ecs           *decs.ECS
 	onceConfigure sync.Once
+}
+
+func NewSnakeScene(ecs *decs.ECS) *SnakeScene {
+	return &SnakeScene{
+		ecs: ecs,
+	}
+}
+func (s *SnakeScene) GetId() component.Scene {
+	return component.SnakeScene
 }
 
 func (s *SnakeScene) Update() error {
@@ -56,28 +65,22 @@ func (s *SnakeScene) drawLevel(screen *ebiten.Image) {
 }
 
 func (s *SnakeScene) configure() {
-	ecs := ecs.NewECS(donburi.NewWorld())
+	config.C.CurrentLevel = config.LevelMapping[config.SnakeLevel1]
+	config.RenderLevel()
 
-	ecs.AddSystem(system.UpdateSnake)
-	ecs.AddSystem(system.UpdateFood)
-	ecs.AddSystem(system.UpdateObjects)
+	s.ecs.AddSystem(system.UpdateSnake)
+	s.ecs.AddSystem(system.ProcessEvents)
+	s.ecs.AddSystem(system.UpdateFood)
+	s.ecs.AddSystem(system.UpdateObjects)
 
-	ecs.AddRenderer(layers.Default, system.DrawSnake)
-	ecs.AddRenderer(layers.Default, system.DrawFood)
-	ecs.AddRenderer(layers.Default, system.DrawWall)
-	ecs.AddRenderer(layers.Default, system.DrawDebug)
+	s.ecs.AddRenderer(layers.Default, system.DrawSnake)
+	s.ecs.AddRenderer(layers.Default, system.DrawFood)
+	s.ecs.AddRenderer(layers.Default, system.DrawWall)
+	s.ecs.AddRenderer(layers.Default, system.DrawDebug)
 
-	s.ecs = ecs
-
-	settings := factory.CreateSettings(ecs)
-	if settings == nil {
-		slog.Warn("failed to create settings")
-	}
+	factory.CreateSettings(s.ecs)
 
 	space := factory.CreateSpace(s.ecs)
-	if space == nil {
-		slog.Warn("failed to create space")
-	}
 
 	entities := config.C.GetEntities()
 
@@ -89,9 +92,13 @@ func (s *SnakeScene) configure() {
 		for name, f := range Tags {
 			for _, ldtkTag := range entity.Tags {
 				if name == ldtkTag {
-					dresolv.Add(space, f(ecs, entity.IID))
+					dresolv.Add(space, f(s.ecs, entity.IID))
 				}
 			}
 		}
 	}
+
+	// Subscribe events.
+	pkgevents.UpdateSettingEvent.Subscribe(s.ecs.World, system.HandleSettingsEvent)
+	pkgevents.MoveEvent.Subscribe(s.ecs.World, system.HandleMoveEvent)
 }

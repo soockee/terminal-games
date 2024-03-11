@@ -33,7 +33,7 @@ const (
 	SnakeLevel1
 )
 
-var levelMapping = map[LevelName]int{
+var LevelMapping = map[LevelName]int{
 	SnakeLevel1: 0,
 	StartScreen: 1,
 }
@@ -61,7 +61,7 @@ func init() {
 
 	C = &Config{
 		LDtkProject:    ldtkProject,
-		CurrentLevel:   levelMapping[StartScreen],
+		CurrentLevel:   LevelMapping[StartScreen],
 		EbitenRenderer: util.NewEbitenRenderer(util.NewDiskLoader(assetBasePath)),
 		ActiveLayers:   activeLayerMapping,
 		AssetBasePath:  assetBasePath,

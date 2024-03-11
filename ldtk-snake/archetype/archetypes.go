@@ -36,10 +36,12 @@ var (
 		component.Object,
 		component.Sprite,
 		component.Button,
-		component.Control,
 	)
 	Controls = newArchetype(
 		component.Control,
+	)
+	Gamestate = newArchetype(
+		component.Gamestate,
 	)
 )
 

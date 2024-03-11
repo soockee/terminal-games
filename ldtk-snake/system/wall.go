@@ -2,18 +2,12 @@ package system
 
 import (
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/soockee/ldtkgo"
 	"github.com/soockee/terminal-games/ldtk-snake/component"
 	dresolv "github.com/soockee/terminal-games/ldtk-snake/resolv"
 	"github.com/soockee/terminal-games/ldtk-snake/tags"
 	"github.com/yohamta/donburi"
 	"github.com/yohamta/donburi/ecs"
 )
-
-type Wall struct {
-	entity *ldtkgo.Entity
-	tile   *ebiten.Image
-}
 
 func DrawWall(ecs *ecs.ECS, screen *ebiten.Image) {
 	tags.Wall.Each(ecs.World, func(e *donburi.Entry) {
