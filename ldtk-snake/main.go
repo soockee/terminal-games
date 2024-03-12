@@ -2,6 +2,8 @@ package main
 
 import (
 	"log"
+	"log/slog"
+	"os"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/soockee/terminal-games/ldtk-snake/assets"
@@ -14,6 +16,11 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
+	h := slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{
+		Level: slog.LevelDebug,
+	})
+	slog.SetDefault(slog.New(h))
 
 	ebiten.SetWindowSize(ldtkProject.Project.Levels[int(component.StartScene)].Width, ldtkProject.Project.Levels[int(component.StartScene)].Height)
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)

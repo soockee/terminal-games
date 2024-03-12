@@ -82,7 +82,3 @@ func handleSceneStateEvent(w donburi.World, e *pkgevents.SceneStateData) {
 		gamestateData.CurrentScene = e.CurrentScene
 	}
 }
-
-func loadAssets() {
-	//assets.LoadFont()
-}
