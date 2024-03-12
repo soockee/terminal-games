@@ -18,15 +18,38 @@ func UpdateSnake(ecs *ecs.ECS) {
 	snakeData := component.Snake.Get(snakeEntry)
 	snakeObject := dresolv.GetObject(snakeEntry)
 
-	if checkWallCollision(snakeObject, snakeData) {
+	velocity := component.Velocity.Get(snakeEntry)
+	snakeObject.Position = snakeObject.Position.Add(velocity.Velocity)
+
+	if checkWallCollision(snakeObject) {
+		velocity.Velocity = resolv.NewVector(0, 0)
 		slog.Info("Hit the Wall")
+	}
+
+	if checkFoodCollision(snakeObject) {
+		snakeData.Speed += 1
+		slog.Info("Hit Food")
 	}
 
 }
 
 func DrawSnake(ecs *ecs.ECS, screen *ebiten.Image) {
 	tags.Snake.Each(ecs.World, func(e *donburi.Entry) {
-		component.DrawSprite(screen, e)
+		velocity := component.Velocity.Get(e)
+
+		angle := 0.0
+		if velocity.Velocity.X == 1 {
+			angle = 90.0
+		}
+		if velocity.Velocity.Y == 1 {
+			angle = 180
+		}
+		if velocity.Velocity.X == -1 {
+			angle = 270.0
+		}
+
+		// todo calc direction
+		component.DrawRotatedSprite(screen, e, angle)
 	})
 }
 
@@ -34,43 +57,33 @@ func DrawSnake(ecs *ecs.ECS, screen *ebiten.Image) {
 func HandleMoveEvent(w donburi.World, e *event.Move) {
 	entity, _ := component.Snake.First(w)
 	snakeData := component.Snake.Get(entity)
-	snakeObject := dresolv.GetObject(entity)
 
+	velocity := component.Velocity.Get(entity)
 	switch e.Direction {
 	case component.ActionMoveUp:
-		snakeData.Direction = component.ActionMoveUp
-		snakeObject.Position.Y -= snakeData.Speed
+		velocity.Velocity = resolv.NewVector(0, -1)
 	case component.ActionMoveDown:
-		snakeData.Direction = component.ActionMoveDown
-		snakeObject.Position.Y += snakeData.Speed
+		velocity.Velocity = resolv.NewVector(0, 1)
 	case component.ActionMoveLeft:
-		snakeData.Direction = component.ActionMoveLeft
-		snakeObject.Position.X -= snakeData.Speed
+		velocity.Velocity = resolv.NewVector(-1, 0)
 	case component.ActionMoveRight:
-		snakeData.Direction = component.ActionMoveRight
-		snakeObject.Position.X += snakeData.Speed
+		velocity.Velocity = resolv.NewVector(1, 0)
 	}
+	velocity.Velocity.X *= snakeData.Speed
+	velocity.Velocity.Y *= snakeData.Speed
 
 }
 
-func checkWallCollision(snakeObject *resolv.Object, snakeData *component.SnakeData) bool {
-	switch snakeData.Direction {
-	case component.ActionMoveUp:
-		if check := snakeObject.Check(0, -snakeData.Speed, tags.Wall.Name()); check != nil {
-			return true
-		}
-	case component.ActionMoveDown:
-		if check := snakeObject.Check(0, snakeData.Speed, tags.Wall.Name()); check != nil {
-			return true
-		}
-	case component.ActionMoveLeft:
-		if check := snakeObject.Check(-snakeData.Speed, 0, tags.Wall.Name()); check != nil {
-			return true
-		}
-	case component.ActionMoveRight:
-		if check := snakeObject.Check(snakeData.Speed, 0, tags.Wall.Name()); check != nil {
-			return true
-		}
+func checkWallCollision(snakeObject *resolv.Object) bool {
+	if check := snakeObject.Check(0, 0, tags.Wall.Name()); check != nil {
+		return true
+	}
+	return false
+}
+
+func checkFoodCollision(snakeObject *resolv.Object) bool {
+	if check := snakeObject.Check(0, 0, tags.Food.Name()); check != nil {
+		return true
 	}
 	return false
 }

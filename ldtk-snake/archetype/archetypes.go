@@ -14,6 +14,7 @@ var (
 		component.Snake,
 		component.Object,
 		component.Sprite,
+		component.Velocity,
 	)
 	Space = newArchetype(
 		component.Space,

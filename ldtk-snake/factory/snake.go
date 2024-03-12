@@ -21,7 +21,7 @@ func CreateSnake(ecs *ecs.ECS, sprite *ebiten.Image, entity *ldtkgo.Entity) *don
 	obj := resolv.NewObject(X, Y, width, height, entity.Tags...)
 	component.Object.Set(snake, obj)
 	component.Snake.SetValue(snake, component.SnakeData{
-		Speed: 1,
+		Speed: 5,
 	})
 
 	component.Sprite.SetValue(snake, component.SpriteData{Image: sprite})

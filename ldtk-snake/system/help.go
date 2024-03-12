@@ -8,11 +8,12 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/text"
 	"github.com/hajimehoshi/ebiten/v2/vector"
 	"github.com/soockee/terminal-games/ldtk-snake/assets"
+	"github.com/soockee/terminal-games/ldtk-snake/component"
 	"github.com/yohamta/donburi/ecs"
 	"golang.org/x/image/font"
 )
 
-// somehow bad
+const lineHeight = 10 // Adjust this as needed
 
 func DrawHelp(ecs *ecs.ECS, screen *ebiten.Image) {
 	settings, ok := GetSettings(ecs)
@@ -20,7 +21,18 @@ func DrawHelp(ecs *ecs.ECS, screen *ebiten.Image) {
 		return
 	}
 	if settings.ShowHelpText {
-		drawText(screen, 16, 16,
+		spaceEntry, ok := component.Space.First(ecs.World)
+		if !ok {
+			return
+		}
+		space := component.Space.Get(spaceEntry)
+		cell := space.Cell(4, 4)
+		cw := space.CellWidth
+		ch := space.CellHeight
+		cx := cell.X * cw
+		cy := cell.Y * ch
+
+		drawText(screen, cx, cy,
 			"~ Snake ~",
 			"Move Snake: W,A,S,D or Arrow Keys",
 			"",
@@ -33,7 +45,6 @@ func DrawHelp(ecs *ecs.ECS, screen *ebiten.Image) {
 }
 
 func drawText(screen *ebiten.Image, x, y int, textLines ...string) {
-	const lineHeight = 10 // Adjust this as needed
 	f := assets.NormalFont
 	for _, txt := range textLines {
 		// Measure text width

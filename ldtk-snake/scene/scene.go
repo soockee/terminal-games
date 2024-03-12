@@ -9,7 +9,7 @@ import (
 	"github.com/soockee/terminal-games/ldtk-snake/assets"
 	"github.com/soockee/terminal-games/ldtk-snake/component"
 	"github.com/soockee/terminal-games/ldtk-snake/factory"
-	dresolv "github.com/soockee/terminal-games/ldtk-snake/resolv"
+	resolv "github.com/soockee/terminal-games/ldtk-snake/resolv"
 	"github.com/soockee/terminal-games/ldtk-snake/tags"
 	"github.com/yohamta/donburi"
 	"github.com/yohamta/donburi/ecs"
@@ -70,7 +70,7 @@ func CreateEntities[T Scene](s T, space *donburi.Entry) {
 					if err != nil {
 						slog.Error("could not find sprite for entity")
 					}
-					dresolv.Add(space, f(s.getEcs(), sprite, entity))
+					resolv.Add(space, f(s.getEcs(), sprite, entity))
 				}
 			}
 		}
