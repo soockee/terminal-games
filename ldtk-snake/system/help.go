@@ -5,12 +5,14 @@ import (
 	"image/color"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/text"
+	"github.com/hajimehoshi/ebiten/v2/vector"
 	"github.com/soockee/terminal-games/ldtk-snake/assets"
 	"github.com/yohamta/donburi/ecs"
 	"golang.org/x/image/font"
 )
+
+// somehow bad
 
 func DrawHelp(ecs *ecs.ECS, screen *ebiten.Image) {
 	settings, ok := GetSettings(ecs)
@@ -19,30 +21,37 @@ func DrawHelp(ecs *ecs.ECS, screen *ebiten.Image) {
 	}
 	if settings.ShowHelpText {
 		drawText(screen, 16, 16,
-			"~ Platformer Demo ~",
-			"Move Player: Left, Right Arrow",
-			"Jump: X Key",
-			"Wallslide: Move into wall in air",
-			"Walljump: Jump while wallsliding",
-			"Fall through platforms: Down + X",
+			"~ Snake ~",
+			"Move Snake: W,A,S,D or Arrow Keys",
 			"",
 			"F1: Toggle Debug View",
 			"F2: Show / Hide help text",
-			fmt.Sprintf("%d FPS (frames per second)", int(ebiten.CurrentFPS())),
-			fmt.Sprintf("%d TPS (ticks per second)", int(ebiten.CurrentTPS())),
+			fmt.Sprintf("%d FPS (frames per second)", int(ebiten.ActualFPS())),
+			fmt.Sprintf("%d TPS (ticks per second)", int(ebiten.ActualTPS())),
 		)
 	}
 }
 
 func drawText(screen *ebiten.Image, x, y int, textLines ...string) {
+	const lineHeight = 10 // Adjust this as needed
 	f := assets.NormalFont
-	rectHeight := 10
 	for _, txt := range textLines {
-		w := float64(font.MeasureString(f, txt).Round())
-		ebitenutil.DrawRect(screen, float64(x), float64(y-8), w, float64(rectHeight), color.RGBA{0, 0, 0, 192})
+		// Measure text width
+		textWidth := font.MeasureString(f, txt)
 
+		// Calculate rectangle dimensions
+		rectWidth := float32(textWidth.Round())
+
+		// Draw filled rectangle around the text
+		vector.DrawFilledRect(screen, float32(x), float32(y-lineHeight-5), rectWidth, lineHeight*2, color.RGBA{0, 0, 0, 180}, false)
+
+		// Draw the text
 		text.Draw(screen, txt, f, x+1, y+1, color.RGBA{0, 0, 150, 255})
 		text.Draw(screen, txt, f, x, y, color.RGBA{100, 150, 255, 255})
-		y += rectHeight
+
+		// Move to the next line
+		y += lineHeight
+
+		y += 10
 	}
 }

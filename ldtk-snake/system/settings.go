@@ -1,6 +1,8 @@
 package system
 
 import (
+	"log/slog"
+
 	"github.com/soockee/terminal-games/ldtk-snake/component"
 	"github.com/soockee/terminal-games/ldtk-snake/event"
 	"github.com/yohamta/donburi"
@@ -11,6 +13,9 @@ import (
 func HandleSettingsEvent(w donburi.World, e *event.UpdateSetting) {
 	entity, _ := component.Settings.First(w)
 	settings := component.Settings.Get(entity)
+	component.Settings.Each(w, func(e *donburi.Entry) {
+		slog.Info("settging", slog.Int("id", int(e.Id())))
+	})
 
 	switch e.Action {
 	case component.ActionDebug:

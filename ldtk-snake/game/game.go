@@ -4,9 +4,9 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/soockee/terminal-games/ldtk-snake/assets"
 	"github.com/soockee/terminal-games/ldtk-snake/component"
-	"github.com/soockee/terminal-games/ldtk-snake/event"
 	pkgevents "github.com/soockee/terminal-games/ldtk-snake/event"
 	"github.com/soockee/terminal-games/ldtk-snake/factory"
+	"github.com/soockee/terminal-games/ldtk-snake/layers"
 	"github.com/soockee/terminal-games/ldtk-snake/scene"
 	"github.com/soockee/terminal-games/ldtk-snake/system"
 	"github.com/yohamta/donburi"
@@ -20,6 +20,8 @@ type Game struct {
 }
 
 func NewGame(project *assets.LDtkProject) *Game {
+	assets.MustLoadAssets()
+
 	g := &Game{
 		ecs:         desc.NewECS(donburi.NewWorld()),
 		ldtkProject: project,
@@ -32,6 +34,7 @@ func (g *Game) Update() error {
 	if scenestate, ok := component.SceneState.First(g.ecs.World); ok {
 		gamestateData := component.SceneState.Get(scenestate)
 		if g.scene.GetId() != gamestateData.CurrentScene {
+			g.reset()
 			g.start(gamestateData.CurrentScene)
 		}
 	}
@@ -41,6 +44,7 @@ func (g *Game) Update() error {
 
 func (g *Game) Draw(screen *ebiten.Image) {
 	scene.Draw(g.scene, screen)
+
 }
 
 func (g *Game) Layout(width, height int) (int, int) {
@@ -48,9 +52,15 @@ func (g *Game) Layout(width, height int) (int, int) {
 }
 
 func (g *Game) start(sceneId component.SceneId) {
+
+	// global systems
 	g.ecs.AddSystem(system.UpdateControl)
 	factory.CreateControl(g.ecs)
 	factory.CreateSceneState(g.ecs, sceneId)
+	factory.CreateSettings(g.ecs)
+
+	g.ecs.AddRenderer(layers.Default, system.DrawDebug)
+	g.ecs.AddRenderer(layers.Default, system.DrawHelp)
 
 	pkgevents.SceneStateEvent.Subscribe(g.ecs.World, handleSceneStateEvent)
 
@@ -58,11 +68,15 @@ func (g *Game) start(sceneId component.SceneId) {
 }
 
 func (g *Game) reset() {
-	g.ecs = desc.NewECS(g.ecs.World)
-	g.start(g.scene.GetId())
+	settings, _ := component.Settings.First(g.ecs.World)
+	settingsData := component.Settings.Get(settings)
+	settingsData.Debug = false
+	settingsData.ShowHelpText = false
+
+	g.ecs = desc.NewECS(donburi.NewWorld())
 }
 
-func handleSceneStateEvent(w donburi.World, e *event.SceneStateData) {
+func handleSceneStateEvent(w donburi.World, e *pkgevents.SceneStateData) {
 	if scenestate, ok := component.SceneState.First(w); ok {
 		gamestateData := component.SceneState.Get(scenestate)
 		gamestateData.CurrentScene = e.CurrentScene

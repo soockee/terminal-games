@@ -50,6 +50,5 @@ func DrawDebug(ecs *ecs.ECS, screen *ebiten.Image) {
 
 			vector.StrokeLine(screen, cx, cy+ch, cx, cy, strokeWidth, drawColor, false)
 		}
-
 	}
 }

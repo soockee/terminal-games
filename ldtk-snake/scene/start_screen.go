@@ -33,9 +33,9 @@ func (s *StartScene) configure() {
 	s.ecs.AddSystem(system.UpdateButton)
 
 	s.ecs.AddRenderer(layers.Default, system.DrawDebug)
+	s.ecs.AddRenderer(layers.Default, system.DrawHelp)
 	s.ecs.AddRenderer(layers.Default, system.DrawButton)
 
-	factory.CreateSettings(s.ecs)
 	cellWidth := s.ldtkProject.Project.Levels[s.getLevelId()].Width / s.ldtkProject.Project.Levels[s.getLevelId()].Layers[s.getLevelId()].CellWidth
 	CellHeight := s.ldtkProject.Project.Levels[s.getLevelId()].Height / s.ldtkProject.Project.Levels[s.getLevelId()].Layers[s.getLevelId()].CellHeight
 	space := factory.CreateSpace(
@@ -69,24 +69,3 @@ func (s *StartScene) getEcs() *ecs.ECS {
 func (s *StartScene) Once() *sync.Once {
 	return s.once
 }
-
-// func (s *StartScene) createEntities(ecs *ecs.ECS, space *donburi.Entry) {
-// 	entities := s.ldtkProject.GetEntities(s.levelId)
-
-// 	Tags := map[string]func(*decs.ECS, *ebiten.Image, *ldtkgo.Entity) *donburi.Entry{
-// 		tags.Button.Name(): factory.CreateButton,
-// 	}
-// 	for _, entity := range entities {
-// 		for name, f := range Tags {
-// 			for _, ldtkTag := range entity.Tags {
-// 				if name == ldtkTag {
-// 					sprite, err := s.ldtkProject.GetSprite(entity)
-// 					if err != nil {
-// 						slog.Error("could not find sprite for entity")
-// 					}
-// 					dresolv.Add(space, f(s.ecs, sprite, entity))
-// 				}
-// 			}
-// 		}
-// 	}
-// }

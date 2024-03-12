@@ -17,10 +17,6 @@ var (
 	//go:embed fonts/kenney_pixel_square.ttf
 	squareFontData []byte
 
-	BGImage       *ebiten.Image
-	ActiveLayers  map[string]bool
-	AssetBasePath string
-
 	SmallFont  font.Face
 	NormalFont font.Face
 	SqaureFont font.Face
