@@ -12,6 +12,12 @@ func Add(space *donburi.Entry, objects ...*donburi.Entry) {
 	}
 }
 
+func Remove(space *donburi.Entry, objects ...*donburi.Entry) {
+	for _, obj := range objects {
+		component.Space.Get(space).Remove(GetObject(obj))
+	}
+}
+
 func SetObject(entry *donburi.Entry, obj *resolv.Object) {
 	component.Object.Set(entry, obj)
 }

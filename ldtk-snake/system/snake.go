@@ -9,13 +9,14 @@ import (
 	"github.com/soockee/terminal-games/ldtk-snake/event"
 	dresolv "github.com/soockee/terminal-games/ldtk-snake/resolv"
 	"github.com/soockee/terminal-games/ldtk-snake/tags"
+	"github.com/soockee/terminal-games/ldtk-snake/util"
 	"github.com/yohamta/donburi"
 	"github.com/yohamta/donburi/ecs"
 )
 
 func UpdateSnake(ecs *ecs.ECS) {
 	snakeEntry, _ := component.Snake.First(ecs.World)
-	snakeData := component.Snake.Get(snakeEntry)
+	// snakeData := component.Snake.Get(snakeEntry)
 	snakeObject := dresolv.GetObject(snakeEntry)
 
 	velocity := component.Velocity.Get(snakeEntry)
@@ -23,12 +24,15 @@ func UpdateSnake(ecs *ecs.ECS) {
 
 	if checkWallCollision(snakeObject) {
 		velocity.Velocity = resolv.NewVector(0, 0)
-		slog.Info("Hit the Wall")
+		event.CollideEvent.Publish(ecs.World, &event.Collide{
+			Type: event.CollideWall,
+		})
 	}
 
 	if checkFoodCollision(snakeObject) {
-		snakeData.Speed += 1
-		slog.Info("Hit Food")
+		event.CollectEvent.Publish(ecs.World, &event.Collect{
+			Type: component.FoodCollectable,
+		})
 	}
 
 }
@@ -36,42 +40,39 @@ func UpdateSnake(ecs *ecs.ECS) {
 func DrawSnake(ecs *ecs.ECS, screen *ebiten.Image) {
 	tags.Snake.Each(ecs.World, func(e *donburi.Entry) {
 		velocity := component.Velocity.Get(e)
-
-		angle := 0.0
-		if velocity.Velocity.X == 1 {
-			angle = 90.0
-		}
-		if velocity.Velocity.Y == 1 {
-			angle = 180
-		}
-		if velocity.Velocity.X == -1 {
-			angle = 270.0
-		}
-
 		// todo calc direction
+		slog.Info("", slog.Float64("degree", util.CalculateAngle(velocity.Velocity)))
+		angle := util.CalculateAngle(velocity.Velocity)
 		component.DrawRotatedSprite(screen, e, angle)
 	})
 }
 
 // move temporarily uses a speed of type int whiel figuring out the collision
-func HandleMoveEvent(w donburi.World, e *event.Move) {
+func OnMoveEvent(w donburi.World, e *event.Move) {
 	entity, _ := component.Snake.First(w)
-	snakeData := component.Snake.Get(entity)
+	// snakeData := component.Snake.Get(entity)
 
 	velocity := component.Velocity.Get(entity)
 	switch e.Direction {
 	case component.ActionMoveUp:
-		velocity.Velocity = resolv.NewVector(0, -1)
-	case component.ActionMoveDown:
-		velocity.Velocity = resolv.NewVector(0, 1)
-	case component.ActionMoveLeft:
-		velocity.Velocity = resolv.NewVector(-1, 0)
-	case component.ActionMoveRight:
-		velocity.Velocity = resolv.NewVector(1, 0)
-	}
-	velocity.Velocity.X *= snakeData.Speed
-	velocity.Velocity.Y *= snakeData.Speed
+		// velocity.Velocity = resolv.NewVector(0, -1)
+		velocity.Velocity = resolv.NewVector(0, -1).Add(velocity.Velocity)
 
+	case component.ActionMoveDown:
+		// velocity.Velocity = resolv.NewVector(0, 1)
+		velocity.Velocity = resolv.NewVector(0, 1).Add(velocity.Velocity)
+
+	case component.ActionMoveLeft:
+		// velocity.Velocity = resolv.NewVector(-1, 0)
+		velocity.Velocity = resolv.NewVector(-1, 0).Add(velocity.Velocity)
+
+	case component.ActionMoveRight:
+		// velocity.Velocity = resolv.NewVector(1, 0)
+		velocity.Velocity = resolv.NewVector(1, 0).Add(velocity.Velocity)
+
+	}
+	// velocity.Velocity.X *= snakeData.Speed
+	// velocity.Velocity.Y *= snakeData.Speed
 }
 
 func checkWallCollision(snakeObject *resolv.Object) bool {

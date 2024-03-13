@@ -21,6 +21,7 @@ func CreateFood(ecs *ecs.ECS, sprite *ebiten.Image, entity *ldtkgo.Entity) *donb
 	obj := resolv.NewObject(X, Y, width, height, entity.Tags...)
 	component.Object.Set(food, obj)
 	component.Sprite.SetValue(food, component.SpriteData{Image: sprite})
+	component.Collectable.SetValue(food, component.CollectableData{Type: component.FoodCollectable})
 
 	obj.SetShape(resolv.NewRectangle(X, Y, width, height))
 

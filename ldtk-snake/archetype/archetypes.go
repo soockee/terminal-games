@@ -28,6 +28,7 @@ var (
 		tags.Food,
 		component.Object,
 		component.Sprite,
+		component.Collectable,
 	)
 	Settings = newArchetype(
 		component.Settings,
@@ -40,9 +41,6 @@ var (
 	)
 	Controls = newArchetype(
 		component.Control,
-	)
-	GameState = newArchetype(
-		component.Gamestate,
 	)
 	SceneState = newArchetype(
 		component.SceneState,

@@ -8,7 +8,7 @@ import (
 )
 
 // move temporarily uses a speed of type int whiel figuring out the collision
-func HandleSettingsEvent(w donburi.World, e *event.UpdateSetting) {
+func OnSettingsEvent(w donburi.World, e *event.UpdateSetting) {
 	entity, _ := component.Settings.First(w)
 	settings := component.Settings.Get(entity)
 

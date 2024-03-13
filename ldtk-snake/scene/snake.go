@@ -37,7 +37,6 @@ func (s *SnakeScene) configure() {
 	s.ecs.AddRenderer(layers.Default, system.DrawSnake)
 	s.ecs.AddRenderer(layers.Default, system.DrawFood)
 	s.ecs.AddRenderer(layers.Default, system.DrawWall)
-	
 
 	cellWidth := s.ldtkProject.Project.Levels[s.getLevelId()].Width / s.ldtkProject.Project.Levels[s.getLevelId()].Layers[s.getLevelId()].CellWidth
 	CellHeight := s.ldtkProject.Project.Levels[s.getLevelId()].Height / s.ldtkProject.Project.Levels[s.getLevelId()].Layers[s.getLevelId()].CellHeight
@@ -52,8 +51,11 @@ func (s *SnakeScene) configure() {
 	CreateEntities(s, space)
 
 	// Subscribe events.
-	pkgevents.UpdateSettingEvent.Subscribe(s.ecs.World, system.HandleSettingsEvent)
-	pkgevents.MoveEvent.Subscribe(s.ecs.World, system.HandleMoveEvent)
+	pkgevents.UpdateSettingEvent.Subscribe(s.ecs.World, system.OnSettingsEvent)
+	pkgevents.MoveEvent.Subscribe(s.ecs.World, system.OnMoveEvent)
+	pkgevents.CollectEvent.Subscribe(s.ecs.World, system.OnPickupEvent)
+	pkgevents.CollideEvent.Subscribe(s.ecs.World, system.OnCollideEvent)
+
 }
 
 func (s *SnakeScene) GetId() component.SceneId {

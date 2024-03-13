@@ -50,7 +50,7 @@ func (s *StartScene) configure() {
 	CreateEntities(s, space)
 
 	// Subscribe events.
-	pkgevents.UpdateSettingEvent.Subscribe(s.ecs.World, system.HandleSettingsEvent)
+	pkgevents.UpdateSettingEvent.Subscribe(s.ecs.World, system.OnSettingsEvent)
 	pkgevents.InteractionEvent.Subscribe(s.ecs.World, system.HandleButtonClick)
 }
 
