@@ -36,8 +36,8 @@ func (s *StartScene) configure() {
 	s.ecs.AddRenderer(layers.Default, system.DrawHelp)
 	s.ecs.AddRenderer(layers.Default, system.DrawButton)
 
-	cellWidth := s.ldtkProject.Project.Levels[s.getLevelId()].Width / s.ldtkProject.Project.Levels[s.getLevelId()].Layers[s.getLevelId()].CellWidth
-	CellHeight := s.ldtkProject.Project.Levels[s.getLevelId()].Height / s.ldtkProject.Project.Levels[s.getLevelId()].Layers[s.getLevelId()].CellHeight
+	cellWidth := s.ldtkProject.Project.Levels[s.getLevelId()].Width / s.ldtkProject.Project.Levels[s.getLevelId()].Layers[layers.Default].CellWidth
+	CellHeight := s.ldtkProject.Project.Levels[s.getLevelId()].Height / s.ldtkProject.Project.Levels[s.getLevelId()].Layers[layers.Default].CellHeight
 	space := factory.CreateSpace(
 		s.ecs,
 		s.ldtkProject.Project.Levels[s.getLevelId()].Width,
@@ -66,6 +66,6 @@ func (s *StartScene) getLdtkProject() *assets.LDtkProject {
 func (s *StartScene) getEcs() *ecs.ECS {
 	return s.ecs
 }
-func (s *StartScene) Once() *sync.Once {
+func (s *StartScene) getOnce() *sync.Once {
 	return s.once
 }

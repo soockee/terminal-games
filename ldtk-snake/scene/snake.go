@@ -40,8 +40,8 @@ func (s *SnakeScene) configure() {
 	s.ecs.AddRenderer(layers.Default, system.DrawFood)
 	s.ecs.AddRenderer(layers.Default, system.DrawWall)
 
-	cellWidth := s.ldtkProject.Project.Levels[s.getLevelId()].Width / s.ldtkProject.Project.Levels[s.getLevelId()].Layers[s.getLevelId()].CellWidth
-	CellHeight := s.ldtkProject.Project.Levels[s.getLevelId()].Height / s.ldtkProject.Project.Levels[s.getLevelId()].Layers[s.getLevelId()].CellHeight
+	cellWidth := s.ldtkProject.Project.Levels[s.getLevelId()].Width / s.ldtkProject.Project.Levels[s.getLevelId()].Layers[layers.Default].CellWidth
+	CellHeight := s.ldtkProject.Project.Levels[s.getLevelId()].Height / s.ldtkProject.Project.Levels[s.getLevelId()].Layers[layers.Default].CellHeight
 	space := factory.CreateSpace(
 		s.ecs,
 		s.ldtkProject.Project.Levels[s.getLevelId()].Width,
@@ -51,6 +51,8 @@ func (s *SnakeScene) configure() {
 	)
 
 	CreateEntities(s, space)
+	// start gametime
+	factory.CreateGameState(s.ecs)
 
 	factory.CreateFood(s.ecs.World, s.ldtkProject, s.ldtkProject.Project.EntityDefinitionByIdentifier(tags.Food.Name()))
 
@@ -65,7 +67,6 @@ func (s *SnakeScene) configure() {
 func (s *SnakeScene) GetId() component.SceneId {
 	return component.SnakeScene
 }
-
 func (s *SnakeScene) getLevelId() int {
 	return int(s.GetId())
 }
@@ -75,6 +76,6 @@ func (s *SnakeScene) getLdtkProject() *assets.LDtkProject {
 func (s *SnakeScene) getEcs() *ecs.ECS {
 	return s.ecs
 }
-func (s *SnakeScene) Once() *sync.Once {
+func (s *SnakeScene) getOnce() *sync.Once {
 	return s.once
 }

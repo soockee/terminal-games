@@ -46,11 +46,20 @@ var (
 		component.Sprite,
 		component.Button,
 	)
+	TextField = newArchetype(
+		tags.TextField,
+		component.Object,
+		component.Sprite,
+		component.Text,
+	)
 	Controls = newArchetype(
 		component.Control,
 	)
 	SceneState = newArchetype(
 		component.SceneState,
+	)
+	GameState = newArchetype(
+		component.GameState,
 	)
 )
 

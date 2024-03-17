@@ -8,9 +8,10 @@ import (
 type SceneId int
 
 const (
-	Empty      SceneId = -1
-	SnakeScene SceneId = 0
-	StartScene SceneId = 1
+	Empty         SceneId = -1
+	SnakeScene    SceneId = 0
+	StartScene    SceneId = 1
+	GameOverScene SceneId = 2
 )
 
 type SceneData struct {

@@ -1,0 +1,89 @@
+package scene
+
+import (
+	"fmt"
+	"log/slog"
+	"sync"
+
+	"github.com/soockee/terminal-games/ldtk-snake/assets"
+	"github.com/soockee/terminal-games/ldtk-snake/component"
+	pkgevents "github.com/soockee/terminal-games/ldtk-snake/event"
+	"github.com/soockee/terminal-games/ldtk-snake/factory"
+	"github.com/soockee/terminal-games/ldtk-snake/layers"
+	"github.com/soockee/terminal-games/ldtk-snake/system"
+	"github.com/yohamta/donburi"
+	"github.com/yohamta/donburi/ecs"
+	decs "github.com/yohamta/donburi/ecs"
+)
+
+type GameOverScene struct {
+	ecs         *decs.ECS
+	ldtkProject *assets.LDtkProject
+	once        *sync.Once
+}
+
+func NewGameOverScene(ecs *decs.ECS, project *assets.LDtkProject) *GameOverScene {
+	return &GameOverScene{
+		ecs:         ecs,
+		ldtkProject: project,
+		once:        &sync.Once{},
+	}
+}
+
+func (s *GameOverScene) configure() {
+	s.ecs.AddSystem(system.UpdateObjects)
+	s.ecs.AddSystem(system.ProcessEvents)
+	s.ecs.AddSystem(system.UpdateButton)
+
+	s.ecs.AddRenderer(layers.Default, system.DrawDebug)
+	s.ecs.AddRenderer(layers.Default, system.DrawHelp)
+	s.ecs.AddRenderer(layers.Default, system.DrawButton)
+	s.ecs.AddRenderer(layers.Default, system.DrawTextField)
+
+	cellWidth := s.ldtkProject.Project.Levels[s.getLevelId()].Width / s.ldtkProject.Project.Levels[s.getLevelId()].Layers[layers.Default].CellWidth
+	CellHeight := s.ldtkProject.Project.Levels[s.getLevelId()].Height / s.ldtkProject.Project.Levels[s.getLevelId()].Layers[layers.Default].CellHeight
+	space := factory.CreateSpace(
+		s.ecs,
+		s.ldtkProject.Project.Levels[s.getLevelId()].Width,
+		s.ldtkProject.Project.Levels[s.getLevelId()].Height,
+		cellWidth,
+		CellHeight,
+	)
+
+	CreateEntities(s, space)
+
+	gameStateEntry, ok := component.GameState.First(s.ecs.World)
+	if !ok {
+		slog.Info("gamestate not found")
+	}
+	gamedata := component.GameState.Get(gameStateEntry)
+
+	component.Text.Each(s.ecs.World, func(e *donburi.Entry) {
+		textfield := component.Text.Get(e)
+		if textfield.Identifier == "Score" {
+			textfield.Text[0] = fmt.Sprintf("%s:  %d", textfield.Text[0], gamedata.Score)
+			duration := gamedata.End.Sub(gamedata.Start)
+			textfield.Text[1] = fmt.Sprintf("%s:  %.3fs", textfield.Text[1], duration.Seconds())
+		}
+	})
+
+	// Subscribe events.
+	pkgevents.UpdateSettingEvent.Subscribe(s.ecs.World, system.OnSettingsEvent)
+	pkgevents.InteractionEvent.Subscribe(s.ecs.World, system.HandleButtonClick)
+}
+
+func (s *GameOverScene) GetId() component.SceneId {
+	return component.GameOverScene
+}
+func (s *GameOverScene) getLevelId() int {
+	return int(s.GetId())
+}
+func (s *GameOverScene) getLdtkProject() *assets.LDtkProject {
+	return s.ldtkProject
+}
+func (s *GameOverScene) getEcs() *ecs.ECS {
+	return s.ecs
+}
+func (s *GameOverScene) getOnce() *sync.Once {
+	return s.once
+}

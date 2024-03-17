@@ -16,22 +16,23 @@ import (
 )
 
 type Scene interface {
+	configure()
 	GetId() component.SceneId
 	getLdtkProject() *assets.LDtkProject
 	getLevelId() int
 	getEcs() *ecs.ECS
-	configure()
-	Once() *sync.Once
+	getOnce() *sync.Once
 }
 
 var TagsMapping = map[string]func(*ecs.ECS, *assets.LDtkProject, *ldtkgo.Entity) *donburi.Entry{
-	tags.Snake.Name():  factory.CreateSnake,
-	tags.Wall.Name():   factory.CreateWall,
-	tags.Button.Name(): factory.CreateButton,
+	tags.Snake.Name():     factory.CreateSnake,
+	tags.Wall.Name():      factory.CreateWall,
+	tags.Button.Name():    factory.CreateButton,
+	tags.TextField.Name(): factory.CreateTextField,
 }
 
 func Update(s Scene) error {
-	s.Once().Do(s.configure)
+	s.getOnce().Do(s.configure)
 	s.getEcs().Update()
 	return nil
 }
@@ -52,6 +53,8 @@ func CreateScene(sceneId component.SceneId, ecs *ecs.ECS, project *assets.LDtkPr
 		return NewSnakeScene(ecs, project)
 	case component.StartScene:
 		return NewStartScene(ecs, project)
+	case component.GameOverScene:
+		return NewGameOverScene(ecs, project)
 	default:
 		slog.Error("invalid sceneId for creation", slog.Any("sceneId", sceneId))
 		panic(0)

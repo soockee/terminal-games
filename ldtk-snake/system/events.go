@@ -18,10 +18,12 @@ import (
 func OnCollideEvent(w donburi.World, e *event.Collide) {
 	switch e.Type {
 	case event.CollideBody:
-		slog.Info("Process Collide Body Event")
+		fallthrough
 
 	case event.CollideWall:
-		slog.Info("Process Collide Wall Event")
+		event.GameStateEvent.Publish(w, &event.GameStateData{
+			IsGameOver: true,
+		})
 	}
 }
 
@@ -60,10 +62,12 @@ func OnPickupEvent(w donburi.World, e *event.Collect) {
 		scene, _ := component.SceneState.First(w)
 		sceneData := component.SceneState.Get(scene)
 
-		factory.CreateBodyPart(w, sceneObj.Project, snakeEntity, sceneData.Project.Project.EntityDefinitionByIdentifier(tags.SnakeBody.Name()), tags.SnakeBody.Name())
+		factory.CreateBodyPart(w, sceneObj.Project, snakeEntity, sceneData.Project.Project.EntityDefinitionByIdentifier(tags.SnakeBody.Name()), tags.SnakeBody.Name(), tags.Collidable.String())
 		factory.CreateFood(w, sceneObj.Project, sceneData.Project.Project.EntityDefinitionByIdentifier(tags.Food.Name()))
 
 	default:
+		slog.Error("unknown collectable")
+		panic(0)
 	}
 }
 

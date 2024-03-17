@@ -13,8 +13,6 @@ import (
 	"golang.org/x/image/font"
 )
 
-const lineHeight = 10 // Adjust this as needed
-
 func DrawHelp(ecs *ecs.ECS, screen *ebiten.Image) {
 	settings, ok := GetSettings(ecs)
 	if !ok {
@@ -32,7 +30,7 @@ func DrawHelp(ecs *ecs.ECS, screen *ebiten.Image) {
 		cx := cell.X * cw
 		cy := cell.Y * ch
 
-		drawText(screen, cx, cy,
+		drawHelpText(screen, cx, cy,
 			"~ Snake ~",
 			"Move Snake: W,A,S,D or Arrow Keys",
 			"",
@@ -44,7 +42,8 @@ func DrawHelp(ecs *ecs.ECS, screen *ebiten.Image) {
 	}
 }
 
-func drawText(screen *ebiten.Image, x, y int, textLines ...string) {
+func drawHelpText(screen *ebiten.Image, x, y int, textLines ...string) {
+	lineHeight := 10
 	f := assets.NormalFont
 	for _, txt := range textLines {
 		// Measure text width
@@ -54,7 +53,7 @@ func drawText(screen *ebiten.Image, x, y int, textLines ...string) {
 		rectWidth := float32(textWidth.Round())
 
 		// Draw filled rectangle around the text
-		vector.DrawFilledRect(screen, float32(x), float32(y-lineHeight-5), rectWidth, lineHeight*2, color.RGBA{0, 0, 0, 180}, false)
+		vector.DrawFilledRect(screen, float32(x), float32(y-lineHeight-5), rectWidth, float32(lineHeight*2), color.RGBA{0, 0, 0, 180}, false)
 
 		// Draw the text
 		text.Draw(screen, txt, f, x+1, y+1, color.RGBA{0, 0, 150, 255})

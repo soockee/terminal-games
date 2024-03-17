@@ -1,6 +1,8 @@
 package game
 
 import (
+	"log/slog"
+
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/soockee/terminal-games/ldtk-snake/assets"
 	"github.com/soockee/terminal-games/ldtk-snake/component"
@@ -31,11 +33,11 @@ func NewGame(project *assets.LDtkProject) *Game {
 }
 
 func (g *Game) Update() error {
-	if scenestate, ok := component.SceneState.First(g.ecs.World); ok {
-		gamestateData := component.SceneState.Get(scenestate)
-		if g.scene.GetId() != gamestateData.CurrentScene {
+	if sceneState, ok := component.SceneState.First(g.ecs.World); ok {
+		sceneStateData := component.SceneState.Get(sceneState)
+		if g.scene.GetId() != sceneStateData.CurrentScene {
 			g.reset()
-			g.start(gamestateData.CurrentScene)
+			g.start(sceneStateData.CurrentScene)
 		}
 	}
 	scene.Update(g.scene)
@@ -63,22 +65,35 @@ func (g *Game) start(sceneId component.SceneId) {
 	g.ecs.AddRenderer(layers.Default, system.DrawHelp)
 
 	pkgevents.SceneStateEvent.Subscribe(g.ecs.World, handleSceneStateEvent)
+	pkgevents.GameStateEvent.Subscribe(g.ecs.World, handleGameStateEvent)
 
 	g.scene = scene.CreateScene(sceneId, g.ecs, g.ldtkProject)
 }
 
 func (g *Game) reset() {
-	settings, _ := component.Settings.First(g.ecs.World)
-	settingsData := component.Settings.Get(settings)
-	settingsData.Debug = false
-	settingsData.ShowHelpText = false
-
-	g.ecs = desc.NewECS(donburi.NewWorld())
+	gamestate, ok := component.GameState.First(g.ecs.World)
+	if !ok {
+		g.ecs = desc.NewECS(donburi.NewWorld())
+	} else {
+		gamedata := component.GameState.Get(gamestate)
+		g.ecs = desc.NewECS(donburi.NewWorld())
+		factory.FinalizeGameState(g.ecs, gamedata)
+	}
 }
 
 func handleSceneStateEvent(w donburi.World, e *pkgevents.SceneStateData) {
 	if scenestate, ok := component.SceneState.First(w); ok {
-		gamestateData := component.SceneState.Get(scenestate)
-		gamestateData.CurrentScene = e.CurrentScene
+		sceneStateData := component.SceneState.Get(scenestate)
+		sceneStateData.CurrentScene = e.CurrentScene
+	}
+}
+
+func handleGameStateEvent(w donburi.World, e *pkgevents.GameStateData) {
+	if e.IsGameOver {
+		slog.Info("Game Over")
+		if scenestate, ok := component.SceneState.First(w); ok {
+			sceneStateData := component.SceneState.Get(scenestate)
+			sceneStateData.CurrentScene = component.GameOverScene
+		}
 	}
 }

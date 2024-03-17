@@ -1,21 +1,18 @@
 package assets
 
 import (
-	"bytes"
 	_ "embed"
-	"image"
 	_ "image/png"
 
-	"github.com/hajimehoshi/ebiten/v2"
 	"golang.org/x/image/font"
 	"golang.org/x/image/font/opentype"
 )
 
 var (
 	//go:embed fonts/kenney_pixel.ttf
-	normalFontData []byte
+	NormalFontData []byte
 	//go:embed fonts/kenney_pixel_square.ttf
-	squareFontData []byte
+	SquareFontData []byte
 
 	SmallFont  font.Face
 	NormalFont font.Face
@@ -23,13 +20,12 @@ var (
 )
 
 func MustLoadAssets() {
-	SmallFont = mustLoadFont(normalFontData, 10)
-	NormalFont = mustLoadFont(normalFontData, 24)
-	SqaureFont = mustLoadFont(squareFontData, 24)
-
+	SmallFont = MustLoadFont(NormalFontData, 10)
+	NormalFont = MustLoadFont(NormalFontData, 24)
+	SqaureFont = MustLoadFont(SquareFontData, 24)
 }
 
-func mustLoadFont(data []byte, size int) font.Face {
+func MustLoadFont(data []byte, size int) font.Face {
 	f, err := opentype.Parse(data)
 	if err != nil {
 		panic(err)
@@ -45,13 +41,4 @@ func mustLoadFont(data []byte, size int) font.Face {
 	}
 
 	return face
-}
-
-func mustNewEbitenImage(data []byte) *ebiten.Image {
-	img, _, err := image.Decode(bytes.NewReader(data))
-	if err != nil {
-		panic(err)
-	}
-
-	return ebiten.NewImageFromImage(img)
 }

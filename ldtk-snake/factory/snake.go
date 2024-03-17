@@ -2,6 +2,7 @@ package factory
 
 import (
 	"log/slog"
+	"math"
 	"time"
 
 	"github.com/solarlune/resolv"
@@ -25,7 +26,9 @@ func CreateSnake(ecs *ecs.ECS, project *assets.LDtkProject, entity *ldtkgo.Entit
 	Y := float64(entity.Position[1])
 
 	obj := resolv.NewObject(X, Y, width, height, entity.Tags...)
-	obj.SetShape(resolv.NewRectangle(X, Y, width, height))
+	center := obj.Center()
+	radius := math.Abs(obj.Position.X - center.X)
+	obj.SetShape(resolv.NewCircle(center.X, center.Y, radius))
 	component.Object.Set(snake, obj)
 
 	component.Snake.SetValue(snake, component.SnakeData{
@@ -42,16 +45,23 @@ func CreateSnake(ecs *ecs.ECS, project *assets.LDtkProject, entity *ldtkgo.Entit
 	}
 	component.Sprite.SetValue(snake, component.SpriteData{Image: sprite})
 
-	// no initial body
-	// CreateBodyPart(ecs.World, project, snake, project.Project.EntityDefinitionByIdentifier(dtags.SnakeBody.Name()), dtags.SnakeBody.Name())
+	CreateBodyPart(ecs.World, project, snake, project.Project.EntityDefinitionByIdentifier(dtags.SnakeBody.Name()), dtags.SnakeBody.Name())
 
 	return snake
 }
 
 func CreateBodyPart(world donburi.World, project *assets.LDtkProject, snakeEntry *donburi.Entry, entity *ldtkgo.EntityDefinition, tags ...string) {
 	part := archetype.SnakeBody.SpawnInWorld(world)
+	snakehead := component.Snake.Get(snakeEntry)
+	partData := component.SnakeBody.Get(part)
+	prev, _ := component.GetTail(snakehead)
 
-	boundsObj := dresolv.GetObject(snakeEntry)
+	var boundsObj *resolv.Object
+	if prev == nil {
+		boundsObj = dresolv.GetObject(snakeEntry)
+	} else {
+		boundsObj = dresolv.GetObject(prev.Entry)
+	}
 
 	x, y := boundsObj.Shape.Bounds()
 	width := y.X - x.X
@@ -61,7 +71,8 @@ func CreateBodyPart(world donburi.World, project *assets.LDtkProject, snakeEntry
 
 	obj := resolv.NewObject(X, Y, width, height, tags...)
 	center := obj.Center()
-	obj.SetShape(resolv.NewCircle(center.X, center.Y, width/height))
+	radius := math.Abs(obj.Position.X - center.X)
+	obj.SetShape(resolv.NewCircle(center.X, center.Y, radius))
 	component.Object.Set(part, obj)
 
 	component.SnakeBody.SetValue(part, component.SnakeBodyData{
@@ -85,9 +96,6 @@ func CreateBodyPart(world donburi.World, project *assets.LDtkProject, snakeEntry
 	}
 	dresolv.Add(spaceEntry, part)
 
-	snakehead := component.Snake.Get(snakeEntry)
-	partData := component.SnakeBody.Get(part)
-	prev, _ := component.GetTail(snakehead)
 	snakehead.SetTail(partData)
 	partData.Previous = prev
 }

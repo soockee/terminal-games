@@ -30,8 +30,8 @@ func UpdateSnake(ecs *ecs.ECS) {
 	// Stepwise movement based on velocity
 	stepSize := 1.0 / math.Max(math.Abs(velocity.Velocity.X), math.Abs(velocity.Velocity.Y)) // Adjust step size based on velocity magnitude
 	for step := 0.0; step <= 1.0; step += stepSize {
-		snakeObject.Position = snakeObject.Position.Add(velocity.Velocity.Scale(step))
 		updateSnakeBody(ecs.World, snakeData.Tail)
+		snakeObject.Position = snakeObject.Position.Add(velocity.Velocity.Scale(step))
 		checkBodyCollision(ecs.World, snakeObject)
 	}
 
@@ -41,10 +41,10 @@ func UpdateSnake(ecs *ecs.ECS) {
 
 	checkFoodCollision(ecs.World, snakeObject)
 
-	component.SnakeBody.Each(ecs.World, func(e *donburi.Entry) {
-		dresolv.GetObject(e).AddTags(tags.Collidable.Name())
-		e.AddComponent(tags.Collidable)
-	})
+	// component.SnakeBody.Each(ecs.World, func(e *donburi.Entry) {
+	// 	dresolv.GetObject(e).AddTags(tags.Collidable.Name())
+	// 	e.AddComponent(tags.Collidable)
+	// })
 
 }
 
@@ -60,7 +60,7 @@ func DrawSnake(ecs *ecs.ECS, screen *ebiten.Image) {
 	velocity := component.Velocity.Get(e)
 	angle := util.CalculateAngle(velocity.Velocity)
 	component.DrawRotatedSprite(screen, e, angle)
-	component.DrawPlaceholder(screen, dresolv.GetObject(e), angle)
+	// component.DrawPlaceholder(screen, dresolv.GetObject(e), angle)
 }
 
 func DrawSnakeBody(ecs *ecs.ECS, screen *ebiten.Image, next *component.SnakeBodyData) {
@@ -72,7 +72,7 @@ func DrawSnakeBody(ecs *ecs.ECS, screen *ebiten.Image, next *component.SnakeBody
 	angle := util.CalculateAngle(velocity.Velocity)
 	component.DrawRotatedSprite(screen, next.Entry, angle)
 	// debug
-	component.DrawPlaceholder(screen, dresolv.GetObject(next.Entry), angle)
+	// component.DrawPlaceholder(screen, dresolv.GetObject(next.Entry), angle)
 }
 
 // move temporarily uses a speed of type int whiel figuring out the collision
@@ -83,24 +83,18 @@ func OnMoveEvent(w donburi.World, e *event.Move) {
 	velocity := component.Velocity.Get(entity)
 	switch e.Direction {
 	case component.ActionMoveUp:
-		// velocity.Velocity = resolv.NewVector(0, -1)
 		velocity.Velocity = resolv.NewVector(0, -1).Add(velocity.Velocity)
 
 	case component.ActionMoveDown:
-		// velocity.Velocity = resolv.NewVector(0, 1)
 		velocity.Velocity = resolv.NewVector(0, 1).Add(velocity.Velocity)
 
 	case component.ActionMoveLeft:
-		// velocity.Velocity = resolv.NewVector(-1, 0)
 		velocity.Velocity = resolv.NewVector(-1, 0).Add(velocity.Velocity)
 
 	case component.ActionMoveRight:
-		// velocity.Velocity = resolv.NewVector(1, 0)
 		velocity.Velocity = resolv.NewVector(1, 0).Add(velocity.Velocity)
 
 	}
-	// velocity.Velocity.X *= snakeData.Speed
-	// velocity.Velocity.Y *= snakeData.Speed
 }
 
 func checkWallCollision(w donburi.World, snakeObject *resolv.Object) bool {
@@ -121,10 +115,6 @@ func checkFoodCollision(w donburi.World, snakeObject *resolv.Object) {
 }
 
 func checkBodyCollision(w donburi.World, snakeObject *resolv.Object) {
-	// if check := snakeObject.Check(0, 0, tags.Collidable.Name()); check != nil {
-	// 	return true
-	// }
-
 	component.SnakeBody.Each(w, func(e *donburi.Entry) {
 		obj := dresolv.GetObject(e)
 		if !obj.HasTags(tags.Collidable.Name()) {
