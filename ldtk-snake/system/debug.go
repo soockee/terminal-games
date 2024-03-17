@@ -17,11 +17,7 @@ func DrawDebug(ecs *ecs.ECS, screen *ebiten.Image) {
 	if !settings.Debug {
 		return
 	}
-	spaceEntry, ok := component.Space.First(ecs.World)
-	if !ok {
-		return
-	}
-	space := component.Space.Get(spaceEntry)
+	space := component.Space.Get(component.Space.MustFirst(ecs.World))
 
 	for y := 0; y < space.Height(); y++ {
 

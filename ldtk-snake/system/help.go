@@ -19,11 +19,7 @@ func DrawHelp(ecs *ecs.ECS, screen *ebiten.Image) {
 		return
 	}
 	if settings.ShowHelpText {
-		spaceEntry, ok := component.Space.First(ecs.World)
-		if !ok {
-			return
-		}
-		space := component.Space.Get(spaceEntry)
+		space := component.Space.Get(component.Space.MustFirst(ecs.World))
 		cell := space.Cell(4, 4)
 		cw := space.CellWidth
 		ch := space.CellHeight

@@ -89,11 +89,7 @@ func CreateBodyPart(world donburi.World, project *assets.LDtkProject, snakeEntry
 
 	component.Sprite.SetValue(part, component.SpriteData{Image: sprite})
 
-	spaceEntry, ok := component.Space.First(world)
-	if !ok {
-		slog.Error("Sprite not found")
-		panic(0)
-	}
+	spaceEntry := component.Space.MustFirst(world)
 	dresolv.Add(spaceEntry, part)
 
 	snakehead.SetTail(partData)

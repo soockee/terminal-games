@@ -32,7 +32,7 @@ func CreateFood(w donburi.World, project *assets.LDtkProject, entity *ldtkgo.Ent
 	yBound := project.Project.Levels[component.SnakeScene].Height
 	collidableTags := []string{tags.Wall.Name(), tags.Snake.Name(), tags.SnakeBody.Name()}
 
-	space, _ := component.Space.First(w)
+	space := component.Space.MustFirst(w)
 
 	maxAttempts := 1000 // Adjust this value as needed
 

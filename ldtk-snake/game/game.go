@@ -82,18 +82,14 @@ func (g *Game) reset() {
 }
 
 func handleSceneStateEvent(w donburi.World, e *pkgevents.SceneStateData) {
-	if scenestate, ok := component.SceneState.First(w); ok {
-		sceneStateData := component.SceneState.Get(scenestate)
-		sceneStateData.CurrentScene = e.CurrentScene
-	}
+	sceneStateData := component.SceneState.Get(component.SceneState.MustFirst(w))
+	sceneStateData.CurrentScene = e.CurrentScene
 }
 
 func handleGameStateEvent(w donburi.World, e *pkgevents.GameStateData) {
 	if e.IsGameOver {
 		slog.Info("Game Over")
-		if scenestate, ok := component.SceneState.First(w); ok {
-			sceneStateData := component.SceneState.Get(scenestate)
-			sceneStateData.CurrentScene = component.GameOverScene
-		}
+		sceneStateData := component.SceneState.Get(component.SceneState.MustFirst(w))
+		sceneStateData.CurrentScene = component.GameOverScene
 	}
 }

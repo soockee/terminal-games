@@ -38,32 +38,27 @@ func OnPickupEvent(w donburi.World, e *event.Collect) {
 			slog.Error("food not found")
 		}
 		foodObj := component.Collectable.Get(food)
-		space, ok := component.Space.First(w)
-		if !ok {
-			slog.Error("space not found")
-		}
-		resolv.Remove(space, food)
+
+		resolv.Remove(component.Space.MustFirst(w), food)
 
 		slog.Debug("Food Object OnPickupEvent", slog.Any("obj", foodObj))
 		w.Remove(food.Entity())
 
-		sceneStateEntity, ok := component.SceneState.First(w)
-		if !ok {
-			slog.Error("sceneStateEntity not found OnCollideEvent")
-			panic(0)
-		}
-		sceneObj := component.SceneState.Get(sceneStateEntity)
-		snakeEntity, ok := component.Snake.First(w)
+		sceneObj := component.SceneState.Get(component.SceneState.MustFirst(w))
+		snakeEntity := component.Snake.MustFirst(w)
 
 		if !ok {
 			slog.Error("snakeEntity not found OnCollideEvent")
 			panic(0)
 		}
-		scene, _ := component.SceneState.First(w)
-		sceneData := component.SceneState.Get(scene)
+
+		sceneData := component.SceneState.Get(component.SceneState.MustFirst(w))
 
 		factory.CreateBodyPart(w, sceneObj.Project, snakeEntity, sceneData.Project.Project.EntityDefinitionByIdentifier(tags.SnakeBody.Name()), tags.SnakeBody.Name(), tags.Collidable.String())
 		factory.CreateFood(w, sceneObj.Project, sceneData.Project.Project.EntityDefinitionByIdentifier(tags.Food.Name()))
+
+		gameStateDate := component.GameState.Get(component.GameState.MustFirst(w))
+		gameStateDate.Score++
 
 	default:
 		slog.Error("unknown collectable")

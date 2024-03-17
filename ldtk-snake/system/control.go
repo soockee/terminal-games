@@ -54,7 +54,5 @@ func UpdateControl(ecs *ecs.ECS) {
 }
 
 func getControl(ecs *ecs.ECS) *component.ControlData {
-	return component.Control.Get(
-		component.Control.MustFirst(ecs.World),
-	)
+	return component.Control.Get(component.Control.MustFirst(ecs.World))
 }

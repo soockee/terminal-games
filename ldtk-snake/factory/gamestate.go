@@ -33,7 +33,7 @@ func FinalizeGameState(ecs *ecs.ECS, gamedata *component.GameData) *donburi.Entr
 }
 
 func ResetGameState(ecs *ecs.ECS) *donburi.Entry {
-	gameState, _ := component.GameState.First(ecs.World)
+	gameState := component.GameState.MustFirst(ecs.World)
 	ecs.World.Remove(gameState.Entity())
 	gamestate := archetype.GameState.Spawn(ecs)
 	start := time.Now()

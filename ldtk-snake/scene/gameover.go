@@ -2,7 +2,6 @@ package scene
 
 import (
 	"fmt"
-	"log/slog"
 	"sync"
 
 	"github.com/soockee/terminal-games/ldtk-snake/assets"
@@ -52,11 +51,7 @@ func (s *GameOverScene) configure() {
 
 	CreateEntities(s, space)
 
-	gameStateEntry, ok := component.GameState.First(s.ecs.World)
-	if !ok {
-		slog.Info("gamestate not found")
-	}
-	gamedata := component.GameState.Get(gameStateEntry)
+	gamedata := component.GameState.Get(component.GameState.MustFirst(s.ecs.World))
 
 	component.Text.Each(s.ecs.World, func(e *donburi.Entry) {
 		textfield := component.Text.Get(e)

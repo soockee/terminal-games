@@ -1,7 +1,6 @@
 package system
 
 import (
-	"log/slog"
 	"math"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -16,7 +15,7 @@ import (
 )
 
 func UpdateSnake(ecs *ecs.ECS) {
-	snakeEntry, _ := component.Snake.First(ecs.World)
+	snakeEntry := component.Snake.MustFirst(ecs.World)
 	snakeData := component.Snake.Get(snakeEntry)
 	snakeObject := dresolv.GetObject(snakeEntry)
 
@@ -49,12 +48,7 @@ func UpdateSnake(ecs *ecs.ECS) {
 }
 
 func DrawSnake(ecs *ecs.ECS, screen *ebiten.Image) {
-	e, ok := tags.Snake.First(ecs.World)
-	if !ok {
-		slog.Error("snake not found in draw")
-		panic(0)
-	}
-
+	e := tags.Snake.MustFirst(ecs.World)
 	snake := component.Snake.Get(e)
 	DrawSnakeBody(ecs, screen, snake.Tail)
 	velocity := component.Velocity.Get(e)
@@ -77,7 +71,7 @@ func DrawSnakeBody(ecs *ecs.ECS, screen *ebiten.Image, next *component.SnakeBody
 
 // move temporarily uses a speed of type int whiel figuring out the collision
 func OnMoveEvent(w donburi.World, e *event.Move) {
-	entity, _ := component.Snake.First(w)
+	entity := component.Snake.MustFirst(w)
 	// snakeData := component.Snake.Get(entity)
 
 	velocity := component.Velocity.Get(entity)
@@ -138,11 +132,8 @@ func updateSnakeBody(w donburi.World, next *component.SnakeBodyData) {
 	var history []component.HistoryData
 
 	if next.Previous == nil {
-		snake, ok := component.Snake.First(w)
-		if !ok {
-			slog.Error("could not find snake")
-			panic(0)
-		}
+		snake := component.Snake.MustFirst(w)
+
 		history = component.Snake.Get(snake).History
 		prev = dresolv.GetObject(snake)
 		direction := util.DirectionVector(prev.Position, nextObj.Position)
