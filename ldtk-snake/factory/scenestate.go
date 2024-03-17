@@ -2,19 +2,21 @@ package factory
 
 import (
 	"github.com/soockee/terminal-games/ldtk-snake/archetype"
+	"github.com/soockee/terminal-games/ldtk-snake/assets"
 	"github.com/soockee/terminal-games/ldtk-snake/component"
 	"github.com/yohamta/donburi"
 	"github.com/yohamta/donburi/ecs"
 )
 
-func CreateSceneState(ecs *ecs.ECS, scene component.SceneId) *donburi.Entry {
+func CreateSceneState(ecs *ecs.ECS, scene component.SceneId, project *assets.LDtkProject) *donburi.Entry {
 	scenestate := archetype.SceneState.Spawn(ecs)
 	if scene != component.Empty {
-		component.SceneState.SetValue(scenestate, component.SceneDate{
+		component.SceneState.SetValue(scenestate, component.SceneData{
 			CurrentScene: scene,
+			Project:      project,
 		})
 	} else {
-		component.SceneState.SetValue(scenestate, component.SceneDate{
+		component.SceneState.SetValue(scenestate, component.SceneData{
 			CurrentScene: component.Empty,
 		})
 	}

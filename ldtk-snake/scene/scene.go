@@ -24,10 +24,9 @@ type Scene interface {
 	Once() *sync.Once
 }
 
-var TagsMapping = map[string]func(*ecs.ECS, *ebiten.Image, *ldtkgo.Entity) *donburi.Entry{
+var TagsMapping = map[string]func(*ecs.ECS, *assets.LDtkProject, *ldtkgo.Entity) *donburi.Entry{
 	tags.Snake.Name():  factory.CreateSnake,
 	tags.Wall.Name():   factory.CreateWall,
-	tags.Food.Name():   factory.CreateFood,
 	tags.Button.Name(): factory.CreateButton,
 }
 
@@ -66,11 +65,7 @@ func CreateEntities[T Scene](s T, space *donburi.Entry) {
 		for name, f := range TagsMapping {
 			for _, ldtkTag := range entity.Tags {
 				if name == ldtkTag {
-					sprite, err := s.getLdtkProject().GetSprite(entity)
-					if err != nil {
-						slog.Error("could not find sprite for entity")
-					}
-					resolv.Add(space, f(s.getEcs(), sprite, entity))
+					resolv.Add(space, f(s.getEcs(), s.getLdtkProject(), entity))
 				}
 			}
 		}

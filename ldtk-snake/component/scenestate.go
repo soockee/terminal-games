@@ -1,6 +1,7 @@
 package component
 
 import (
+	"github.com/soockee/terminal-games/ldtk-snake/assets"
 	"github.com/yohamta/donburi"
 )
 
@@ -12,8 +13,9 @@ const (
 	StartScene SceneId = 1
 )
 
-type SceneDate struct {
+type SceneData struct {
 	CurrentScene SceneId
+	Project      *assets.LDtkProject
 }
 
-var SceneState = donburi.NewComponentType[SceneDate]()
+var SceneState = donburi.NewComponentType[SceneData]()

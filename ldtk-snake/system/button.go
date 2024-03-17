@@ -42,12 +42,6 @@ func DrawButton(ecs *ecs.ECS, screen *ebiten.Image) {
 	})
 }
 
-func Start(w donburi.World) {
-	event.SceneStateEvent.Publish(w, &event.SceneStateData{
-		CurrentScene: component.SnakeScene,
-	})
-}
-
 func isVecInObject(vec input.Vec, obj *resolv.Object) bool {
 	vecX, vecY := obj.Shape.Bounds()
 	// Y of object is skewed check objc creation

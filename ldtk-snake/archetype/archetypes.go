@@ -16,6 +16,13 @@ var (
 		component.Sprite,
 		component.Velocity,
 	)
+	SnakeBody = newArchetype(
+		tags.SnakeBody,
+		component.Object,
+		component.Sprite,
+		component.SnakeBody,
+		component.Velocity,
+	)
 	Space = newArchetype(
 		component.Space,
 	)
@@ -60,6 +67,13 @@ func newArchetype(cs ...donburi.IComponentType) *archetype {
 func (a *archetype) Spawn(ecs *ecs.ECS, cs ...donburi.IComponentType) *donburi.Entry {
 	e := ecs.World.Entry(ecs.Create(
 		layers.Default,
+		append(a.components, cs...)...,
+	))
+	return e
+}
+
+func (a *archetype) SpawnInWorld(world donburi.World, cs ...donburi.IComponentType) *donburi.Entry {
+	e := world.Entry(world.Create(
 		append(a.components, cs...)...,
 	))
 	return e

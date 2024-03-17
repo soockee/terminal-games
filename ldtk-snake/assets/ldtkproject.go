@@ -59,17 +59,6 @@ func (ldtk LDtkProject) GetEntityByName(name string, level int) *ldtkgo.Entity {
 	return nil
 }
 
-func (ldtk LDtkProject) GetEntityByIID(iid string, level int) *ldtkgo.Entity {
-	for _, layer := range ldtk.Project.Levels[level].Layers {
-		for _, entity := range layer.Entities {
-			if entity.IID == iid {
-				return entity
-			}
-		}
-	}
-	return nil
-}
-
 func (ldtk LDtkProject) loadRequiredTileset(entity *ldtkgo.Entity, level int) (*ebiten.Image, error) {
 	var tileset *ebiten.Image
 	var err error
@@ -86,10 +75,23 @@ func (ldtk LDtkProject) loadRequiredTileset(entity *ldtkgo.Entity, level int) (*
 	return tileset, err
 }
 
-func (ldtk LDtkProject) GetSprite(entity *ldtkgo.Entity) (*ebiten.Image, error) {
-	tileset, err := ldtk.Renderer.Loader.LoadImage(entity.TileRect.Tileset.Path)
-	tileRect := entity.TileRect
-	subImageRect := image.Rect(tileRect.X, tileRect.Y, tileRect.X+tileRect.W, tileRect.Y+tileRect.H)
+func (ldtk LDtkProject) GetSpriteByIdentifier(identifier string) (*ebiten.Image, error) {
+	entityDefinition := ldtk.Project.EntityDefinitionByIdentifier(identifier)
+	return ldtk.GetSprite(entityDefinition.TileRect)
+}
+
+func (ldtk LDtkProject) GetSpriteByDefinition(entityDefinition *ldtkgo.EntityDefinition) (*ebiten.Image, error) {
+	return ldtk.GetSprite(entityDefinition.TileRect)
+}
+
+func (ldtk LDtkProject) GetSpriteByEntityInstance(entity *ldtkgo.Entity) (*ebiten.Image, error) {
+	return ldtk.GetSprite(entity.TileRect)
+}
+
+func (ldtk LDtkProject) GetSprite(tileRect *ldtkgo.TileRect) (*ebiten.Image, error) {
+	tileset, err := ldtk.Renderer.Loader.LoadImage(tileRect.Tileset.Path)
+	t := tileRect
+	subImageRect := image.Rect(t.X, t.Y, t.X+t.W, t.Y+t.H)
 	sprite := tileset.SubImage(subImageRect).(*ebiten.Image)
 	return sprite, err
 }

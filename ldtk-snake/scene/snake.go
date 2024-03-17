@@ -6,6 +6,8 @@ import (
 	"github.com/soockee/terminal-games/ldtk-snake/assets"
 	"github.com/soockee/terminal-games/ldtk-snake/component"
 	pkgevents "github.com/soockee/terminal-games/ldtk-snake/event"
+	"github.com/soockee/terminal-games/ldtk-snake/tags"
+
 	"github.com/soockee/terminal-games/ldtk-snake/factory"
 	"github.com/soockee/terminal-games/ldtk-snake/layers"
 	"github.com/soockee/terminal-games/ldtk-snake/system"
@@ -49,6 +51,8 @@ func (s *SnakeScene) configure() {
 	)
 
 	CreateEntities(s, space)
+
+	factory.CreateFood(s.ecs.World, s.ldtkProject, s.ldtkProject.Project.EntityDefinitionByIdentifier(tags.Food.Name()))
 
 	// Subscribe events.
 	pkgevents.UpdateSettingEvent.Subscribe(s.ecs.World, system.OnSettingsEvent)

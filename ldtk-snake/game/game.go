@@ -56,7 +56,7 @@ func (g *Game) start(sceneId component.SceneId) {
 	// global systems
 	g.ecs.AddSystem(system.UpdateControl)
 	factory.CreateControl(g.ecs)
-	factory.CreateSceneState(g.ecs, sceneId)
+	factory.CreateSceneState(g.ecs, sceneId, g.ldtkProject)
 	factory.CreateSettings(g.ecs)
 
 	g.ecs.AddRenderer(layers.Default, system.DrawDebug)

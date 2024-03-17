@@ -5,7 +5,9 @@ import (
 
 	"github.com/soockee/terminal-games/ldtk-snake/component"
 	"github.com/soockee/terminal-games/ldtk-snake/event"
+	"github.com/soockee/terminal-games/ldtk-snake/factory"
 	"github.com/soockee/terminal-games/ldtk-snake/resolv"
+	"github.com/soockee/terminal-games/ldtk-snake/tags"
 	"github.com/yohamta/donburi"
 	"github.com/yohamta/donburi/ecs"
 	"github.com/yohamta/donburi/features/events"
@@ -14,7 +16,13 @@ import (
 )
 
 func OnCollideEvent(w donburi.World, e *event.Collide) {
-	slog.Info("Process Wall Event")
+	switch e.Type {
+	case event.CollideBody:
+		slog.Info("Process Collide Body Event")
+
+	case event.CollideWall:
+		slog.Info("Process Collide Wall Event")
+	}
 }
 
 func OnPickupEvent(w donburi.World, e *event.Collect) {
@@ -34,9 +42,26 @@ func OnPickupEvent(w donburi.World, e *event.Collect) {
 		}
 		resolv.Remove(space, food)
 
-		slog.Error("", slog.Any("obj", foodObj))
+		slog.Debug("Food Object OnPickupEvent", slog.Any("obj", foodObj))
 		w.Remove(food.Entity())
-		// food = factory.CreateFood()
+
+		sceneStateEntity, ok := component.SceneState.First(w)
+		if !ok {
+			slog.Error("sceneStateEntity not found OnCollideEvent")
+			panic(0)
+		}
+		sceneObj := component.SceneState.Get(sceneStateEntity)
+		snakeEntity, ok := component.Snake.First(w)
+
+		if !ok {
+			slog.Error("snakeEntity not found OnCollideEvent")
+			panic(0)
+		}
+		scene, _ := component.SceneState.First(w)
+		sceneData := component.SceneState.Get(scene)
+
+		factory.CreateBodyPart(w, sceneObj.Project, snakeEntity, sceneData.Project.Project.EntityDefinitionByIdentifier(tags.SnakeBody.Name()), tags.SnakeBody.Name())
+		factory.CreateFood(w, sceneObj.Project, sceneData.Project.Project.EntityDefinitionByIdentifier(tags.Food.Name()))
 
 	default:
 	}

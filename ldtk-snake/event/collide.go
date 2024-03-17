@@ -8,6 +8,7 @@ type CollideWithType int
 
 const (
 	CollideWall CollideWithType = iota
+	CollideBody
 )
 
 type Collide struct {
