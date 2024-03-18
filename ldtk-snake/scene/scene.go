@@ -50,7 +50,9 @@ func CreateScene(sceneId component.SceneId, ecs *ecs.ECS, project *assets.LDtkPr
 	project.Renderer.Render(project.Project.Levels[sceneId])
 	switch sceneId {
 	case component.SnakeScene:
-		return NewSnakeScene(ecs, project)
+		return NewSnakeScene(ecs, project, sceneId)
+	case component.SnakeBorderlessScene:
+		return NewSnakeScene(ecs, project, sceneId)
 	case component.StartScene:
 		return NewStartScene(ecs, project)
 	case component.GameOverScene:

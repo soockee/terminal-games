@@ -19,13 +19,15 @@ type SnakeScene struct {
 	ecs         *decs.ECS
 	ldtkProject *assets.LDtkProject
 	once        *sync.Once
+	level       component.SceneId
 }
 
-func NewSnakeScene(ecs *decs.ECS, project *assets.LDtkProject) *SnakeScene {
+func NewSnakeScene(ecs *decs.ECS, project *assets.LDtkProject, level component.SceneId) *SnakeScene {
 	return &SnakeScene{
 		ecs:         ecs,
 		ldtkProject: project,
 		once:        &sync.Once{},
+		level:       level,
 	}
 
 }
@@ -65,7 +67,7 @@ func (s *SnakeScene) configure() {
 }
 
 func (s *SnakeScene) GetId() component.SceneId {
-	return component.SnakeScene
+	return s.level
 }
 func (s *SnakeScene) getLevelId() int {
 	return int(s.GetId())

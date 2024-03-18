@@ -2,6 +2,7 @@ package game
 
 import (
 	"log/slog"
+	"slices"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/soockee/terminal-games/ldtk-snake/assets"
@@ -71,17 +72,14 @@ func (g *Game) start(sceneId component.SceneId) {
 }
 
 func (g *Game) reset() {
-
-	switch g.scene.GetId() {
-	case component.StartScene:
-		g.ecs = desc.NewECS(donburi.NewWorld())
-
-	case component.SnakeScene:
+	// Check if sceneId is in SnakeLevels slice
+	if slices.Contains(component.SnakeLevels, g.scene.GetId()) {
 		gamestate := component.GameState.MustFirst(g.ecs.World)
 		gamedata := component.GameState.Get(gamestate)
 		g.ecs = desc.NewECS(donburi.NewWorld())
 		factory.FinalizeGameState(g.ecs, gamedata)
-	case component.GameOverScene:
+		return
+	} else {
 		g.ecs = desc.NewECS(donburi.NewWorld())
 	}
 }

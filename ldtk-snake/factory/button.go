@@ -2,6 +2,7 @@ package factory
 
 import (
 	"log/slog"
+	"math/rand"
 
 	"github.com/solarlune/resolv"
 	"github.com/soockee/ldtkgo"
@@ -16,8 +17,10 @@ import (
 
 var buttonhandlerMapping = map[string]func(w donburi.World){
 	"StartButton": func(w donburi.World) {
+		randomLevel := rand.Intn(len(component.SnakeLevels))
+		slog.Info("starting level", slog.Any("Level", component.SnakeLevels[randomLevel]))
 		event.SceneStateEvent.Publish(w, &event.SceneStateData{
-			CurrentScene: component.SnakeScene,
+			CurrentScene: component.SnakeLevels[randomLevel],
 		})
 	},
 	"GithubButton": func(w donburi.World) { util.OpenUrl("https://github.com/soockee") },
