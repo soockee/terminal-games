@@ -25,8 +25,10 @@ var buttonhandlerMapping = map[string]func(w donburi.World){
 	},
 	"GithubButton": func(w donburi.World) { util.OpenUrl("https://github.com/soockee") },
 	"ResetButton": func(w donburi.World) {
+		randomLevel := rand.Intn(len(component.SnakeLevels))
+		slog.Info("starting level", slog.Any("Level", component.SnakeLevels[randomLevel]))
 		event.SceneStateEvent.Publish(w, &event.SceneStateData{
-			CurrentScene: component.SnakeScene,
+			CurrentScene: component.SnakeLevels[randomLevel],
 		})
 	},
 }

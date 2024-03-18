@@ -16,25 +16,11 @@ import (
 
 func UpdateSnake(ecs *ecs.ECS) {
 	snakeEntry := component.Snake.MustFirst(ecs.World)
-	snakeData := component.Snake.Get(snakeEntry)
 	snakeObject := dresolv.GetObject(snakeEntry)
-
-	velocity := component.Velocity.Get(snakeEntry)
 
 	snapshotHistory(ecs.World, snakeEntry)
 
-	// Update the position of the snake's head
-	snakeObject.Position = snakeObject.Position.Add(velocity.Velocity)
-
-	// Stepwise movement based on velocity
-	stepSize := 1.0 / math.Max(math.Abs(velocity.Velocity.X), math.Abs(velocity.Velocity.Y)) // Adjust step size based on velocity magnitude
-	for step := 0.0; step <= 1.0; step += stepSize {
-		updateSnakeBody(ecs.World, snakeData.Tail)
-		snakeObject.Position = snakeObject.Position.Add(velocity.Velocity.Scale(step))
-		checkBodyCollision(ecs.World, snakeObject)
-	}
-
-	// for each velocity ( vector of X and Y) stepwise increase the position by one, check for each step body collision
+	moveSnake(ecs)
 
 	checkWallCollision(ecs.World, snakeObject)
 
@@ -122,6 +108,41 @@ func checkBodyCollision(w donburi.World, snakeObject *resolv.Object) {
 			})
 		}
 	})
+}
+
+func moveSnake(ecs *ecs.ECS) {
+	snakeEntry := component.Snake.MustFirst(ecs.World)
+	snakeData := component.Snake.Get(snakeEntry)
+	snakeObject := dresolv.GetObject(snakeEntry)
+
+	velocity := component.Velocity.Get(snakeEntry)
+
+	// Stepwise movement based on velocity
+	stepSize := 1.0 / math.Max(math.Abs(velocity.Velocity.X), math.Abs(velocity.Velocity.Y)) // Adjust step size based on velocity magnitude
+	for step := 0.0; step <= 1.0; step += stepSize {
+		updateSnakeBody(ecs.World, snakeData.Tail)
+		// check if out of level bounds and teleport to opposite side
+		pos := snakeObject.Position.Add(velocity.Velocity.Scale(step))
+		space := component.Space.MustFirst(ecs.World)
+		spaceObj := component.Space.Get(space)
+
+		maxX := float64(spaceObj.Width() * spaceObj.CellWidth)
+		maxY := float64(spaceObj.Height() * spaceObj.CellHeight)
+
+		if pos.X > maxX {
+			pos.X = 0
+		} else if pos.X < 0 {
+			pos.X = maxX
+		}
+		if pos.Y > maxY {
+			pos.Y = 0
+		} else if pos.Y < 0 {
+			pos.Y = maxY
+		}
+
+		snakeObject.Position = pos
+		checkBodyCollision(ecs.World, snakeObject)
+	}
 }
 
 func updateSnakeBody(w donburi.World, next *component.SnakeBodyData) {
