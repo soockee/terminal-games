@@ -8,16 +8,20 @@ import (
 type SceneId int
 
 const (
-	Empty                SceneId = -1
-	SnakeScene           SceneId = 0
-	SnakeBorderlessScene SceneId = 1
-	StartScene           SceneId = 2
-	GameOverScene        SceneId = 3
+	Empty         SceneId = -1
+	Level_0       SceneId = 0
+	Level_1       SceneId = 1
+	Level_2       SceneId = 2
+	Level_3       SceneId = 3
+	StartScene    SceneId = 4
+	GameOverScene SceneId = 6
 )
 
 var SnakeLevels = []SceneId{
-	SnakeScene,
-	SnakeBorderlessScene,
+	Level_0,
+	Level_1,
+	Level_2,
+	Level_3,
 }
 
 type SceneData struct {

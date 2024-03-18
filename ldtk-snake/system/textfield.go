@@ -62,7 +62,7 @@ func drawFieldTextCovered(screen *ebiten.Image, obj *resolv.Object, allign bool,
 	dy := 0.0
 
 	shiftX := obj.Center().X * 0.9
-	shiftY := obj.Center().Y
+	shiftY := obj.Center().Y * 1.1
 
 	if allign {
 		shiftX = shiftX - (obj.Size.X * 0.25)

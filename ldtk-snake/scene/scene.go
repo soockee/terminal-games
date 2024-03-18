@@ -49,14 +49,20 @@ func Layout(s Scene) (int, int) {
 func CreateScene(sceneId component.SceneId, ecs *ecs.ECS, project *assets.LDtkProject) Scene {
 	project.Renderer.Render(project.Project.Levels[sceneId])
 	switch sceneId {
-	case component.SnakeScene:
-		return NewSnakeScene(ecs, project, sceneId)
-	case component.SnakeBorderlessScene:
-		return NewSnakeScene(ecs, project, sceneId)
 	case component.StartScene:
 		return NewStartScene(ecs, project)
 	case component.GameOverScene:
 		return NewGameOverScene(ecs, project)
+
+	case component.Level_0:
+		fallthrough
+	case component.Level_1:
+		fallthrough
+	case component.Level_2:
+		fallthrough
+	case component.Level_3:
+		return NewSnakeScene(ecs, project, sceneId)
+
 	default:
 		slog.Error("invalid sceneId for creation", slog.Any("sceneId", sceneId))
 		panic(0)

@@ -28,8 +28,8 @@ func CreateFood(w donburi.World, project *assets.LDtkProject, entity *ldtkgo.Ent
 	width := float64(entity.Width)
 	height := float64(entity.Height)
 
-	xBound := project.Project.Levels[component.SnakeScene].Width
-	yBound := project.Project.Levels[component.SnakeScene].Height
+	xBound := project.Project.Levels[component.Level_0].Width
+	yBound := project.Project.Levels[component.Level_0].Height
 	collidableTags := []string{tags.Wall.Name(), tags.Snake.Name(), tags.SnakeBody.Name()}
 
 	space := component.Space.MustFirst(w)
