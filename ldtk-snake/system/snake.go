@@ -75,7 +75,7 @@ func OnMoveEvent(w donburi.World, e *event.Move) {
 	// snakeData := component.Snake.Get(entity)
 
 	velocity := component.Velocity.Get(entity)
-	switch e.Direction {
+	switch e.Action {
 	case component.ActionMoveUp:
 		velocity.Velocity = resolv.NewVector(0, -1).Add(velocity.Velocity)
 
@@ -88,6 +88,8 @@ func OnMoveEvent(w donburi.World, e *event.Move) {
 	case component.ActionMoveRight:
 		velocity.Velocity = resolv.NewVector(1, 0).Add(velocity.Velocity)
 
+	case component.ActionMoveHalt:
+		velocity.Velocity = velocity.Velocity.Unit()
 	}
 }
 

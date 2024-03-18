@@ -13,9 +13,11 @@ var inputMap = input.Keymap{
 	component.ActionMoveDown:  {input.KeyGamepadDown, input.KeyDown, input.KeyS},
 	component.ActionMoveLeft:  {input.KeyGamepadLeft, input.KeyLeft, input.KeyA},
 	component.ActionMoveRight: {input.KeyGamepadRight, input.KeyRight, input.KeyD},
-	component.ActionClick:     {input.KeyTouchTap, input.KeyMouseLeft, input.KeyMouseRight},
-	component.ActionDebug:     {input.KeyF1},
-	component.ActionHelp:      {input.KeyF2},
+	component.ActionMoveHalt:  {input.KeyGamepadA, input.KeySpace},
+
+	component.ActionClick: {input.KeyTouchTap, input.KeyMouseLeft, input.KeyMouseRight},
+	component.ActionDebug: {input.KeyF1},
+	component.ActionHelp:  {input.KeyF2},
 }
 
 func CreateControl(ecs *ecs.ECS) *donburi.Entry {

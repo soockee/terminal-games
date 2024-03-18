@@ -56,9 +56,10 @@ func (s *GameOverScene) configure() {
 	component.Text.Each(s.ecs.World, func(e *donburi.Entry) {
 		textfield := component.Text.Get(e)
 		if textfield.Identifier == "Score" {
-			textfield.Text[0] = fmt.Sprintf("%s:  %d", textfield.Text[0], gamedata.Score)
+			textfield.Text = append(textfield.Text, fmt.Sprintf("%d", gamedata.Score))
+		} else if textfield.Identifier == "Time" {
 			duration := gamedata.End.Sub(gamedata.Start)
-			textfield.Text[1] = fmt.Sprintf("%s:  %.3fs", textfield.Text[1], duration.Seconds())
+			textfield.Text = append(textfield.Text, fmt.Sprintf("%.3fs", duration.Seconds()))
 		}
 	})
 

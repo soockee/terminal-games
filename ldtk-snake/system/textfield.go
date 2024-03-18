@@ -28,7 +28,11 @@ func DrawTextField(ecs *ecs.ECS, screen *ebiten.Image) {
 		if textData.IsAnimated {
 			// do animation
 		} else {
-			drawFieldTextCovered(screen, obj, textData.Text...)
+			allign := false
+			// if textData.Identifier == "Score" {
+			// 	allign = true
+			// }
+			drawFieldTextCovered(screen, obj, allign, textData.Text...)
 		}
 	})
 }
@@ -48,25 +52,36 @@ func drawFieldText(screen *ebiten.Image, x, y int, textLines ...string) {
 	}
 }
 
-func drawFieldTextCovered	(screen *ebiten.Image, obj *resolv.Object, textLines ...string) {
+func drawFieldTextCovered(screen *ebiten.Image, obj *resolv.Object, allign bool, textLines ...string) {
 
 	// dynamically calculate fontsize based on width and height of textfield
 
 	h := obj.Size.Y / float64(len(textLines))
-	f := text.FaceWithLineHeight(assets.NormalFont, obj.Size.Y)
 
 	// x := int(obj.Position.X)
-	dy := 0
+	dy := 0.0
 
-	leftAlligned := obj.Center().X - (obj.Size.X * 0.25)
-	topAlligned := obj.Center().Y - (obj.Size.Y * 0.25)
+	shiftX := obj.Center().X * 0.9
+	shiftY := obj.Center().Y
+
+	if allign {
+		shiftX = shiftX - (obj.Size.X * 0.25)
+		shiftY = shiftY - (obj.Size.Y * 0.25)
+	}
 
 	for _, txt := range textLines {
-
 		// Draw the text
-		text.Draw(screen, txt, f, int(leftAlligned), int(topAlligned)+dy, color.RGBA{0, 0, 0, 255})
+		op := &ebiten.DrawImageOptions{}
+		op.GeoM.Scale(4, 4)
+		op.GeoM.Translate(shiftX, shiftY+dy)
+		op.ColorScale.SetR(0)
+		op.ColorScale.SetG(0)
+		op.ColorScale.SetB(0)
+		op.ColorScale.SetA(255)
+
+		text.DrawWithOptions(screen, txt, assets.NormalFont, op)
 
 		// Move to the next line
-		dy += int(h)
+		dy += h
 	}
 }

@@ -10,6 +10,7 @@ package assets
 import (
 	"bytes"
 	"image"
+	"log/slog"
 	"path/filepath"
 	"sort"
 
@@ -118,7 +119,10 @@ func (er *EbitenRenderer) beginLayer(layer *ldtkgo.Layer, w, h int) error {
 	var err error
 	if !exists {
 		er.Tilesets[layer.Tileset.Path], err = er.Loader.LoadImage(layer.Tileset.Path)
-		return err
+		if err != nil {
+			slog.Info("failed to begin layer")
+			panic(1)
+		}
 	}
 
 	er.CurrentTileset = layer.Tileset.Path

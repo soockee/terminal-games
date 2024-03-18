@@ -6,7 +6,7 @@ import (
 )
 
 type Move struct {
-	Direction input.Action
+	Action input.Action
 }
 
 var MoveEvent = events.NewEventType[*Move]()

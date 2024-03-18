@@ -12,6 +12,7 @@ const (
 	ActionMoveDown
 	ActionMoveRight
 	ActionMoveLeft
+	ActionMoveHalt
 	ActionClick
 	ActionDebug
 	ActionHelp

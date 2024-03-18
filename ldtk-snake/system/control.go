@@ -12,27 +12,27 @@ func UpdateControl(ecs *ecs.ECS) {
 
 	if control.InputHandler.ActionIsJustPressed(component.ActionMoveUp) {
 		event.MoveEvent.Publish(ecs.World, &event.Move{
-			Direction: component.ActionMoveUp,
+			Action: component.ActionMoveUp,
 		})
 	}
 	if control.InputHandler.ActionIsJustPressed(component.ActionMoveDown) {
 		event.MoveEvent.Publish(ecs.World, &event.Move{
-			Direction: component.ActionMoveDown,
+			Action: component.ActionMoveDown,
 		})
 	}
 	if control.InputHandler.ActionIsJustPressed(component.ActionMoveLeft) {
 		event.MoveEvent.Publish(ecs.World, &event.Move{
-			Direction: component.ActionMoveLeft,
+			Action: component.ActionMoveLeft,
 		})
 	}
 	if control.InputHandler.ActionIsJustPressed(component.ActionMoveRight) {
 		event.MoveEvent.Publish(ecs.World, &event.Move{
-			Direction: component.ActionMoveRight,
+			Action: component.ActionMoveRight,
 		})
 	}
-	if control.InputHandler.ActionIsJustPressed(component.ActionClick) {
+	if control.InputHandler.ActionIsJustPressed(component.ActionMoveHalt) {
 		event.MoveEvent.Publish(ecs.World, &event.Move{
-			Direction: component.ActionClick,
+			Action: component.ActionMoveHalt,
 		})
 	}
 	if control.InputHandler.ActionIsJustPressed(component.ActionDebug) {

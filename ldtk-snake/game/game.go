@@ -71,13 +71,18 @@ func (g *Game) start(sceneId component.SceneId) {
 }
 
 func (g *Game) reset() {
-	gamestate, ok := component.GameState.First(g.ecs.World)
-	if !ok {
+
+	switch g.scene.GetId() {
+	case component.StartScene:
 		g.ecs = desc.NewECS(donburi.NewWorld())
-	} else {
+
+	case component.SnakeScene:
+		gamestate := component.GameState.MustFirst(g.ecs.World)
 		gamedata := component.GameState.Get(gamestate)
 		g.ecs = desc.NewECS(donburi.NewWorld())
 		factory.FinalizeGameState(g.ecs, gamedata)
+	case component.GameOverScene:
+		g.ecs = desc.NewECS(donburi.NewWorld())
 	}
 }
 

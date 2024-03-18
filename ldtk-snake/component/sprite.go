@@ -68,16 +68,16 @@ func DrawScaledSprite(screen *ebiten.Image, e *donburi.Entry) {
 func DrawRepeatedSprite(screen *ebiten.Image, e *donburi.Entry) {
 	o := Object.Get(e)
 	sprite := Sprite.Get(e)
-	xTimes := o.Size.X / float64(o.Space.CellWidth)
-	yTimes := o.Size.Y / float64(o.Space.CellHeight)
-	scaleX := float64(o.Space.CellWidth) / float64(sprite.Image.Bounds().Dx())
-	scaleY := float64(o.Space.CellHeight) / float64(sprite.Image.Bounds().Dy())
+	xTimes := o.Size.X / float64(sprite.Image.Bounds().Dx())
+	yTimes := o.Size.Y / float64(sprite.Image.Bounds().Dy())
+	// scaleX := float64(o.Space.CellWidth) / float64(sprite.Image.Bounds().Dx())
+	// scaleY := float64(o.Space.CellHeight) / float64(sprite.Image.Bounds().Dy())
 	for i := 0; i < int(xTimes); i++ {
-		dx := float64(o.Space.CellWidth * i)
+		dx := float64(sprite.Image.Bounds().Dx() * i)
 		for j := 0; j < int(yTimes); j++ {
-			dy := float64(o.Space.CellWidth * j)
+			dy := float64(sprite.Image.Bounds().Dx() * j)
 			op := &ebiten.DrawImageOptions{}
-			op.GeoM.Scale(scaleX, scaleY)
+			// op.GeoM.Scale(scaleX, scaleY)
 			op.GeoM.Translate(o.Position.X+dx, o.Position.Y+dy)
 			screen.DrawImage(sprite.Image, op)
 		}

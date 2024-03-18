@@ -22,11 +22,15 @@ func CreateTextField(ecs *ecs.ECS, project *assets.LDtkProject, entity *ldtkgo.E
 	X := float64(entity.Position[0])
 	Y := float64(entity.Position[1])
 
-	text := entity.PropertyByIdentifier("text").AsString()
-	textArray := strings.Split(text, "\n")
+	textPropertiy := entity.PropertyByIdentifier("text")
+
+	text := []string{}
+	if len(entity.Properties) > 0 && !textPropertiy.IsNull() {
+		text = strings.Split(textPropertiy.AsString(), "\n")
+	}
 	component.Text.Set(textfield, &component.TextData{
 		Identifier:          entity.Identifier,
-		Text:                textArray,
+		Text:                text,
 		IsAnimated:          false,
 		CurrentCharPosition: 0,
 	})

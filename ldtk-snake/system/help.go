@@ -3,6 +3,7 @@ package system
 import (
 	"fmt"
 	"image/color"
+	"math"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text"
@@ -19,8 +20,18 @@ func DrawHelp(ecs *ecs.ECS, screen *ebiten.Image) {
 		return
 	}
 	if settings.ShowHelpText {
+		// top right croner
+		// space := component.Space.Get(component.Space.MustFirst(ecs.World))
+		// cell := space.Cell(4, 4)
+		// cw := space.CellWidth
+		// ch := space.CellHeight
+		// cx := cell.X * cw
+		// cy := cell.Y * ch
+
+		// center
 		space := component.Space.Get(component.Space.MustFirst(ecs.World))
-		cell := space.Cell(4, 4)
+		shift := float64(len(space.Cells)) * 0.75
+		cell := space.Cell(4, int(math.Ceil(shift)))
 		cw := space.CellWidth
 		ch := space.CellHeight
 		cx := cell.X * cw
@@ -29,6 +40,7 @@ func DrawHelp(ecs *ecs.ECS, screen *ebiten.Image) {
 		drawHelpText(screen, cx, cy,
 			"~ Snake ~",
 			"Move Snake: W,A,S,D or Arrow Keys",
+			"Halt Snake:Space",
 			"",
 			"F1: Toggle Debug View",
 			"F2: Show / Hide help text",
