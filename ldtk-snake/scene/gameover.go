@@ -39,12 +39,14 @@ func (s *GameOverScene) configure() {
 	s.ecs.AddRenderer(layers.Default, system.DrawButton)
 	s.ecs.AddRenderer(layers.Default, system.DrawTextField)
 
-	cellWidth := s.ldtkProject.Project.Levels[s.getLevelId()].Width / s.ldtkProject.Project.Levels[s.getLevelId()].Layers[layers.Default].CellWidth
-	CellHeight := s.ldtkProject.Project.Levels[s.getLevelId()].Height / s.ldtkProject.Project.Levels[s.getLevelId()].Layers[layers.Default].CellHeight
+	level := s.ldtkProject.Project.LevelByIdentifier(s.GetId())
+
+	cellWidth := level.Width / level.Layers[layers.Default].CellWidth
+	CellHeight := level.Height / level.Layers[layers.Default].CellHeight
 	space := factory.CreateSpace(
 		s.ecs,
-		s.ldtkProject.Project.Levels[s.getLevelId()].Width,
-		s.ldtkProject.Project.Levels[s.getLevelId()].Height,
+		level.Width,
+		level.Height,
 		cellWidth,
 		CellHeight,
 	)
@@ -68,11 +70,8 @@ func (s *GameOverScene) configure() {
 	pkgevents.InteractionEvent.Subscribe(s.ecs.World, system.HandleButtonClick)
 }
 
-func (s *GameOverScene) GetId() component.SceneId {
+func (s *GameOverScene) GetId() string {
 	return component.GameOverScene
-}
-func (s *GameOverScene) getLevelId() int {
-	return int(s.GetId())
 }
 func (s *GameOverScene) getLdtkProject() *assets.LDtkProject {
 	return s.ldtkProject

@@ -28,10 +28,10 @@ func OnCollideEvent(w donburi.World, e *event.Collide) {
 }
 
 func OnPickupEvent(w donburi.World, e *event.Collect) {
-	slog.Info("Process Food Event")
 
 	switch e.Type {
 	case component.FoodCollectable:
+		slog.Info("Process Food Event")
 		// got only one collectable right now
 		food, ok := query.NewQuery(filter.Contains(component.Collectable)).First(w)
 		if !ok {
@@ -59,6 +59,18 @@ func OnPickupEvent(w donburi.World, e *event.Collect) {
 
 		gameStateDate := component.GameState.Get(component.GameState.MustFirst(w))
 		gameStateDate.Score++
+		if gameStateDate.Score == 1 {
+			if next, ok := component.GetNextLevel(sceneData.CurrentScene); ok {
+				event.SceneStateEvent.Publish(w, &event.SceneStateData{
+					CurrentScene: component.LevelClearScene,
+					NextScene:    next,
+				})
+			} else {
+				event.SceneStateEvent.Publish(w, &event.SceneStateData{
+					CurrentScene: component.GameOverScene,
+				})
+			}
+		}
 
 	default:
 		slog.Error("unknown collectable")

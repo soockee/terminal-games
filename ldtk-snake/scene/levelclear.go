@@ -1,6 +1,7 @@
 package scene
 
 import (
+	"fmt"
 	"sync"
 
 	"github.com/soockee/terminal-games/ldtk-snake/assets"
@@ -9,25 +10,26 @@ import (
 	"github.com/soockee/terminal-games/ldtk-snake/factory"
 	"github.com/soockee/terminal-games/ldtk-snake/layers"
 	"github.com/soockee/terminal-games/ldtk-snake/system"
+	"github.com/yohamta/donburi"
 	"github.com/yohamta/donburi/ecs"
 	decs "github.com/yohamta/donburi/ecs"
 )
 
-type StartScene struct {
+type LevelClearScene struct {
 	ecs         *decs.ECS
 	ldtkProject *assets.LDtkProject
 	once        *sync.Once
 }
 
-func NewStartScene(ecs *decs.ECS, project *assets.LDtkProject) *StartScene {
-	return &StartScene{
+func NewLevelClearScene(ecs *decs.ECS, project *assets.LDtkProject) *LevelClearScene {
+	return &LevelClearScene{
 		ecs:         ecs,
 		ldtkProject: project,
 		once:        &sync.Once{},
 	}
 }
 
-func (s *StartScene) configure() {
+func (s *LevelClearScene) configure() {
 	s.ecs.AddSystem(system.UpdateObjects)
 	s.ecs.AddSystem(system.ProcessEvents)
 	s.ecs.AddSystem(system.UpdateButton)
@@ -35,6 +37,7 @@ func (s *StartScene) configure() {
 	s.ecs.AddRenderer(layers.Default, system.DrawDebug)
 	s.ecs.AddRenderer(layers.Default, system.DrawHelp)
 	s.ecs.AddRenderer(layers.Default, system.DrawButton)
+	s.ecs.AddRenderer(layers.Default, system.DrawTextField)
 
 	level := s.ldtkProject.Project.LevelByIdentifier(s.GetId())
 
@@ -48,23 +51,34 @@ func (s *StartScene) configure() {
 		CellHeight,
 	)
 
-	// s.createEntities(s.ecs, space)
 	CreateEntities(s, space)
+
+	gamedata := component.GameState.Get(component.GameState.MustFirst(s.ecs.World))
+
+	component.Text.Each(s.ecs.World, func(e *donburi.Entry) {
+		textfield := component.Text.Get(e)
+		if textfield.Identifier == "Score" {
+			textfield.Text = append(textfield.Text, fmt.Sprintf("%d", gamedata.Score))
+		} else if textfield.Identifier == "Time" {
+			duration := gamedata.End.Sub(gamedata.Start)
+			textfield.Text = append(textfield.Text, fmt.Sprintf("%.3fs", duration.Seconds()))
+		}
+	})
 
 	// Subscribe events.
 	pkgevents.UpdateSettingEvent.Subscribe(s.ecs.World, system.OnSettingsEvent)
 	pkgevents.InteractionEvent.Subscribe(s.ecs.World, system.HandleButtonClick)
 }
 
-func (s *StartScene) GetId() string {
-	return component.StartScene
+func (s *LevelClearScene) GetId() string {
+	return component.LevelClearScene
 }
-func (s *StartScene) getLdtkProject() *assets.LDtkProject {
+func (s *LevelClearScene) getLdtkProject() *assets.LDtkProject {
 	return s.ldtkProject
 }
-func (s *StartScene) getEcs() *ecs.ECS {
+func (s *LevelClearScene) getEcs() *ecs.ECS {
 	return s.ecs
 }
-func (s *StartScene) getOnce() *sync.Once {
+func (s *LevelClearScene) getOnce() *sync.Once {
 	return s.once
 }

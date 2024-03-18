@@ -39,17 +39,17 @@ func NewLDtkProject(path string) (*LDtkProject, error) {
 
 }
 
-func (ldtk LDtkProject) GetEntities(level int) []*ldtkgo.Entity {
+func (ldtk LDtkProject) GetEntities(level string) []*ldtkgo.Entity {
 	entities := []*ldtkgo.Entity{}
-	for _, layer := range ldtk.Project.Levels[level].Layers {
+	for _, layer := range ldtk.Project.LevelByIdentifier(level).Layers {
 		entities = append(entities, layer.Entities...)
 	}
 	return entities
 }
 
 // GetEntityByName returns the first found entity by name
-func (ldtk LDtkProject) GetEntityByName(name string, level int) *ldtkgo.Entity {
-	for _, layer := range ldtk.Project.Levels[level].Layers {
+func (ldtk LDtkProject) GetEntityByName(name string, level string) *ldtkgo.Entity {
+	for _, layer := range ldtk.Project.LevelByIdentifier(level).Layers {
 		for _, entity := range layer.Entities {
 			if entity.Identifier == name {
 				return entity
@@ -59,10 +59,10 @@ func (ldtk LDtkProject) GetEntityByName(name string, level int) *ldtkgo.Entity {
 	return nil
 }
 
-func (ldtk LDtkProject) loadRequiredTileset(entity *ldtkgo.Entity, level int) (*ebiten.Image, error) {
+func (ldtk LDtkProject) loadRequiredTileset(entity *ldtkgo.Entity, level string) (*ebiten.Image, error) {
 	var tileset *ebiten.Image
 	var err error
-	for _, layer := range ldtk.Project.Levels[level].Layers {
+	for _, layer := range ldtk.Project.LevelByIdentifier(level).Layers {
 		if layer.Identifier == "Entities" {
 			for _, e := range layer.Entities {
 				if entity == e {
@@ -96,16 +96,8 @@ func (ldtk LDtkProject) GetSprite(tileRect *ldtkgo.TileRect) (*ebiten.Image, err
 	return sprite, err
 }
 
-func (ldtk *LDtkProject) RenderLevel(currentLevel int) {
-	if currentLevel >= len(ldtk.Project.Levels) {
-		currentLevel = 0
-	}
-
-	if currentLevel < 0 {
-		currentLevel = len(ldtk.Project.Levels) - 1
-	}
-
-	level := ldtk.Project.Levels[currentLevel]
+func (ldtk *LDtkProject) RenderLevel(currentlevel string) {
+	level := ldtk.Project.LevelByIdentifier(currentlevel)
 
 	ldtk.Renderer.Render(level)
 }

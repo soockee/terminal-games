@@ -4,7 +4,6 @@ import (
 	"sync"
 
 	"github.com/soockee/terminal-games/ldtk-snake/assets"
-	"github.com/soockee/terminal-games/ldtk-snake/component"
 	pkgevents "github.com/soockee/terminal-games/ldtk-snake/event"
 	"github.com/soockee/terminal-games/ldtk-snake/tags"
 
@@ -19,10 +18,10 @@ type SnakeScene struct {
 	ecs         *decs.ECS
 	ldtkProject *assets.LDtkProject
 	once        *sync.Once
-	level       component.SceneId
+	level       string
 }
 
-func NewSnakeScene(ecs *decs.ECS, project *assets.LDtkProject, level component.SceneId) *SnakeScene {
+func NewSnakeScene(ecs *decs.ECS, project *assets.LDtkProject, level string) *SnakeScene {
 	return &SnakeScene{
 		ecs:         ecs,
 		ldtkProject: project,
@@ -42,12 +41,14 @@ func (s *SnakeScene) configure() {
 	s.ecs.AddRenderer(layers.Default, system.DrawFood)
 	s.ecs.AddRenderer(layers.Default, system.DrawWall)
 
-	cellWidth := s.ldtkProject.Project.Levels[s.getLevelId()].Width / s.ldtkProject.Project.Levels[s.getLevelId()].Layers[layers.Default].CellWidth
-	CellHeight := s.ldtkProject.Project.Levels[s.getLevelId()].Height / s.ldtkProject.Project.Levels[s.getLevelId()].Layers[layers.Default].CellHeight
+	level := s.ldtkProject.Project.LevelByIdentifier(s.GetId())
+
+	cellWidth := level.Width / level.Layers[layers.Default].CellWidth
+	CellHeight := level.Height / level.Layers[layers.Default].CellHeight
 	space := factory.CreateSpace(
 		s.ecs,
-		s.ldtkProject.Project.Levels[s.getLevelId()].Width,
-		s.ldtkProject.Project.Levels[s.getLevelId()].Height,
+		level.Width,
+		level.Height,
 		cellWidth,
 		CellHeight,
 	)
@@ -66,11 +67,8 @@ func (s *SnakeScene) configure() {
 
 }
 
-func (s *SnakeScene) GetId() component.SceneId {
+func (s *SnakeScene) GetId() string {
 	return s.level
-}
-func (s *SnakeScene) getLevelId() int {
-	return int(s.GetId())
 }
 func (s *SnakeScene) getLdtkProject() *assets.LDtkProject {
 	return s.ldtkProject

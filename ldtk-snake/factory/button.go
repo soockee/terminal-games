@@ -2,7 +2,6 @@ package factory
 
 import (
 	"log/slog"
-	"math/rand"
 
 	"github.com/solarlune/resolv"
 	"github.com/soockee/ldtkgo"
@@ -17,19 +16,32 @@ import (
 
 var buttonhandlerMapping = map[string]func(w donburi.World){
 	"StartButton": func(w donburi.World) {
-		randomLevel := rand.Intn(len(component.SnakeLevels))
-		slog.Info("starting level", slog.Any("Level", component.SnakeLevels[randomLevel]))
+		slog.Info("starting level", slog.Any("Level", component.Level_0))
 		event.SceneStateEvent.Publish(w, &event.SceneStateData{
-			CurrentScene: component.SnakeLevels[randomLevel],
+			CurrentScene: component.Level_0,
 		})
 	},
 	"GithubButton": func(w donburi.World) { util.OpenUrl("https://github.com/soockee") },
 	"ResetButton": func(w donburi.World) {
-		randomLevel := rand.Intn(len(component.SnakeLevels))
-		slog.Info("starting level", slog.Any("Level", component.SnakeLevels[randomLevel]))
-		event.SceneStateEvent.Publish(w, &event.SceneStateData{
-			CurrentScene: component.SnakeLevels[randomLevel],
-		})
+		for k := range component.SnakeLevels {
+			component.SnakeLevels[k] = false
+		}
+		if next, ok := component.GetRandomUnplayedLevel(); ok {
+			slog.Info("starting level", slog.Any("Level", next))
+			event.SceneStateEvent.Publish(w, &event.SceneStateData{
+				CurrentScene: next,
+			})
+		}
+	},
+	"NextButton": func(w donburi.World) {
+		sceneentry := component.SceneState.MustFirst(w)
+		scenedata := component.SceneState.Get(sceneentry)
+		if next, ok := component.GetNextLevel(scenedata.LastScene); ok {
+			slog.Info("starting level", slog.Any("Level", next))
+			event.SceneStateEvent.Publish(w, &event.SceneStateData{
+				CurrentScene: next,
+			})
+		}
 	},
 }
 

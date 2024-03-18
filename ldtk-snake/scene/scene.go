@@ -17,9 +17,8 @@ import (
 
 type Scene interface {
 	configure()
-	GetId() component.SceneId
+	GetId() string
 	getLdtkProject() *assets.LDtkProject
-	getLevelId() int
 	getEcs() *ecs.ECS
 	getOnce() *sync.Once
 }
@@ -43,17 +42,18 @@ func Draw(s Scene, screen *ebiten.Image) {
 }
 
 func Layout(s Scene) (int, int) {
-	return s.getLdtkProject().Project.Levels[s.getLevelId()].Width, s.getLdtkProject().Project.Levels[s.getLevelId()].Height
+	return s.getLdtkProject().Project.LevelByIdentifier(s.GetId()).Width, s.getLdtkProject().Project.LevelByIdentifier(s.GetId()).Height
 }
 
-func CreateScene(sceneId component.SceneId, ecs *ecs.ECS, project *assets.LDtkProject) Scene {
-	project.Renderer.Render(project.Project.Levels[sceneId])
+func CreateScene(sceneId string, ecs *ecs.ECS, project *assets.LDtkProject) Scene {
+	project.Renderer.Render(project.Project.LevelByIdentifier(sceneId))
 	switch sceneId {
 	case component.StartScene:
 		return NewStartScene(ecs, project)
+	case component.LevelClearScene:
+		return NewLevelClearScene(ecs, project)
 	case component.GameOverScene:
 		return NewGameOverScene(ecs, project)
-
 	case component.Level_0:
 		fallthrough
 	case component.Level_1:
@@ -70,7 +70,8 @@ func CreateScene(sceneId component.SceneId, ecs *ecs.ECS, project *assets.LDtkPr
 }
 
 func CreateEntities[T Scene](s T, space *donburi.Entry) {
-	entities := s.getLdtkProject().GetEntities(s.getLevelId())
+	level := s.getLdtkProject().Project.LevelByIdentifier(s.GetId())
+	entities := s.getLdtkProject().GetEntities(level.Identifier)
 
 	for _, entity := range entities {
 		for name, f := range TagsMapping {
@@ -84,7 +85,7 @@ func CreateEntities[T Scene](s T, space *donburi.Entry) {
 }
 
 func DrawLevel[T Scene](s T, screen *ebiten.Image) {
-	level := s.getLdtkProject().Project.Levels[s.getLevelId()]
+	level := s.getLdtkProject().Project.LevelByIdentifier(s.GetId())
 
 	if level.BGImage != nil {
 		opt := &ebiten.DrawImageOptions{}

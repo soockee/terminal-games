@@ -22,7 +22,7 @@ func main() {
 	})
 	slog.SetDefault(slog.New(h))
 
-	ebiten.SetWindowSize(ldtkProject.Project.Levels[int(component.StartScene)].Width, ldtkProject.Project.Levels[int(component.StartScene)].Height)
+	ebiten.SetWindowSize(ldtkProject.Project.LevelByIdentifier(component.StartScene).Width, ldtkProject.Project.LevelByIdentifier(component.StartScene).Height)
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
 	ebiten.SetWindowTitle("LDtk Snake")
 	g := game.NewGame(ldtkProject)

@@ -14,6 +14,7 @@ import (
 	"github.com/soockee/terminal-games/ldtk-snake/system"
 	"github.com/yohamta/donburi"
 	desc "github.com/yohamta/donburi/ecs"
+	"golang.org/x/exp/maps"
 )
 
 type Game struct {
@@ -29,7 +30,7 @@ func NewGame(project *assets.LDtkProject) *Game {
 		ecs:         desc.NewECS(donburi.NewWorld()),
 		ldtkProject: project,
 	}
-	g.start(component.StartScene)
+	g.start(component.StartScene, component.Empty)
 	return g
 }
 
@@ -38,7 +39,7 @@ func (g *Game) Update() error {
 		sceneStateData := component.SceneState.Get(sceneState)
 		if g.scene.GetId() != sceneStateData.CurrentScene {
 			g.reset()
-			g.start(sceneStateData.CurrentScene)
+			g.start(sceneStateData.CurrentScene, sceneStateData.LastScene)
 		}
 	}
 	scene.Update(g.scene)
@@ -54,12 +55,12 @@ func (g *Game) Layout(width, height int) (int, int) {
 	return scene.Layout(g.scene)
 }
 
-func (g *Game) start(sceneId component.SceneId) {
+func (g *Game) start(sceneId string, prevSceneId string) {
 
 	// global systems
 	g.ecs.AddSystem(system.UpdateControl)
 	factory.CreateControl(g.ecs)
-	factory.CreateSceneState(g.ecs, sceneId, g.ldtkProject)
+	factory.CreateSceneState(g.ecs, sceneId, prevSceneId, g.ldtkProject)
 	factory.CreateSettings(g.ecs)
 
 	g.ecs.AddRenderer(layers.Default, system.DrawDebug)
@@ -73,7 +74,8 @@ func (g *Game) start(sceneId component.SceneId) {
 
 func (g *Game) reset() {
 	// Check if sceneId is in SnakeLevels slice
-	if slices.Contains(component.SnakeLevels, g.scene.GetId()) {
+	levels := maps.Keys(component.SnakeLevels)
+	if slices.Contains(levels, g.scene.GetId()) {
 		gamestate := component.GameState.MustFirst(g.ecs.World)
 		gamedata := component.GameState.Get(gamestate)
 		g.ecs = desc.NewECS(donburi.NewWorld())
@@ -86,6 +88,10 @@ func (g *Game) reset() {
 
 func handleSceneStateEvent(w donburi.World, e *pkgevents.SceneStateData) {
 	sceneStateData := component.SceneState.Get(component.SceneState.MustFirst(w))
+
+	if e.CurrentScene == component.LevelClearScene {
+		sceneStateData.LastScene = sceneStateData.CurrentScene
+	}
 	sceneStateData.CurrentScene = e.CurrentScene
 }
 
@@ -93,6 +99,8 @@ func handleGameStateEvent(w donburi.World, e *pkgevents.GameStateData) {
 	if e.IsGameOver {
 		slog.Info("Game Over")
 		sceneStateData := component.SceneState.Get(component.SceneState.MustFirst(w))
+		sceneStateData.LastScene = sceneStateData.CurrentScene
 		sceneStateData.CurrentScene = component.GameOverScene
+
 	}
 }
