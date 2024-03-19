@@ -79,7 +79,13 @@ func (g *Game) reset() {
 		gamestate := component.GameState.MustFirst(g.ecs.World)
 		gamedata := component.GameState.Get(gamestate)
 		g.ecs = desc.NewECS(donburi.NewWorld())
-		factory.FinalizeGameState(g.ecs, gamedata)
+		factory.AccumulateGameState(g.ecs, gamedata)
+		return
+	} else if g.scene.GetId() == component.LevelClearScene {
+		gamestate := component.GameState.MustFirst(g.ecs.World)
+		gamedata := component.GameState.Get(gamestate)
+		g.ecs = desc.NewECS(donburi.NewWorld())
+		factory.ContinueLevelGameState(g.ecs, gamedata)
 		return
 	} else {
 		g.ecs = desc.NewECS(donburi.NewWorld())
@@ -101,6 +107,5 @@ func handleGameStateEvent(w donburi.World, e *pkgevents.GameStateData) {
 		sceneStateData := component.SceneState.Get(component.SceneState.MustFirst(w))
 		sceneStateData.LastScene = sceneStateData.CurrentScene
 		sceneStateData.CurrentScene = component.GameOverScene
-
 	}
 }

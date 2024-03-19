@@ -8,6 +8,8 @@ import (
 
 type GameData struct {
 	IsGameOver bool
+	TotalScore int
+	TotalTime  time.Duration
 	Score      int
 	Start      time.Time
 	End        time.Time

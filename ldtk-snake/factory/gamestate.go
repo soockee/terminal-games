@@ -14,6 +14,8 @@ func CreateGameState(ecs *ecs.ECS) *donburi.Entry {
 	start := time.Now()
 	component.GameState.SetValue(gamestate, component.GameData{
 		IsGameOver: false,
+		TotalScore: 0,
+		TotalTime:  time.Duration(0),
 		Score:      0,
 		Start:      start,
 		End:        start,
@@ -21,10 +23,26 @@ func CreateGameState(ecs *ecs.ECS) *donburi.Entry {
 	return gamestate
 }
 
-func FinalizeGameState(ecs *ecs.ECS, gamedata *component.GameData) *donburi.Entry {
+func ContinueLevelGameState(ecs *ecs.ECS, gamedata *component.GameData) *donburi.Entry {
 	gamestate := archetype.GameState.Spawn(ecs)
 	component.GameState.SetValue(gamestate, component.GameData{
 		IsGameOver: false,
+		// todo: calc total score
+		TotalScore: gamedata.TotalScore,
+		TotalTime:  gamedata.TotalTime,
+		Score:      0,
+		Start:      time.Now(),
+		End:        time.Now(),
+	})
+	return gamestate
+}
+
+func AccumulateGameState(ecs *ecs.ECS, gamedata *component.GameData) *donburi.Entry {
+	gamestate := archetype.GameState.Spawn(ecs)
+	component.GameState.SetValue(gamestate, component.GameData{
+		IsGameOver: false,
+		TotalScore: gamedata.TotalScore + gamedata.Score,
+		TotalTime:  gamedata.TotalTime + time.Since(gamedata.Start),
 		Score:      gamedata.Score,
 		Start:      gamedata.Start,
 		End:        time.Now(),
