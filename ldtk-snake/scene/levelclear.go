@@ -10,6 +10,7 @@ import (
 	"github.com/soockee/terminal-games/ldtk-snake/factory"
 	"github.com/soockee/terminal-games/ldtk-snake/layers"
 	"github.com/soockee/terminal-games/ldtk-snake/system"
+	"github.com/soockee/terminal-games/ldtk-snake/util"
 	"github.com/yohamta/donburi"
 	"github.com/yohamta/donburi/ecs"
 	decs "github.com/yohamta/donburi/ecs"
@@ -58,7 +59,10 @@ func (s *LevelClearScene) configure() {
 	component.Text.Each(s.ecs.World, func(e *donburi.Entry) {
 		textfield := component.Text.Get(e)
 		if textfield.Identifier == "Score" {
-			textfield.Text = append(textfield.Text, fmt.Sprintf("%d", gamedata.Score))
+			duration := gamedata.End.Sub(gamedata.Start)
+			time := float64(duration.Seconds())
+			score := util.CalculateHighscore(float64(gamedata.Score), time)
+			textfield.Text = append(textfield.Text, fmt.Sprintf("%d", score))
 		} else if textfield.Identifier == "Time" {
 			duration := gamedata.End.Sub(gamedata.Start)
 			textfield.Text = append(textfield.Text, fmt.Sprintf("%.3fs", duration.Seconds()))

@@ -54,3 +54,26 @@ func RandomPointInBounds(xMin int, yMin int, xMax int, yMax int) (int, int) {
 
 	return randomX, randomY
 }
+
+func CalculateHighscore(score float64, time float64) int {
+	score = score * 100
+
+	// Define a base weight for the score (can be adjusted)
+	weightScore := 0.8
+
+	// Define a weight for the time (can be adjusted, negative for lower time is better)
+	weightTime := -0.2
+
+	// Normalize the time (optional, adjust range based on your expected times)
+	normalizedTime := 1.0 / (1 + time/100) // Example normalization (scales time between 0 and 1)
+
+	// Calculate highscore using weighted sum and rounding to int
+	highscore := int(math.Floor(weightScore*score + weightTime*normalizedTime))
+
+	// Ensure non-negative highscore (optional)
+	if highscore < 0 {
+		highscore = 0
+	}
+
+	return highscore
+}
