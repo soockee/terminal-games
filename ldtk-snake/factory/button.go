@@ -26,12 +26,9 @@ var buttonhandlerMapping = map[string]func(w donburi.World){
 		for k := range component.SnakeLevels {
 			component.SnakeLevels[k] = false
 		}
-		if next, ok := component.GetRandomUnplayedLevel(); ok {
-			slog.Info("starting level", slog.Any("Level", next))
-			event.SceneStateEvent.Publish(w, &event.SceneStateData{
-				CurrentScene: next,
-			})
-		}
+		event.SceneStateEvent.Publish(w, &event.SceneStateData{
+			CurrentScene: component.Level_0,
+		})
 	},
 	"NextButton": func(w donburi.World) {
 		sceneentry := component.SceneState.MustFirst(w)

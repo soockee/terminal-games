@@ -59,7 +59,7 @@ func OnPickupEvent(w donburi.World, e *event.Collect) {
 
 		gameStateDate := component.GameState.Get(component.GameState.MustFirst(w))
 		gameStateDate.Score++
-		if gameStateDate.Score == 1 {
+		if gameStateDate.Score == 15 {
 			if next, ok := component.GetNextLevel(sceneData.CurrentScene); ok {
 				event.SceneStateEvent.Publish(w, &event.SceneStateData{
 					CurrentScene: component.LevelClearScene,
