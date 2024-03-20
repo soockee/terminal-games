@@ -12,8 +12,8 @@ github.com/quasilyte/gmath v0.0.0-20221217210116-fba37a2e15c7 h1:mvIS9aGirkzuYmH
 github.com/quasilyte/gmath v0.0.0-20221217210116-fba37a2e15c7/go.mod h1:EbI+KMbALSVE2s0YFOQpR4uj66zBh9ter5P4CBMSuvA=
 github.com/solarlune/resolv v0.7.0 h1:xppOLy3hRy9AB5khJVVUlwiWdFZGSLwAOODAoZ6508A=
 github.com/solarlune/resolv v0.7.0/go.mod h1:rUQ1j+RndaUwwrSgl585tAp2uu7Zj7TG5mXq+x6hX/w=
-github.com/soockee/ldtkgo v0.0.2-0.20240309210144-ab81fc67accd h1:zfW0cs3nchtTPFu0XVDjHFxTjwGAT+8ydmrOaWZio4g=
-github.com/soockee/ldtkgo v0.0.2-0.20240309210144-ab81fc67accd/go.mod h1:1qENQ7U7veK3MUcQ++NM8VGzgoLf+CJWZYXQRlckmp8=
+github.com/soockee/ldtkgo v0.0.3 h1:taj6Tj8Rf4EA/ZxJLoD42JoT2hxUENbw1yCszuGKHQw=
+github.com/soockee/ldtkgo v0.0.3/go.mod h1:1qENQ7U7veK3MUcQ++NM8VGzgoLf+CJWZYXQRlckmp8=
 github.com/tidwall/gjson v1.9.3 h1:hqzS9wAHMO+KVBBkLxYdkEeeFHuqr95GfClRLKlgK0E=
 github.com/tidwall/gjson v1.9.3/go.mod h1:/wbyibRr2FHMks5tjHJ5F8dMZh3AcwJEMf5vlfC0lxk=
 github.com/tidwall/match v1.1.1 h1:+Ho715JplO36QYgwN9PGYNhgZvoUSc9X2c80KVTi+GA=
