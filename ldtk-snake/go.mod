@@ -6,7 +6,7 @@ require (
 	github.com/hajimehoshi/ebiten/v2 v2.6.6
 	github.com/quasilyte/ebitengine-input v0.9.1
 	github.com/solarlune/resolv v0.7.0
-	github.com/soockee/ldtkgo v0.0.2-0.20240309210144-ab81fc67accd
+	github.com/soockee/ldtkgo v0.0.3
 	github.com/yohamta/donburi v1.3.13
 	golang.org/x/image v0.12.0
 )
