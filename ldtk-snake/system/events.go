@@ -46,6 +46,8 @@ func OnPickupEvent(w donburi.World, e *event.Collect) {
 
 		sceneObj := component.SceneState.Get(component.SceneState.MustFirst(w))
 		snakeEntity := component.Snake.MustFirst(w)
+		snakeData := component.Snake.Get(snakeEntity)
+		snakeData.Speed *= 1.2
 
 		if !ok {
 			slog.Error("snakeEntity not found OnCollideEvent")

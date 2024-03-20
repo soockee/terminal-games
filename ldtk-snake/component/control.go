@@ -4,6 +4,7 @@ import (
 	"log/slog"
 
 	input "github.com/quasilyte/ebitengine-input"
+	"github.com/solarlune/resolv"
 	"github.com/yohamta/donburi"
 )
 
@@ -12,7 +13,8 @@ const (
 	ActionMoveDown
 	ActionMoveRight
 	ActionMoveLeft
-	ActionMoveHalt
+	ActionMoveBoost
+	ActionMovePosition
 	ActionClick
 	ActionDebug
 	ActionHelp
@@ -20,6 +22,7 @@ const (
 
 type ControlData struct {
 	InputHandler *input.Handler
+	LastPosition *resolv.Vector
 }
 
 var Control = donburi.NewComponentType[ControlData]()
