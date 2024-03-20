@@ -58,10 +58,26 @@ func DrawSnakeBody(ecs *ecs.ECS, screen *ebiten.Image, next *component.SnakeBody
 // move temporarily uses a speed of type int whiel figuring out the collision
 func OnMoveEvent(w donburi.World, e *event.Move) {
 	entity := component.Snake.MustFirst(w)
-	// snakeData := component.Snake.Get(entity)
+	snakeData := component.Snake.Get(entity)
+	snakeObj := dresolv.GetObject(entity)
 
 	velocity := component.Velocity.Get(entity)
 	switch e.Action {
+	case component.ActionMovePosition:
+		direction := util.DirectionVector(snakeObj.Position, e.Position)
+		mag := direction.Magnitude()
+		speed := snakeData.Speed
+		if e.Boost {
+			speed *= 2
+		}
+		mag = math.Min(speed, mag)
+		directionUnit := direction.Unit()
+		if direction.Magnitude() < 3 {
+			event.SceneStateEvent.Publish(w, &event.SceneStateData{
+				CurrentScene: component.GameOverScene,
+			})
+		}
+		velocity.Velocity = directionUnit.Scale(mag)
 	case component.ActionMoveUp:
 		velocity.Velocity = resolv.NewVector(0, -1).Add(velocity.Velocity)
 
@@ -74,8 +90,6 @@ func OnMoveEvent(w donburi.World, e *event.Move) {
 	case component.ActionMoveRight:
 		velocity.Velocity = resolv.NewVector(1, 0).Add(velocity.Velocity)
 
-	case component.ActionMoveHalt:
-		velocity.Velocity = velocity.Velocity.Unit()
 	}
 }
 
@@ -117,32 +131,28 @@ func moveSnake(ecs *ecs.ECS) {
 
 	velocity := component.Velocity.Get(snakeEntry)
 
-	// Stepwise movement based on velocity
-	stepSize := 1.0 / math.Max(math.Abs(velocity.Velocity.X), math.Abs(velocity.Velocity.Y)) // Adjust step size based on velocity magnitude
-	for step := 0.0; step <= 1.0; step += stepSize {
-		updateSnakeBody(ecs.World, snakeData.Tail)
-		// check if out of level bounds and teleport to opposite side
-		pos := snakeObject.Position.Add(velocity.Velocity.Scale(step))
-		space := component.Space.MustFirst(ecs.World)
-		spaceObj := component.Space.Get(space)
+	updateSnakeBody(ecs.World, snakeData.Tail)
+	// check if out of level bounds and teleport to opposite side
+	pos := snakeObject.Position.Add(velocity.Velocity)
+	space := component.Space.MustFirst(ecs.World)
+	spaceObj := component.Space.Get(space)
 
-		maxX := float64(spaceObj.Width() * spaceObj.CellWidth)
-		maxY := float64(spaceObj.Height() * spaceObj.CellHeight)
+	maxX := float64(spaceObj.Width() * spaceObj.CellWidth)
+	maxY := float64(spaceObj.Height() * spaceObj.CellHeight)
 
-		if pos.X > maxX {
-			pos.X = 0
-		} else if pos.X < 0 {
-			pos.X = maxX
-		}
-		if pos.Y > maxY {
-			pos.Y = 0
-		} else if pos.Y < 0 {
-			pos.Y = maxY
-		}
-
-		snakeObject.Position = pos
-		checkBodyCollision(ecs.World, snakeObject)
+	if pos.X > maxX {
+		pos.X = 0
+	} else if pos.X < 0 {
+		pos.X = maxX
 	}
+	if pos.Y > maxY {
+		pos.Y = 0
+	} else if pos.Y < 0 {
+		pos.Y = maxY
+	}
+
+	snakeObject.Position = pos
+	checkBodyCollision(ecs.World, snakeObject)
 }
 
 func updateSnakeBody(w donburi.World, next *component.SnakeBodyData) {

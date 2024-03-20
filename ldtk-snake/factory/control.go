@@ -13,9 +13,9 @@ var inputMap = input.Keymap{
 	component.ActionMoveDown:  {input.KeyGamepadDown, input.KeyDown, input.KeyS},
 	component.ActionMoveLeft:  {input.KeyGamepadLeft, input.KeyLeft, input.KeyA},
 	component.ActionMoveRight: {input.KeyGamepadRight, input.KeyRight, input.KeyD},
-	component.ActionMoveHalt:  {input.KeyGamepadA, input.KeySpace},
+	component.ActionMoveBoost: {input.KeyGamepadA, input.KeySpace, input.KeyMouseRight, input.KeyTouchLongTap},
 
-	component.ActionClick: {input.KeyTouchTap, input.KeyMouseLeft, input.KeyMouseRight},
+	component.ActionClick: {input.KeyTouchTap, input.KeyMouseLeft},
 	component.ActionDebug: {input.KeyF1},
 	component.ActionHelp:  {input.KeyF2},
 }
