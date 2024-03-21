@@ -20,7 +20,10 @@ type HistoryData struct {
 	Velocity resolv.Vector
 }
 type SnakeData struct {
-	Speed        float64
+	Speed             float64
+	SpeedFriction     float64
+	SpeedAcceleration float64
+
 	History      []HistoryData
 	HistoryTimer *engine.Timer
 	Tail         *SnakeBodyData

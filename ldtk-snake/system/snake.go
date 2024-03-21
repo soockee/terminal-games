@@ -17,6 +17,8 @@ import (
 func UpdateSnake(ecs *ecs.ECS) {
 	snakeEntry := component.Snake.MustFirst(ecs.World)
 	snakeObject := dresolv.GetObject(snakeEntry)
+	// snakeData := component.Snake.Get(snakeEntry)
+	// velocity := component.Velocity.Get(snakeEntry)
 
 	snapshotHistory(ecs.World, snakeEntry)
 
@@ -65,31 +67,17 @@ func OnMoveEvent(w donburi.World, e *event.Move) {
 	switch e.Action {
 	case component.ActionMovePosition:
 		direction := util.DirectionVector(snakeObj.Position, e.Position)
-		mag := direction.Magnitude()
 		speed := snakeData.Speed
 		if e.Boost {
 			speed *= 2
 		}
-		mag = math.Min(speed, mag)
 		directionUnit := direction.Unit()
 		if direction.Magnitude() < 3 {
 			event.SceneStateEvent.Publish(w, &event.SceneStateData{
 				CurrentScene: component.GameOverScene,
 			})
 		}
-		velocity.Velocity = directionUnit.Scale(mag)
-	case component.ActionMoveUp:
-		velocity.Velocity = resolv.NewVector(0, -1).Add(velocity.Velocity)
-
-	case component.ActionMoveDown:
-		velocity.Velocity = resolv.NewVector(0, 1).Add(velocity.Velocity)
-
-	case component.ActionMoveLeft:
-		velocity.Velocity = resolv.NewVector(-1, 0).Add(velocity.Velocity)
-
-	case component.ActionMoveRight:
-		velocity.Velocity = resolv.NewVector(1, 0).Add(velocity.Velocity)
-
+		velocity.Velocity = directionUnit.Scale(speed)
 	}
 }
 
@@ -150,6 +138,8 @@ func moveSnake(ecs *ecs.ECS) {
 	} else if pos.Y < 0 {
 		pos.Y = maxY
 	}
+
+	velocity.Velocity = velocity.Velocity.Scale(snakeData.SpeedFriction)
 
 	snakeObject.Position = pos
 	checkBodyCollision(ecs.World, snakeObject)

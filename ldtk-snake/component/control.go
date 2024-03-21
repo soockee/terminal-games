@@ -9,12 +9,9 @@ import (
 )
 
 const (
-	ActionMoveUp input.Action = iota
-	ActionMoveDown
-	ActionMoveRight
-	ActionMoveLeft
-	ActionMoveBoost
+	ActionMoveBoost input.Action = iota
 	ActionMovePosition
+	ActionMoveMobile
 	ActionClick
 	ActionDebug
 	ActionHelp
