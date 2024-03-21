@@ -10,7 +10,7 @@ import (
 func CreateSettings(ecs *ecs.ECS) *donburi.Entry {
 	settings := archetype.Settings.Spawn(ecs)
 	component.Settings.SetValue(settings, component.SettingsData{
-		ShowHelpText: true,
+		ShowHelpText: false,
 	})
 
 	return settings

@@ -16,7 +16,6 @@ import (
 
 var buttonhandlerMapping = map[string]func(w donburi.World){
 	"StartButton": func(w donburi.World) {
-		slog.Info("starting level", slog.Any("Level", component.Level_0))
 		event.SceneStateEvent.Publish(w, &event.SceneStateData{
 			CurrentScene: component.Level_0,
 		})

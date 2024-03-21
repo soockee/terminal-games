@@ -68,16 +68,13 @@ func OnMoveEvent(w donburi.World, e *event.Move) {
 	case component.ActionMovePosition:
 		direction := util.DirectionVector(snakeObj.Position, e.Position)
 		speed := snakeData.Speed
+
 		if e.Boost {
 			speed *= 2
 		}
-		directionUnit := direction.Unit()
-		if direction.Magnitude() < 3 {
-			event.SceneStateEvent.Publish(w, &event.SceneStateData{
-				CurrentScene: component.GameOverScene,
-			})
-		}
-		velocity.Velocity = directionUnit.Scale(speed)
+
+		velocity.Velocity = direction.ClampMagnitude(speed)
+
 	}
 }
 

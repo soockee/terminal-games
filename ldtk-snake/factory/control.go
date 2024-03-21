@@ -10,7 +10,7 @@ import (
 
 var inputMap = input.Keymap{
 	component.ActionMoveBoost:    {input.KeyGamepadA, input.KeySpace, input.KeyMouseRight},
-	component.ActionMovePosition: {input.KeyMouseLeft, input.KeyTouchDrag, input.KeyTouchTap},
+	component.ActionMovePosition: {input.KeyMouseLeft, input.KeyTouchDrag},
 
 	component.ActionClick: {input.KeyTouchTap, input.KeyMouseLeft},
 	component.ActionDebug: {input.KeyF1},

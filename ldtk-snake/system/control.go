@@ -1,7 +1,6 @@
 package system
 
 import (
-	"log/slog"
 	"slices"
 
 	"github.com/solarlune/resolv"
@@ -23,7 +22,7 @@ func UpdateControl(ecs *ecs.ECS) {
 	levels := maps.Keys(component.SnakeLevels)
 	if slices.Contains(levels, sceneState.CurrentScene) {
 		if control.LastPosition == nil {
-			if info, ok := control.InputHandler.JustPressedActionInfo(component.ActionClick); ok {
+			if info, ok := control.InputHandler.JustPressedActionInfo(component.ActionMovePosition); ok {
 				control.LastPosition = (*resolv.Vector)(&info.Pos)
 			}
 		} else {
@@ -32,23 +31,12 @@ func UpdateControl(ecs *ecs.ECS) {
 				boost = true
 			}
 			if info, ok := control.InputHandler.PressedActionInfo(component.ActionMovePosition); ok {
-				if info.IsTouchEvent() {
-					event.MoveEvent.Publish(ecs.World, &event.Move{
-						Action:   component.ActionClick,
-						Position: resolv.NewVector(info.Pos.X, info.Pos.Y),
-					})
-				} else {
-					cursorPosition := control.InputHandler.CursorPos()
-					slog.Info("Cursor Info", slog.Float64("now X", cursorPosition.X), slog.Float64("now Y", cursorPosition.Y), slog.Float64("last X", control.LastPosition.X), slog.Float64("last Y", control.LastPosition.Y))
-					if control.InputHandler.ActionIsPressed(component.ActionMovePosition) {
-						control.LastPosition = (*resolv.Vector)(&cursorPosition)
-						event.MoveEvent.Publish(ecs.World, &event.Move{
-							Action:   component.ActionMovePosition,
-							Position: resolv.NewVector(cursorPosition.X, cursorPosition.Y),
-							Boost:    boost,
-						})
-					}
-				}
+				control.LastPosition = (*resolv.Vector)(&info.Pos)
+				event.MoveEvent.Publish(ecs.World, &event.Move{
+					Action:   component.ActionMovePosition,
+					Position: resolv.NewVector(info.Pos.X, info.Pos.Y),
+					Boost:    boost,
+				})
 			}
 		}
 	}

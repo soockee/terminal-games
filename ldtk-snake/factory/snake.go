@@ -32,9 +32,9 @@ func CreateSnake(ecs *ecs.ECS, project *assets.LDtkProject, entity *ldtkgo.Entit
 	component.Object.Set(snake, obj)
 
 	component.Snake.SetValue(snake, component.SnakeData{
-		Speed:             2,
-		SpeedFriction:     0.96,
-		SpeedAcceleration: 0.3,
+		Speed:             4,
+		SpeedAcceleration: 1.05,
+		SpeedFriction:     0.94,
 		Tail:              nil,
 		History:           []component.HistoryData{},
 		HistoryTimer:      engine.NewTimer(time.Millisecond * 16),
