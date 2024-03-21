@@ -7,6 +7,10 @@ import (
 	_ "modernc.org/sqlite"
 )
 
+type IApiSever interface {
+	Run()
+}
+
 func main() {
 
 	h := slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{
@@ -20,6 +24,6 @@ func main() {
 	if err != nil {
 		slog.Error("database initialization error", slog.Any("err", err))
 	}
-	server := NewApiServer("0.0.0.0:13337", store)
+	server := NewApiServer("stockhause.info", store)
 	server.Run()
 }

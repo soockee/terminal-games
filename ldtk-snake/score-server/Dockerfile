@@ -7,7 +7,7 @@ WORKDIR /app
 COPY . .
 
 # Build the Go binary for the desired architecture (amd64 in this case)
-RUN CGO_ENABLED=0 go build -o myapp
+RUN CGO_ENABLED=0 go build -o myapp -tags prod
 
 # Stage 2: Create a minimal production image
 FROM arm64v8/ubuntu:22.04

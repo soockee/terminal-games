@@ -3,10 +3,7 @@ package main
 import (
 	"encoding/json"
 	"errors"
-	"log/slog"
 	"net/http"
-	"os"
-	"time"
 )
 
 type apiFunc func(w http.ResponseWriter, r *http.Request) error
@@ -16,14 +13,14 @@ type ApiError struct {
 }
 
 type ApiServer struct {
-	store  Storage
-	ipaddr string
+	store      Storage
+	domainName string
 }
 
-func NewApiServer(ipaddr string, store Storage) *ApiServer {
+func NewApiServer(domainName string, store Storage) *ApiServer {
 	server := &ApiServer{
-		store:  store,
-		ipaddr: ipaddr,
+		store:      store,
+		domainName: domainName,
 	}
 	return server
 }
@@ -32,32 +29,6 @@ func WriteJson(w http.ResponseWriter, status int, v any) error {
 	w.WriteHeader(status)
 	w.Header().Set("Content-Type", "application/json")
 	return json.NewEncoder(w).Encode(v)
-}
-
-func (s *ApiServer) Run() {
-	logger := slog.New(slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelDebug}))
-	serverLogger := slog.NewLogLogger(slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelDebug}), slog.LevelDebug)
-
-	router := http.DefaultServeMux
-	router.HandleFunc("/", makeHTTPHandleFunc(s.handleIndex))
-	router.HandleFunc("/score", makeHTTPHandleFunc(s.handleScore))
-
-	loggingMiddleware := LoggingMiddleware(logger)
-	loggedRouter := loggingMiddleware(router)
-
-	httpServer := &http.Server{
-		ReadTimeout:  5 * time.Second,
-		WriteTimeout: 5 * time.Second,
-		IdleTimeout:  120 * time.Second,
-		Addr:         s.ipaddr,
-		Handler:      loggedRouter,
-		ErrorLog:     serverLogger,
-	}
-
-	if err := httpServer.ListenAndServe(); err != nil {
-		logger.Error("Failed to start HTTP server", err)
-		os.Exit(1)
-	}
 }
 
 func (s *ApiServer) handleIndex(w http.ResponseWriter, r *http.Request) error {
