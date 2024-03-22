@@ -56,7 +56,7 @@ func OnPickupEvent(w donburi.World, e *event.Collect) {
 
 		sceneData := component.SceneState.Get(component.SceneState.MustFirst(w))
 
-		factory.CreateBodyPart(w, sceneObj.Project, snakeEntity, sceneData.Project.Project.EntityDefinitionByIdentifier(tags.SnakeBody.Name()), tags.SnakeBody.Name(), tags.Collidable.String())
+		factory.CreateBodyPart(w, sceneObj.Project, snakeEntity, sceneData.Project.Project.EntityDefinitionByIdentifier(tags.SnakeBody.Name()), component.SnakeBodyTypeFood, tags.SnakeBody.Name(), tags.Collidable.String())
 		factory.CreateFood(w, sceneObj.Project, sceneData.Project.Project.EntityDefinitionByIdentifier(tags.Food.Name()))
 
 		gameStateDate := component.GameState.Get(component.GameState.MustFirst(w))
@@ -73,6 +73,13 @@ func OnPickupEvent(w donburi.World, e *event.Collect) {
 				})
 			}
 		}
+	case component.MouseCollectable:
+		slog.Info("Mouse collected")
+		sceneObj := component.SceneState.Get(component.SceneState.MustFirst(w))
+		snakeEntity := component.Snake.MustFirst(w)
+		sceneData := component.SceneState.Get(component.SceneState.MustFirst(w))
+
+		factory.CreateBodyPart(w, sceneObj.Project, snakeEntity, sceneData.Project.Project.EntityDefinitionByIdentifier(tags.SnakeBody.Name()), component.SnakeBodyTypeMouse, tags.SnakeBody.Name(), tags.Collidable.String())
 
 	default:
 		slog.Error("unknown collectable")

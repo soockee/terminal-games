@@ -5,6 +5,7 @@ import (
 	"math"
 	"time"
 
+	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/solarlune/resolv"
 	"github.com/soockee/ldtkgo"
 	"github.com/soockee/terminal-games/ldtk-snake/archetype"
@@ -32,7 +33,7 @@ func CreateSnake(ecs *ecs.ECS, project *assets.LDtkProject, entity *ldtkgo.Entit
 	component.Object.Set(snake, obj)
 
 	component.Snake.SetValue(snake, component.SnakeData{
-		Speed:             4,
+		Speed:             8,
 		SpeedAcceleration: 1.05,
 		SpeedFriction:     0.94,
 		Tail:              nil,
@@ -45,14 +46,14 @@ func CreateSnake(ecs *ecs.ECS, project *assets.LDtkProject, entity *ldtkgo.Entit
 		slog.Error("Sprite not found")
 		panic(0)
 	}
-	component.Sprite.SetValue(snake, component.SpriteData{Image: sprite})
+	component.Sprite.SetValue(snake, component.SpriteData{Images: map[int]*ebiten.Image{0: sprite}})
 
-	CreateBodyPart(ecs.World, project, snake, project.Project.EntityDefinitionByIdentifier(dtags.SnakeBody.Name()), dtags.SnakeBody.Name())
+	CreateBodyPart(ecs.World, project, snake, project.Project.EntityDefinitionByIdentifier(dtags.SnakeBody.Name()), component.SnakeBodyTypeFood, dtags.SnakeBody.Name())
 
 	return snake
 }
 
-func CreateBodyPart(world donburi.World, project *assets.LDtkProject, snakeEntry *donburi.Entry, entity *ldtkgo.EntityDefinition, tags ...string) {
+func CreateBodyPart(world donburi.World, project *assets.LDtkProject, snakeEntry *donburi.Entry, entity *ldtkgo.EntityDefinition, sbt component.SnakeBodyType, tags ...string) {
 	part := archetype.SnakeBody.SpawnInWorld(world)
 	snakehead := component.Snake.Get(snakeEntry)
 	partData := component.SnakeBody.Get(part)
@@ -78,18 +79,30 @@ func CreateBodyPart(world donburi.World, project *assets.LDtkProject, snakeEntry
 	component.Object.Set(part, obj)
 
 	component.SnakeBody.SetValue(part, component.SnakeBodyData{
-		Entry:    part,
-		Next:     nil,
-		Previous: nil,
+		Entry:         part,
+		SnakeBodyType: sbt,
+		Next:          nil,
+		Previous:      nil,
 	})
 
-	sprite, err := project.GetSpriteByIdentifier(dtags.SnakeBody.Name())
+	spritesMap, err := project.GetSpritesByTag(dtags.SnakeBody.Name())
+
+	sprites := map[int]*ebiten.Image{}
+	for identifier, sprite := range spritesMap {
+		switch identifier {
+		case "SnakeBodyFood":
+			sprites[int(component.SnakeBodyTypeFood)] = sprite
+		case "SnakeBodyMouse":
+			sprites[int(component.SnakeBodyTypeMouse)] = sprite
+		}
+	}
+
 	if err != nil {
-		slog.Error("Sprite not found")
+		slog.Error("Error", err)
 		panic(0)
 	}
 
-	component.Sprite.SetValue(part, component.SpriteData{Image: sprite})
+	component.Sprite.SetValue(part, component.SpriteData{Images: sprites})
 
 	spaceEntry := component.Space.MustFirst(world)
 	dresolv.Add(spaceEntry, part)

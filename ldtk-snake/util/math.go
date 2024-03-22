@@ -7,8 +7,32 @@ import (
 	"github.com/solarlune/resolv"
 )
 
-func radToDegre(rad float64) float64 {
+func radToDegree(rad float64) float64 {
 	return rad * (180 / math.Pi)
+}
+
+func CalculateAngleBetweenVectors(referenceVector resolv.Vector, direction resolv.Vector) float64 {
+	// Calculate the dot product of the vectors
+	dotProduct := referenceVector.Dot(direction)
+
+	// Calculate the cosine of the angle between the vectors
+	cosTheta := dotProduct / (referenceVector.Magnitude() * direction.Magnitude())
+
+	
+	// Handle potential numerical errors due to floating-point precision
+	if cosTheta > 1.0 {
+		cosTheta = 1.0
+	} else if cosTheta < -1.0 {
+		cosTheta = -1.0
+	}
+
+	// Calculate the angle in radians using arccosine
+	rad := math.Acos(cosTheta)
+
+	// Convert radians to degrees
+	degree := radToDegree(rad)
+
+	return degree
 }
 
 func CalculateAngle(direction resolv.Vector) float64 {
@@ -23,7 +47,7 @@ func CalculateAngle(direction resolv.Vector) float64 {
 	}
 
 	rad := math.Atan2(direction.Y, direction.X)
-	degree := radToDegre(rad)
+	degree := radToDegree(rad)
 
 	return degree
 }

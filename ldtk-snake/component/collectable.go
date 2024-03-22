@@ -8,6 +8,7 @@ type CollectableType int
 
 const (
 	FoodCollectable CollectableType = iota
+	MouseCollectable
 )
 
 type CollectableData struct {

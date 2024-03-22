@@ -6,11 +6,19 @@ import (
 	"github.com/yohamta/donburi"
 )
 
+type SnakeBodyType int
+
+const (
+	SnakeBodyTypeFood SnakeBodyType = iota
+	SnakeBodyTypeMouse
+)
+
 type SnakeBodyData struct {
-	Entry    *donburi.Entry
-	Next     *SnakeBodyData
-	Previous *SnakeBodyData
-	History  []HistoryData
+	Entry         *donburi.Entry
+	SnakeBodyType SnakeBodyType
+	Next          *SnakeBodyData
+	Previous      *SnakeBodyData
+	History       []HistoryData
 }
 
 var SnakeBody = donburi.NewComponentType[SnakeBodyData]()

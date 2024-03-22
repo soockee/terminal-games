@@ -8,6 +8,7 @@ require (
 	github.com/solarlune/resolv v0.7.0
 	github.com/soockee/ldtkgo v0.0.3
 	github.com/yohamta/donburi v1.3.13
+	github.com/yohamta/ganim8/v2 v2.1.29
 	golang.org/x/exp v0.0.0-20231006140011-7918f672742d
 	golang.org/x/image v0.12.0
 )

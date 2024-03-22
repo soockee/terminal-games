@@ -38,7 +38,7 @@ func HandleButtonClick(w donburi.World, e *event.Interaction) {
 
 func DrawButton(ecs *ecs.ECS, screen *ebiten.Image) {
 	tags.Button.Each(ecs.World, func(e *donburi.Entry) {
-		component.DrawScaledSprite(screen, e)
+		component.DrawScaledSprite(screen, component.Sprite.Get(e).Images[0], e)
 	})
 }
 

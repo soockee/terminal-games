@@ -10,6 +10,6 @@ import (
 
 func DrawWall(ecs *ecs.ECS, screen *ebiten.Image) {
 	tags.Wall.Each(ecs.World, func(e *donburi.Entry) {
-		component.DrawRepeatedSprite(screen, e)
+		component.DrawRepeatedSprite(screen, component.Sprite.Get(e).Images[0], e)
 	})
 }

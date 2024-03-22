@@ -28,6 +28,8 @@ func UpdateSnake(ecs *ecs.ECS) {
 
 	checkFoodCollision(ecs.World, snakeObject)
 
+	checkMouseCollision(ecs.World, snakeObject)
+
 	// component.SnakeBody.Each(ecs.World, func(e *donburi.Entry) {
 	// 	dresolv.GetObject(e).AddTags(tags.Collidable.Name())
 	// 	e.AddComponent(tags.Collidable)
@@ -41,7 +43,7 @@ func DrawSnake(ecs *ecs.ECS, screen *ebiten.Image) {
 	DrawSnakeBody(ecs, screen, snake.Tail)
 	velocity := component.Velocity.Get(e)
 	angle := util.CalculateAngle(velocity.Velocity)
-	component.DrawRotatedSprite(screen, e, angle)
+	component.DrawRotatedSprite(screen, component.Sprite.Get(e).Images[0], e, angle)
 	// component.DrawPlaceholder(screen, dresolv.GetObject(e), angle)
 }
 
@@ -52,9 +54,10 @@ func DrawSnakeBody(ecs *ecs.ECS, screen *ebiten.Image, next *component.SnakeBody
 	DrawSnakeBody(ecs, screen, next.Next)
 	velocity := component.Velocity.Get(next.Entry)
 	angle := util.CalculateAngle(velocity.Velocity)
-	component.DrawRotatedSprite(screen, next.Entry, angle)
-	// debug
-	// component.DrawPlaceholder(screen, dresolv.GetObject(next.Entry), angle)
+	// todo get sprite of type
+	spriteData := component.Sprite.Get(next.Entry)
+	sprite := spriteData.Images[int(next.SnakeBodyType)]
+	component.DrawRotatedSprite(screen, sprite, next.Entry, angle)
 }
 
 // move temporarily uses a speed of type int whiel figuring out the collision
@@ -95,6 +98,28 @@ func checkFoodCollision(w donburi.World, snakeObject *resolv.Object) {
 	}
 }
 
+func checkMouseCollision(w donburi.World, snakeObject *resolv.Object) {
+	mouseEntity := component.Mouse.MustFirst(w)
+	mouseData := component.Mouse.Get(mouseEntity)
+
+	mouseObj := dresolv.GetObject(mouseEntity)
+	if !mouseObj.HasTags(tags.Collectable.Name()) {
+		return
+	}
+	if mouseData.IsHidden {
+		return
+	}
+	if !mouseData.Invincible.IsReady() {
+		return
+	}
+	if intersection := snakeObject.Shape.Intersection(0, 0, mouseObj.Shape); intersection != nil {
+		mouseData.Invincible.Reset()
+		event.CollectEvent.Publish(w, &event.Collect{
+			Type: component.MouseCollectable,
+		})
+	}
+}
+
 func checkBodyCollision(w donburi.World, snakeObject *resolv.Object) {
 	component.SnakeBody.Each(w, func(e *donburi.Entry) {
 		obj := dresolv.GetObject(e)
@@ -118,6 +143,8 @@ func moveSnake(ecs *ecs.ECS) {
 
 	updateSnakeBody(ecs.World, snakeData.Tail)
 	// check if out of level bounds and teleport to opposite side
+
+	// angle := util.CalculateAngleBetweenVectors(snakeObject.Position, velocity.Velocity)
 	pos := snakeObject.Position.Add(velocity.Velocity)
 	space := component.Space.MustFirst(ecs.World)
 	spaceObj := component.Space.Get(space)
@@ -136,7 +163,7 @@ func moveSnake(ecs *ecs.ECS) {
 		pos.Y = maxY
 	}
 
-	velocity.Velocity = velocity.Velocity.Scale(snakeData.SpeedFriction)
+	//velocity.Velocity = velocity.Velocity.Scale(snakeData.SpeedFriction)
 
 	snakeObject.Position = pos
 	checkBodyCollision(ecs.World, snakeObject)

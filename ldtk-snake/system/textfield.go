@@ -20,7 +20,7 @@ func UpdateTextField(ecs *ecs.ECS) {
 
 func DrawTextField(ecs *ecs.ECS, screen *ebiten.Image) {
 	tags.TextField.Each(ecs.World, func(e *donburi.Entry) {
-		component.DrawScaledSprite(screen, e)
+		component.DrawScaledSprite(screen, component.Sprite.Get(e).Images[0], e)
 		obj := component.Object.Get(e)
 
 		// leftAlligned := obj.Center().Mult(resolv.NewVector(0.5, 1))

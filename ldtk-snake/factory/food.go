@@ -3,6 +3,7 @@ package factory
 import (
 	"log/slog"
 
+	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/solarlune/resolv"
 	"github.com/soockee/ldtkgo"
 	"github.com/soockee/terminal-games/ldtk-snake/archetype"
@@ -22,15 +23,18 @@ func CreateFood(w donburi.World, project *assets.LDtkProject, entity *ldtkgo.Ent
 		slog.Error("Sprite not found")
 		panic(0)
 	}
-	component.Sprite.SetValue(food, component.SpriteData{Image: sprite})
+	component.Sprite.SetValue(food, component.SpriteData{Images: map[int]*ebiten.Image{0: sprite}})
 	component.Collectable.SetValue(food, component.CollectableData{Type: component.FoodCollectable})
 
 	width := float64(entity.Width)
 	height := float64(entity.Height)
 
-	xBound := project.Project.LevelByIdentifier(component.Level_0).Width
-	project.Project.LevelByIdentifier(component.Level_0)
-	yBound := project.Project.LevelByIdentifier(component.Level_0).Height
+	sceneEntity := component.SceneState.MustFirst(w)
+	sceneData := component.SceneState.Get(sceneEntity)
+
+	xBound := project.Project.LevelByIdentifier(sceneData.CurrentScene).Width
+	project.Project.LevelByIdentifier(sceneData.CurrentScene)
+	yBound := project.Project.LevelByIdentifier(sceneData.CurrentScene).Height
 	collidableTags := []string{tags.Wall.Name(), tags.Snake.Name(), tags.SnakeBody.Name()}
 
 	space := component.Space.MustFirst(w)

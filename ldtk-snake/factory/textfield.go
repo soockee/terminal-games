@@ -4,6 +4,7 @@ import (
 	"log/slog"
 	"strings"
 
+	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/solarlune/resolv"
 	"github.com/soockee/ldtkgo"
 	"github.com/soockee/terminal-games/ldtk-snake/archetype"
@@ -43,7 +44,7 @@ func CreateTextField(ecs *ecs.ECS, project *assets.LDtkProject, entity *ldtkgo.E
 		slog.Error("Sprite not found")
 		panic(0)
 	}
-	component.Sprite.SetValue(textfield, component.SpriteData{Image: sprite})
+	component.Sprite.SetValue(textfield, component.SpriteData{Images: map[int]*ebiten.Image{0: sprite}})
 
 	obj.SetShape(resolv.NewRectangle(X, Y, width, height))
 

@@ -3,6 +3,7 @@ package factory
 import (
 	"log/slog"
 
+	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/solarlune/resolv"
 	"github.com/soockee/ldtkgo"
 	"github.com/soockee/terminal-games/ldtk-snake/archetype"
@@ -27,7 +28,7 @@ func CreateWall(ecs *ecs.ECS, project *assets.LDtkProject, entity *ldtkgo.Entity
 		slog.Error("Sprite not found")
 		panic(0)
 	}
-	component.Sprite.SetValue(wall, component.SpriteData{Image: sprite})
+	component.Sprite.SetValue(wall, component.SpriteData{Images: map[int]*ebiten.Image{0: sprite}})
 
 	obj.SetShape(resolv.NewRectangle(X, Y, width, height))
 

@@ -11,6 +11,7 @@ import (
 var (
 	Snake = newArchetype(
 		tags.Snake,
+
 		component.Snake,
 		component.Object,
 		component.Sprite,
@@ -18,6 +19,7 @@ var (
 	)
 	SnakeBody = newArchetype(
 		tags.SnakeBody,
+
 		component.Object,
 		component.Sprite,
 		component.SnakeBody,
@@ -28,11 +30,14 @@ var (
 	)
 	Wall = newArchetype(
 		tags.Wall,
+
 		component.Object,
 		component.Sprite,
 	)
 	Food = newArchetype(
 		tags.Food,
+		tags.Collectable,
+
 		component.Object,
 		component.Sprite,
 		component.Collectable,
@@ -42,12 +47,14 @@ var (
 	)
 	Button = newArchetype(
 		tags.Button,
+
 		component.Object,
 		component.Sprite,
 		component.Button,
 	)
 	TextField = newArchetype(
 		tags.TextField,
+
 		component.Object,
 		component.Sprite,
 		component.Text,
@@ -60,6 +67,17 @@ var (
 	)
 	GameState = newArchetype(
 		component.GameState,
+	)
+
+	Mouse = newArchetype(
+		tags.Mouse,
+		tags.Animated,
+		tags.Collectable,
+
+		component.Mouse,
+		component.Object,
+		component.Animation,
+		component.Collectable,
 	)
 )
 

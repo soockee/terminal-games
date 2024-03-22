@@ -2,11 +2,15 @@ package assets
 
 import (
 	"embed"
+	"fmt"
 	"image"
 	"path/filepath"
+	"slices"
+	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/soockee/ldtkgo"
+	"github.com/yohamta/ganim8/v2"
 )
 
 var (
@@ -75,6 +79,29 @@ func (ldtk LDtkProject) loadRequiredTileset(entity *ldtkgo.Entity, level string)
 	return tileset, err
 }
 
+func (ldtk LDtkProject) GetEntitiesByTag(tag string) []*ldtkgo.EntityDefinition {
+	entityDefinitions := []*ldtkgo.EntityDefinition{}
+	for _, definition := range ldtk.Project.EntityDefinitions {
+		if slices.Contains(definition.Tags, tag) {
+			entityDefinitions = append(entityDefinitions, definition)
+		}
+	}
+	return entityDefinitions
+}
+
+func (ldtk LDtkProject) GetSpritesByTag(tag string) (map[string]*ebiten.Image, error) {
+	entityDefinitions := ldtk.GetEntitiesByTag(tag)
+	sprites := map[string]*ebiten.Image{}
+	for _, e := range entityDefinitions {
+		s, err := ldtk.GetSprite(e.TileRect)
+		if err != nil {
+			return nil, err
+		}
+		sprites[e.Identifier] = s
+	}
+	return sprites, nil
+}
+
 func (ldtk LDtkProject) GetSpriteByIdentifier(identifier string) (*ebiten.Image, error) {
 	entityDefinition := ldtk.Project.EntityDefinitionByIdentifier(identifier)
 	return ldtk.GetSprite(entityDefinition.TileRect)
@@ -94,6 +121,41 @@ func (ldtk LDtkProject) GetSprite(tileRect *ldtkgo.TileRect) (*ebiten.Image, err
 	subImageRect := image.Rect(t.X, t.Y, t.X+t.W, t.Y+t.H)
 	sprite := tileset.SubImage(subImageRect).(*ebiten.Image)
 	return sprite, err
+}
+
+func (ldtk LDtkProject) IsAnimated(identifier string) bool {
+	entityDefinition := ldtk.Project.EntityDefinitionByIdentifier(identifier)
+	return slices.Contains(entityDefinition.Tags, "Animated")
+}
+func (ldtk LDtkProject) GetAnimatedSpriteByIdentifier(identifier string) (*ganim8.Animation, error) {
+	if !ldtk.IsAnimated(identifier) {
+		return nil, fmt.Errorf("entity is not animated")
+	}
+	return ldtk.GetAnimatedSpriteByDefinition(ldtk.Project.EntityDefinitionByIdentifier(identifier))
+}
+
+func (ldtk LDtkProject) GetAnimatedSpriteByDefinition(entityDefinition *ldtkgo.EntityDefinition) (*ganim8.Animation, error) {
+	if !ldtk.IsAnimated(entityDefinition.Identifier) {
+		return nil, fmt.Errorf("entity is not animated")
+	}
+	return ldtk.GetAnimatedSprite(entityDefinition.TileRect, entityDefinition.Width, entityDefinition.Height)
+}
+
+func (ldtk LDtkProject) GetAnimatedSprite(tileRect *ldtkgo.TileRect, frameW, frameH int) (*ganim8.Animation, error) {
+	tileset, err := ldtk.Renderer.Loader.LoadImage(tileRect.Tileset.Path)
+
+	t := tileRect
+	subImageRect := image.Rect(t.X, t.Y, t.X+t.W, t.Y+t.H)
+	sprite := tileset.SubImage(subImageRect).(*ebiten.Image)
+	grid := ganim8.NewGrid(frameW, frameH, t.W, t.H, t.X, t.Y, tileRect.Tileset.Spacing)
+
+	frameCount := sprite.Bounds().Dx() / frameW
+	animationTime := time.Millisecond * 100
+	frameRowSelection := fmt.Sprintf("1-%d", frameCount)
+	// use only column 1
+	frames := grid.Frames(frameRowSelection, 1)
+	animation := ganim8.New(sprite, frames, animationTime)
+	return animation, err
 }
 
 func (ldtk *LDtkProject) RenderLevel(currentlevel string) {

@@ -30,6 +30,14 @@ func UpdateControl(ecs *ecs.ECS) {
 			if control.InputHandler.ActionIsPressed(component.ActionMoveBoost) {
 				boost = true
 			}
+			// toggle mouse state on press and release
+			if control.InputHandler.ActionIsJustPressed(component.ActionMovePosition) {
+				event.MouseEvent.Publish(ecs.World, &event.Mouse{})
+			}
+			if control.InputHandler.ActionIsJustReleased(component.ActionMovePosition) {
+				event.MouseEvent.Publish(ecs.World, &event.Mouse{})
+			}
+			// check continuously for postition
 			if info, ok := control.InputHandler.PressedActionInfo(component.ActionMovePosition); ok {
 				control.LastPosition = (*resolv.Vector)(&info.Pos)
 				event.MoveEvent.Publish(ecs.World, &event.Move{
@@ -41,26 +49,6 @@ func UpdateControl(ecs *ecs.ECS) {
 		}
 	}
 
-	// if control.InputHandler.ActionIsJustPressed(component.ActionMoveUp) {
-	// 	event.MoveEvent.Publish(ecs.World, &event.Move{
-	// 		Action: component.ActionMoveUp,
-	// 	})
-	// }
-	// if control.InputHandler.ActionIsJustPressed(component.ActionMoveDown) {
-	// 	event.MoveEvent.Publish(ecs.World, &event.Move{
-	// 		Action: component.ActionMoveDown,
-	// 	})
-	// }
-	// if control.InputHandler.ActionIsJustPressed(component.ActionMoveLeft) {
-	// 	event.MoveEvent.Publish(ecs.World, &event.Move{
-	// 		Action: component.ActionMoveLeft,
-	// 	})
-	// }
-	// if control.InputHandler.ActionIsJustPressed(component.ActionMoveRight) {
-	// 	event.MoveEvent.Publish(ecs.World, &event.Move{
-	// 		Action: component.ActionMoveRight,
-	// 	})
-	// }
 	if control.InputHandler.ActionIsJustPressed(component.ActionDebug) {
 		event.UpdateSettingEvent.Publish(ecs.World, &event.UpdateSetting{
 			Action: component.ActionDebug,

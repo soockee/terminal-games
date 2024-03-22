@@ -11,11 +11,13 @@ import (
 )
 
 const (
-	Empty           = "Level_Empty"
-	Level_0         = "Level_0"
-	Level_1         = "Level_1"
-	Level_2         = "Level_2"
-	Level_3         = "Level_3"
+	Empty   = "Level_Empty"
+	Level_0 = "Level_0"
+	Level_1 = "Level_1"
+	Level_2 = "Level_2"
+	Level_3 = "Level_3"
+	Level_4 = "Level_4"
+
 	StartScene      = "Level_Start"
 	LevelClearScene = "Level_Clear"
 	GameOverScene   = "Level_GameOver"
@@ -27,6 +29,7 @@ var SnakeLevels = map[string]bool{
 	Level_1: false,
 	Level_2: false,
 	Level_3: false,
+	Level_4: false,
 }
 
 type SceneData struct {

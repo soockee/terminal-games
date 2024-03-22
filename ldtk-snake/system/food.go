@@ -14,6 +14,6 @@ func UpdateFood(ecs *ecs.ECS) {
 
 func DrawFood(ecs *ecs.ECS, screen *ebiten.Image) {
 	tags.Food.Each(ecs.World, func(e *donburi.Entry) {
-		component.DrawScaledSprite(screen, e)
+		component.DrawScaledSprite(screen, component.Sprite.Get(e).Images[0], e)
 	})
 }

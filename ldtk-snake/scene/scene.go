@@ -61,6 +61,8 @@ func CreateScene(sceneId string, ecs *ecs.ECS, project *assets.LDtkProject) Scen
 	case component.Level_2:
 		fallthrough
 	case component.Level_3:
+		fallthrough
+	case component.Level_4:
 		return NewSnakeScene(ecs, project, sceneId)
 
 	default:

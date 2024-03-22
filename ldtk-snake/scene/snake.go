@@ -36,10 +36,12 @@ func (s *SnakeScene) configure() {
 	s.ecs.AddSystem(system.ProcessEvents)
 	s.ecs.AddSystem(system.UpdateFood)
 	s.ecs.AddSystem(system.UpdateObjects)
+	s.ecs.AddSystem(system.UpdateMouse)
 
 	s.ecs.AddRenderer(layers.Default, system.DrawSnake)
 	s.ecs.AddRenderer(layers.Default, system.DrawFood)
 	s.ecs.AddRenderer(layers.Default, system.DrawWall)
+	s.ecs.AddRenderer(layers.Mouse, system.DrawMouse)
 
 	level := s.ldtkProject.Project.LevelByIdentifier(s.GetId())
 
@@ -58,12 +60,14 @@ func (s *SnakeScene) configure() {
 	factory.CreateGameState(s.ecs)
 
 	factory.CreateFood(s.ecs.World, s.ldtkProject, s.ldtkProject.Project.EntityDefinitionByIdentifier(tags.Food.Name()))
+	factory.CreateMouse(s.ecs.World, s.ldtkProject)
 
 	// Subscribe events.
 	pkgevents.UpdateSettingEvent.Subscribe(s.ecs.World, system.OnSettingsEvent)
 	pkgevents.MoveEvent.Subscribe(s.ecs.World, system.OnMoveEvent)
 	pkgevents.CollectEvent.Subscribe(s.ecs.World, system.OnPickupEvent)
 	pkgevents.CollideEvent.Subscribe(s.ecs.World, system.OnCollideEvent)
+	pkgevents.MouseEvent.Subscribe(s.ecs.World, system.OnToggleMouse)
 
 }
 
