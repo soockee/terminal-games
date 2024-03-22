@@ -63,8 +63,6 @@ func DrawMouse(ecs *ecs.ECS, screen *ebiten.Image) {
 		mouseAnimation.Animations[int(component.MouseMoving)].Draw(screen, drawOptions)
 		mouseAnimation.Animations[int(component.MouseMoving)].Update()
 	}
-
-	component.DrawPlaceholder(screen, mouseObj, 0)
 }
 
 func OnToggleMouse(w donburi.World, e *event.Mouse) {
