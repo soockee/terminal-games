@@ -9,8 +9,10 @@ import (
 )
 
 var (
-	//go:embed fonts/kenney_blocks.ttf
+	//go:embed fonts/kenney_pixel.ttf
 	NormalFontData []byte
+	//go:embed fonts/kenney_pixel_square.ttf
+	SquareFontData []byte
 
 	SmallFont  font.Face
 	NormalFont font.Face
@@ -20,6 +22,7 @@ var (
 func MustLoadAssets() {
 	SmallFont = MustLoadFont(NormalFontData, 10)
 	NormalFont = MustLoadFont(NormalFontData, 24)
+	SqaureFont = MustLoadFont(SquareFontData, 24)
 }
 
 func MustLoadFont(data []byte, size int) font.Face {

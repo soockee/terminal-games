@@ -47,11 +47,11 @@ func CreateButton(ecs *ecs.ECS, project *assets.LDtkProject, entity *ldtkgo.Enti
 
 	width := float64(entity.Width)
 	height := float64(entity.Height)
-	// Calculate adjusted position based on pivot
+
 	X := float64(entity.Position[0])
 	Y := float64(entity.Position[1])
 
-	obj := resolv.NewRectangle(X, Y, width, height)
+	obj := resolv.NewRectangleFromCorners(X, Y, X+width, Y+height)
 	component.ConvexPolygon.Set(button, obj)
 
 	component.Button.SetValue(button, component.ButtonData{

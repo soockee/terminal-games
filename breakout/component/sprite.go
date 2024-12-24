@@ -20,7 +20,7 @@ func ScaleSpriteToMatchBox(o *resolv.ConvexPolygon, dx, dy int, op *ebiten.DrawI
 	scaleX := o.Bounds().Width() / float64(dx)
 	scaleY := o.Bounds().Height() / float64(dy)
 	op.GeoM.Scale(scaleX, scaleY)
-	op.GeoM.Translate(float64(o.Position().X), float64(o.Position().Y))
+	op.GeoM.Translate(float64(o.Bounds().Min.X), float64(o.Bounds().Min.Y))
 	return op
 }
 

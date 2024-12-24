@@ -19,10 +19,8 @@ func DrawDebug(ecs *ecs.ECS, screen *ebiten.Image) {
 	}
 	space := component.Space.Get(component.Space.MustFirst(ecs.World))
 
-	for y := 0; y < space.Height(); y++ {
-
-		for x := 0; x < space.Width(); x++ {
-
+	for y := 0; y < space.HeightInCells(); y++ {
+		for x := 0; x < space.WidthInCells(); x++ {
 			cell := space.Cell(x, y)
 
 			cw := float32(space.CellWidth())

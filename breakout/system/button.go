@@ -43,8 +43,13 @@ func DrawButton(ecs *ecs.ECS, screen *ebiten.Image) {
 }
 
 func isVecInObject(vec input.Vec, obj *resolv.ConvexPolygon) bool {
+	objVec := obj.Bounds()
 	// Y of object is skewed check objc creation
-	slog.Debug("not yet implemented")
+	slog.Debug("Vecs", slog.Any("VecX", objVec.Width()), slog.Any("VecY", objVec.Height()), slog.Float64("w", objVec.Width()), slog.Float64("h", objVec.Height()), slog.Any("click vec", vec))
 
-	return false
+	hit := !obj.Bounds().Intersection(resolv.NewCircle(vec.X, vec.Y, 1).Bounds()).IsEmpty()
+	if hit {
+		slog.Debug("Hit", slog.Any("hit", hit))
+	}
+	return hit
 }
