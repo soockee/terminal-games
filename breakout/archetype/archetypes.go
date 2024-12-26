@@ -1,7 +1,8 @@
 package archetype
 
 import (
-	"github.com/soockee/terminal-games/breakout/component"
+	"github.com/solarlune/ldtkgo"
+	"github.com/soockee/terminal-games/breakout/assets"
 	"github.com/soockee/terminal-games/breakout/layers"
 	"github.com/soockee/terminal-games/breakout/tags"
 	"github.com/yohamta/donburi"
@@ -9,59 +10,13 @@ import (
 )
 
 var (
-	// Game-specific archetypes
-	Player = newArchetype(
-		tags.Player,
-
-		component.Player,
-		component.Collidable,
-		component.Sprite,
-		component.Velocity,
-	)
-
-	Wall = newArchetype(
-		tags.Wall,
-		component.Collidable,
-	)
-
-	Ball = newArchetype(
-		tags.Ball,
-
-		component.Ball,
-		component.Sprite,
-		component.Velocity,
-	)
-
-	// Generic archetypes
-	Space = newArchetype(
-		component.Space,
-	)
-	Settings = newArchetype(
-		component.Settings,
-	)
-	Controls = newArchetype(
-		component.Control,
-	)
-	SceneState = newArchetype(
-		component.SceneState,
-	)
-	GameState = newArchetype(
-		component.GameState,
-	)
-
-	// UI archetypes
-	Button = newArchetype(
-		tags.Button,
-
-		component.Sprite,
-		component.Button,
-	)
-	TextField = newArchetype(
-		tags.TextField,
-
-		component.Sprite,
-		component.Text,
-	)
+	TagsMapping = map[string]func(donburi.World, *assets.LDtkProject, *ldtkgo.Entity) *donburi.Entry{
+		tags.Button.Name():     NewButton,
+		tags.Collidable.Name(): NewWall,
+		tags.Player.Name():     NewPlayer,
+		tags.Ball.Name():       NewBall,
+		tags.Wall.Name():       NewWall,
+	}
 )
 
 type Archetype struct {

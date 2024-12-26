@@ -1,18 +1,28 @@
-package factory
+package archetype
 
 import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/solarlune/ldtkgo"
 	"github.com/solarlune/resolv"
-	"github.com/soockee/terminal-games/breakout/archetype"
 	"github.com/soockee/terminal-games/breakout/assets"
 	"github.com/soockee/terminal-games/breakout/component"
+	"github.com/soockee/terminal-games/breakout/tags"
 
 	"github.com/yohamta/donburi"
 )
 
-func CreateBall(w donburi.World, project *assets.LDtkProject, entity *ldtkgo.Entity) *donburi.Entry {
-	ball := archetype.Ball.SpawnInWorld(w)
+var (
+	Ball = newArchetype(
+		tags.Ball,
+
+		component.Ball,
+		component.Sprite,
+		component.Velocity,
+	)
+)
+
+func NewBall(w donburi.World, project *assets.LDtkProject, entity *ldtkgo.Entity) *donburi.Entry {
+	ball := Ball.SpawnInWorld(w)
 
 	width := float64(entity.Width)
 

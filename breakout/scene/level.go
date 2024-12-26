@@ -3,24 +3,23 @@ package scene
 import (
 	"sync"
 
+	"github.com/soockee/terminal-games/breakout/archetype"
 	"github.com/soockee/terminal-games/breakout/assets"
 	pkgevents "github.com/soockee/terminal-games/breakout/event"
 
-	"github.com/soockee/terminal-games/breakout/factory"
 	"github.com/soockee/terminal-games/breakout/layers"
 	"github.com/soockee/terminal-games/breakout/system"
 	"github.com/yohamta/donburi/ecs"
-	decs "github.com/yohamta/donburi/ecs"
 )
 
 type LevelScene struct {
-	ecs         *decs.ECS
+	ecs         *ecs.ECS
 	ldtkProject *assets.LDtkProject
 	once        *sync.Once
 	level       string
 }
 
-func NewLevelScene(ecs *decs.ECS, project *assets.LDtkProject, level string) *LevelScene {
+func NewLevelScene(ecs *ecs.ECS, project *assets.LDtkProject, level string) *LevelScene {
 	return &LevelScene{
 		ecs:         ecs,
 		ldtkProject: project,
@@ -41,7 +40,7 @@ func (s *LevelScene) configure() {
 
 	CreateEntities(s)
 	// start gametime
-	factory.CreateGameState(s.ecs)
+	archetype.NewGameState(s.ecs)
 
 	// Subscribe events.
 	pkgevents.UpdateSettingEvent.Subscribe(s.ecs.World, system.OnSettingsEvent)

@@ -1,18 +1,29 @@
-package factory
+package archetype
 
 import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/solarlune/ldtkgo"
 	"github.com/solarlune/resolv"
-	"github.com/soockee/terminal-games/breakout/archetype"
 	"github.com/soockee/terminal-games/breakout/assets"
 	"github.com/soockee/terminal-games/breakout/component"
+	"github.com/soockee/terminal-games/breakout/tags"
 
 	"github.com/yohamta/donburi"
 )
 
-func CreatePlayer(w donburi.World, project *assets.LDtkProject, entity *ldtkgo.Entity) *donburi.Entry {
-	player := archetype.Player.SpawnInWorld(w)
+var (
+	Player = newArchetype(
+		tags.Player,
+
+		component.Player,
+		component.Collidable,
+		component.Sprite,
+		component.Velocity,
+	)
+)
+
+func NewPlayer(w donburi.World, project *assets.LDtkProject, entity *ldtkgo.Entity) *donburi.Entry {
+	player := Player.SpawnInWorld(w)
 
 	width := float64(entity.Width)
 	height := float64(entity.Height)

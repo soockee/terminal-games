@@ -1,16 +1,21 @@
-package factory
+package archetype
 
 import (
 	"time"
 
-	"github.com/soockee/terminal-games/breakout/archetype"
 	"github.com/soockee/terminal-games/breakout/component"
 	"github.com/yohamta/donburi"
 	"github.com/yohamta/donburi/ecs"
 )
 
-func CreateGameState(ecs *ecs.ECS) *donburi.Entry {
-	gamestate := archetype.GameState.Spawn(ecs)
+var (
+	GameState = newArchetype(
+		component.GameState,
+	)
+)
+
+func NewGameState(ecs *ecs.ECS) *donburi.Entry {
+	gamestate := GameState.Spawn(ecs)
 	start := time.Now()
 	component.GameState.SetValue(gamestate, component.GameData{
 		IsGameOver: false,
@@ -24,7 +29,7 @@ func CreateGameState(ecs *ecs.ECS) *donburi.Entry {
 }
 
 func ContinueLevelGameState(ecs *ecs.ECS, gamedata *component.GameData) *donburi.Entry {
-	gamestate := archetype.GameState.Spawn(ecs)
+	gamestate := GameState.Spawn(ecs)
 	component.GameState.SetValue(gamestate, component.GameData{
 		IsGameOver: false,
 		// todo: calc total score
@@ -38,7 +43,7 @@ func ContinueLevelGameState(ecs *ecs.ECS, gamedata *component.GameData) *donburi
 }
 
 func AccumulateGameState(ecs *ecs.ECS, gamedata *component.GameData) *donburi.Entry {
-	gamestate := archetype.GameState.Spawn(ecs)
+	gamestate := GameState.Spawn(ecs)
 	component.GameState.SetValue(gamestate, component.GameData{
 		IsGameOver: false,
 		TotalScore: gamedata.TotalScore + gamedata.Score,
@@ -53,7 +58,7 @@ func AccumulateGameState(ecs *ecs.ECS, gamedata *component.GameData) *donburi.En
 func ResetGameState(ecs *ecs.ECS) *donburi.Entry {
 	gameState := component.GameState.MustFirst(ecs.World)
 	ecs.World.Remove(gameState.Entity())
-	gamestate := archetype.GameState.Spawn(ecs)
+	gamestate := GameState.Spawn(ecs)
 	start := time.Now()
 	component.GameState.SetValue(gamestate, component.GameData{
 		IsGameOver: false,

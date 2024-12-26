@@ -10,16 +10,15 @@ import (
 	"github.com/soockee/terminal-games/breakout/system"
 	"github.com/yohamta/donburi"
 	"github.com/yohamta/donburi/ecs"
-	decs "github.com/yohamta/donburi/ecs"
 )
 
 type LevelClearScene struct {
-	ecs         *decs.ECS
+	ecs         *ecs.ECS
 	ldtkProject *assets.LDtkProject
 	once        *sync.Once
 }
 
-func NewLevelClearScene(ecs *decs.ECS, project *assets.LDtkProject) *LevelClearScene {
+func NewLevelClearScene(ecs *ecs.ECS, project *assets.LDtkProject) *LevelClearScene {
 	return &LevelClearScene{
 		ecs:         ecs,
 		ldtkProject: project,
@@ -31,8 +30,6 @@ func (s *LevelClearScene) configure() {
 	s.ecs.AddSystem(system.ProcessEvents)
 	s.ecs.AddSystem(system.UpdateButton)
 
-	// s.ecs.AddRenderer(layers.Default, system.DrawDebug)
-	// s.ecs.AddRenderer(layers.Default, system.DrawHelp)
 	s.ecs.AddRenderer(layers.Default, system.DrawButton)
 
 	CreateEntities(s)
@@ -41,7 +38,6 @@ func (s *LevelClearScene) configure() {
 
 	component.Text.Each(s.ecs.World, func(e *donburi.Entry) {
 		//textfield := component.Text.Get(e)
-
 	})
 
 	// Subscribe events.

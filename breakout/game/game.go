@@ -5,10 +5,10 @@ import (
 	"slices"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/soockee/terminal-games/breakout/archetype"
 	"github.com/soockee/terminal-games/breakout/assets"
 	"github.com/soockee/terminal-games/breakout/component"
 	pkgevents "github.com/soockee/terminal-games/breakout/event"
-	"github.com/soockee/terminal-games/breakout/factory"
 	"github.com/soockee/terminal-games/breakout/layers"
 	"github.com/soockee/terminal-games/breakout/scene"
 	"github.com/soockee/terminal-games/breakout/system"
@@ -59,9 +59,9 @@ func (g *Game) start(sceneId string, prevSceneId string) {
 
 	// global systems
 	g.ecs.AddSystem(system.UpdateControl)
-	factory.CreateControl(g.ecs)
-	factory.CreateSceneState(g.ecs, sceneId, prevSceneId, g.ldtkProject)
-	factory.CreateSettings(g.ecs)
+	archetype.NewControl(g.ecs)
+	archetype.NewSceneState(g.ecs, sceneId, prevSceneId, g.ldtkProject)
+	archetype.NewSettings(g.ecs)
 
 	g.ecs.AddRenderer(layers.Default, system.DrawDebug)
 	g.ecs.AddRenderer(layers.Default, system.DrawHelp)
@@ -78,13 +78,13 @@ func (g *Game) reset() {
 		gamestate := component.GameState.MustFirst(g.ecs.World)
 		gamedata := component.GameState.Get(gamestate)
 		g.ecs = desc.NewECS(donburi.NewWorld())
-		factory.AccumulateGameState(g.ecs, gamedata)
+		archetype.AccumulateGameState(g.ecs, gamedata)
 		return
 	} else if g.scene.GetId() == component.LevelClearScene {
 		gamestate := component.GameState.MustFirst(g.ecs.World)
 		gamedata := component.GameState.Get(gamestate)
 		g.ecs = desc.NewECS(donburi.NewWorld())
-		factory.ContinueLevelGameState(g.ecs, gamedata)
+		archetype.ContinueLevelGameState(g.ecs, gamedata)
 		return
 	} else {
 		g.ecs = desc.NewECS(donburi.NewWorld())

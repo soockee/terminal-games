@@ -9,16 +9,15 @@ import (
 	"github.com/soockee/terminal-games/breakout/layers"
 	"github.com/soockee/terminal-games/breakout/system"
 	"github.com/yohamta/donburi/ecs"
-	decs "github.com/yohamta/donburi/ecs"
 )
 
 type StartScene struct {
-	ecs         *decs.ECS
+	ecs         *ecs.ECS
 	ldtkProject *assets.LDtkProject
 	once        *sync.Once
 }
 
-func NewStartScene(ecs *decs.ECS, project *assets.LDtkProject) *StartScene {
+func NewStartScene(ecs *ecs.ECS, project *assets.LDtkProject) *StartScene {
 	return &StartScene{
 		ecs:         ecs,
 		ldtkProject: project,

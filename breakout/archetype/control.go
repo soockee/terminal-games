@@ -1,17 +1,21 @@
-package factory
+package archetype
 
 import (
 	input "github.com/quasilyte/ebitengine-input"
-	"github.com/soockee/terminal-games/breakout/archetype"
 	"github.com/soockee/terminal-games/breakout/component"
 	"github.com/yohamta/donburi"
 	"github.com/yohamta/donburi/ecs"
 )
 
-var inputMap = KeyboardMovementGameplay()
+var (
+	Controls = newArchetype(
+		component.Control,
+	)
+	inputMap = KeyboardMovementGameplay()
+)
 
-func CreateControl(ecs *ecs.ECS) *donburi.Entry {
-	control := archetype.Controls.Spawn(ecs)
+func NewControl(ecs *ecs.ECS) *donburi.Entry {
+	control := Controls.Spawn(ecs)
 	component.Control.SetValue(control, component.ControlData{
 		InputHandler: component.InputSytem.NewHandler(0, inputMap),
 	})

@@ -5,13 +5,10 @@ import (
 	"sync"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/solarlune/ldtkgo"
+	"github.com/soockee/terminal-games/breakout/archetype"
 	"github.com/soockee/terminal-games/breakout/assets"
 	"github.com/soockee/terminal-games/breakout/component"
-	"github.com/soockee/terminal-games/breakout/factory"
 	"github.com/soockee/terminal-games/breakout/layers"
-	"github.com/soockee/terminal-games/breakout/tags"
-	"github.com/yohamta/donburi"
 	"github.com/yohamta/donburi/ecs"
 )
 
@@ -21,14 +18,6 @@ type Scene interface {
 	getLdtkProject() *assets.LDtkProject
 	getEcs() *ecs.ECS
 	getOnce() *sync.Once
-}
-
-var TagsMapping = map[string]func(donburi.World, *assets.LDtkProject, *ldtkgo.Entity) *donburi.Entry{
-	tags.Button.Name():     factory.CreateButton,
-	tags.Collidable.Name(): factory.CreateWall,
-	tags.Player.Name():     factory.CreatePlayer,
-	tags.Ball.Name():       factory.CreateBall,
-	tags.Wall.Name():       factory.CreateWall,
 }
 
 func Update(s Scene) error {
@@ -51,7 +40,7 @@ func CreateScene(sceneId string, ecs *ecs.ECS, project *assets.LDtkProject) Scen
 
 	cellWidth := level.Width / level.Layers[layers.Default].CellWidth
 	CellHeight := level.Height / level.Layers[layers.Default].CellHeight
-	factory.CreateSpace(
+	archetype.NewSpace(
 		ecs.World,
 		level.Width,
 		level.Height,
@@ -81,7 +70,7 @@ func CreateEntities[T Scene](s T) {
 
 	for _, entity := range entities {
 		for _, ldtkTag := range entity.Tags {
-			TagsMapping[ldtkTag](s.getEcs().World, s.getLdtkProject(), entity)
+			archetype.TagsMapping[ldtkTag](s.getEcs().World, s.getLdtkProject(), entity)
 		}
 	}
 }

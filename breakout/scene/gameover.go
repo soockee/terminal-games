@@ -10,16 +10,15 @@ import (
 	"github.com/soockee/terminal-games/breakout/system"
 	"github.com/yohamta/donburi"
 	"github.com/yohamta/donburi/ecs"
-	decs "github.com/yohamta/donburi/ecs"
 )
 
 type GameOverScene struct {
-	ecs         *decs.ECS
+	ecs         *ecs.ECS
 	ldtkProject *assets.LDtkProject
 	once        *sync.Once
 }
 
-func NewGameOverScene(ecs *decs.ECS, project *assets.LDtkProject) *GameOverScene {
+func NewGameOverScene(ecs *ecs.ECS, project *assets.LDtkProject) *GameOverScene {
 	return &GameOverScene{
 		ecs:         ecs,
 		ldtkProject: project,
@@ -31,8 +30,6 @@ func (s *GameOverScene) configure() {
 	s.ecs.AddSystem(system.ProcessEvents)
 	s.ecs.AddSystem(system.UpdateButton)
 
-	// s.ecs.AddRenderer(layers.Default, system.DrawDebug)
-	// s.ecs.AddRenderer(layers.Default, system.DrawHelp)
 	s.ecs.AddRenderer(layers.Default, system.DrawButton)
 
 	CreateEntities(s)
