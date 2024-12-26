@@ -8,7 +8,6 @@ import (
 	"github.com/soockee/terminal-games/breakout/component"
 	"github.com/soockee/terminal-games/breakout/event"
 	"github.com/soockee/terminal-games/breakout/tags"
-	"github.com/soockee/terminal-games/breakout/util"
 	"github.com/yohamta/donburi"
 	"github.com/yohamta/donburi/ecs"
 )
@@ -32,18 +31,8 @@ func DrawPlayer(ecs *ecs.ECS, screen *ebiten.Image) {
 
 func OnMoveEvent(w donburi.World, e *event.Move) {
 	entry := component.Player.MustFirst(w)
-	player := component.Player.Get(entry)
-
 	velocity := component.Velocity.Get(entry)
-	slog.Debug("Button pressed", slog.Any("Button", e.Action))
-	direction := util.DirectionVector(player.Shape.Position(), e.Direction)
-	speed := player.Speed
-
-	if e.Boost {
-		speed *= 2
-	}
-
-	velocity.Velocity = direction.ClampMagnitude(speed)
+	velocity.Velocity = velocity.Velocity.Add(e.Direction)
 }
 
 func checkCollision(w donburi.World, playerObject *resolv.ConvexPolygon) {
@@ -67,7 +56,7 @@ func moveplayer(ecs *ecs.ECS) {
 
 	space := component.Space.Get(component.Space.MustFirst(ecs.World))
 
-	maxX := float64(space.Width() * space.CellWidth())
+	maxX := float64(space.Width())
 
 	if player.Shape.Bounds().Min.X <= 0 {
 		player.Shape.SetX(0)
@@ -80,4 +69,9 @@ func moveplayer(ecs *ecs.ECS) {
 	}
 
 	player.Shape.Move(velocity.Velocity.X, velocity.Velocity.Y)
+
+	slog.Debug("velocity.Velocity", slog.Any("before", velocity.Velocity))
+	velocity.Velocity = velocity.Velocity.Mult(resolv.NewVector(player.SpeedFriction, player.SpeedFriction))
+	slog.Debug("velocity.Velocity", slog.Any("after", velocity.Velocity))
+
 }
