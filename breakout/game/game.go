@@ -65,7 +65,6 @@ func (g *Game) start(sceneId string, prevSceneId string) {
 
 	g.ecs.AddRenderer(layers.Default, system.DrawDebug)
 	g.ecs.AddRenderer(layers.Default, system.DrawHelp)
-
 	pkgevents.SceneStateEvent.Subscribe(g.ecs.World, handleSceneStateEvent)
 	pkgevents.GameStateEvent.Subscribe(g.ecs.World, handleGameStateEvent)
 

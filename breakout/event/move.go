@@ -7,9 +7,9 @@ import (
 )
 
 type Move struct {
-	Action   input.Action
-	Position resolv.Vector
-	Boost    bool
+	Action    input.Action
+	Direction resolv.Vector
+	Boost     bool
 }
 
 var MoveEvent = events.NewEventType[*Move]()

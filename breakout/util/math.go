@@ -54,3 +54,8 @@ func EuclideanDistance(vec1, vec2 resolv.Vector) float64 {
 	sum := (vec1.X-vec2.X)*2 + (vec1.Y-vec2.Y)*2
 	return math.Sqrt(sum)
 }
+
+func DirectionVector(vec1, vec2 resolv.Vector) resolv.Vector {
+	direction := resolv.NewVector(vec2.X-vec1.X, vec2.Y-vec1.Y)
+	return direction
+}

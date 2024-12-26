@@ -9,25 +9,28 @@ import (
 )
 
 var (
+	// Game-specific archetypes
+	Player = newArchetype(
+		tags.Player,
+
+		component.Player,
+		component.Sprite,
+		component.Velocity,
+	)
+
+	Wall = newArchetype(
+		tags.Wall,
+
+		component.Wall,
+		component.Sprite,
+	)
+
+	// Generic archetypes
 	Space = newArchetype(
 		component.Space,
 	)
 	Settings = newArchetype(
 		component.Settings,
-	)
-	Button = newArchetype(
-		tags.Button,
-
-		component.ConvexPolygon,
-		component.Sprite,
-		component.Button,
-	)
-	TextField = newArchetype(
-		tags.TextField,
-
-		component.ConvexPolygon,
-		component.Sprite,
-		component.Text,
 	)
 	Controls = newArchetype(
 		component.Control,
@@ -37,6 +40,20 @@ var (
 	)
 	GameState = newArchetype(
 		component.GameState,
+	)
+
+	// UI archetypes
+	Button = newArchetype(
+		tags.Button,
+
+		component.Sprite,
+		component.Button,
+	)
+	TextField = newArchetype(
+		tags.TextField,
+
+		component.Sprite,
+		component.Text,
 	)
 )
 

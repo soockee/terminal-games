@@ -3,6 +3,7 @@ package system
 import (
 	"fmt"
 	"image/color"
+	"math"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text"
@@ -19,17 +20,18 @@ func DrawHelp(ecs *ecs.ECS, screen *ebiten.Image) {
 		return
 	}
 	if settings.ShowHelpText {
-		// top right croner
+		// top left croner
 		// space := component.Space.Get(component.Space.MustFirst(ecs.World))
 		// cell := space.Cell(4, 4)
-		// cw := space.CellWidth
-		// ch := space.CellHeight
+		// cw := space.CellWidth()
+		// ch := space.CellHeight()
 		// cx := cell.X * cw
 		// cy := cell.Y * ch
 
 		// center
 		space := component.Space.Get(component.Space.MustFirst(ecs.World))
-		cell := space.Cell(4, 1)
+		shift := float64(space.HeightInCells()) * 0.75
+		cell := space.Cell(4, int(math.Ceil(shift)))
 		cw := space.CellWidth()
 		ch := space.CellHeight()
 		cx := cell.X * cw

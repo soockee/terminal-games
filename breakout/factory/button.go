@@ -12,7 +12,6 @@ import (
 	"github.com/soockee/terminal-games/breakout/event"
 	"github.com/soockee/terminal-games/breakout/util"
 	"github.com/yohamta/donburi"
-	"github.com/yohamta/donburi/ecs"
 )
 
 var buttonhandlerMapping = map[string]func(w donburi.World){
@@ -42,8 +41,8 @@ var buttonhandlerMapping = map[string]func(w donburi.World){
 	},
 }
 
-func CreateButton(ecs *ecs.ECS, project *assets.LDtkProject, entity *ldtkgo.Entity) *donburi.Entry {
-	button := archetype.Button.Spawn(ecs)
+func CreateButton(w donburi.World, project *assets.LDtkProject, entity *ldtkgo.Entity) *donburi.Entry {
+	button := archetype.Button.SpawnInWorld(w)
 
 	width := float64(entity.Width)
 	height := float64(entity.Height)
@@ -51,12 +50,12 @@ func CreateButton(ecs *ecs.ECS, project *assets.LDtkProject, entity *ldtkgo.Enti
 	X := float64(entity.Position[0])
 	Y := float64(entity.Position[1])
 
-	obj := resolv.NewRectangleFromCorners(X, Y, X+width, Y+height)
-	component.ConvexPolygon.Set(button, obj)
-
-	component.Button.SetValue(button, component.ButtonData{
+	r := resolv.NewRectangleFromCorners(X, Y, X+width, Y+height)
+	component.Space.Get(component.Space.MustFirst(w)).Add(r)
+	component.Button.Set(button, &component.ButtonData{
 		Clicked:     false,
 		HandlerFunc: buttonhandlerMapping[entity.Identifier],
+		Shape:       r,
 	})
 
 	sprite := project.GetSpriteByEntityInstance(entity)

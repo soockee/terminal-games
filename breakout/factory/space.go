@@ -5,11 +5,10 @@ import (
 	"github.com/soockee/terminal-games/breakout/archetype"
 	"github.com/soockee/terminal-games/breakout/component"
 	"github.com/yohamta/donburi"
-	"github.com/yohamta/donburi/ecs"
 )
 
-func CreateSpace(ecs *ecs.ECS, width int, height int, cellWidth int, cellHeight int) *donburi.Entry {
-	space := archetype.Space.Spawn(ecs)
+func CreateSpace(w donburi.World, width int, height int, cellWidth int, cellHeight int) *donburi.Entry {
+	space := archetype.Space.SpawnInWorld(w)
 	spaceData := resolv.NewSpace(width, height, cellWidth, cellHeight)
 	component.Space.Set(space, spaceData)
 

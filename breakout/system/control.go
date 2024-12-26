@@ -21,32 +21,7 @@ func UpdateControl(ecs *ecs.ECS) {
 
 	levels := maps.Keys(component.Levels)
 	if slices.Contains(levels, sceneState.CurrentScene) {
-		if control.LastPosition == nil {
-			if info, ok := control.InputHandler.JustPressedActionInfo(component.ActionMovePosition); ok {
-				control.LastPosition = (*resolv.Vector)(&info.Pos)
-			}
-		} else {
-			boost := false
-			if control.InputHandler.ActionIsPressed(component.ActionMoveBoost) {
-				boost = true
-			}
-			// toggle mouse state on press and release
-			if control.InputHandler.ActionIsJustPressed(component.ActionMovePosition) {
-				event.MouseEvent.Publish(ecs.World, &event.Mouse{})
-			}
-			if control.InputHandler.ActionIsJustReleased(component.ActionMovePosition) {
-				event.MouseEvent.Publish(ecs.World, &event.Mouse{})
-			}
-			// check continuously for postition
-			if info, ok := control.InputHandler.PressedActionInfo(component.ActionMovePosition); ok {
-				control.LastPosition = (*resolv.Vector)(&info.Pos)
-				event.MoveEvent.Publish(ecs.World, &event.Move{
-					Action:   component.ActionMovePosition,
-					Position: resolv.NewVector(info.Pos.X, info.Pos.Y),
-					Boost:    boost,
-				})
-			}
-		}
+		checkPlayerInput(ecs, control)
 	}
 
 	if control.InputHandler.ActionIsJustPressed(component.ActionDebug) {
@@ -69,4 +44,26 @@ func UpdateControl(ecs *ecs.ECS) {
 
 func getControl(ecs *ecs.ECS) *component.ControlData {
 	return component.Control.Get(component.Control.MustFirst(ecs.World))
+}
+
+func checkPlayerInput(ecs *ecs.ECS, c *component.ControlData) {
+	boost := false
+	if c.InputHandler.ActionIsPressed(component.ActionMoveBoost) {
+		boost = true
+	}
+	if ok := c.InputHandler.ActionIsPressed(component.ActionMoveLeft); ok {
+		event.MoveEvent.Publish(ecs.World, &event.Move{
+			Action:    component.ActionMoveLeft,
+			Direction: resolv.NewVector(-1, 0),
+			Boost:     boost,
+		})
+	}
+	if ok := c.InputHandler.ActionIsPressed(component.ActionMoveRight); ok {
+		event.MoveEvent.Publish(ecs.World, &event.Move{
+			Action:    component.ActionMoveRight,
+			Direction: resolv.NewVector(1, 0),
+			Boost:     boost,
+		})
+	}
+
 }

@@ -16,16 +16,15 @@ type SpriteData struct {
 
 var Sprite = donburi.NewComponentType[SpriteData]()
 
-func ScaleSpriteToMatchBox(o *resolv.ConvexPolygon, dx, dy int, op *ebiten.DrawImageOptions) *ebiten.DrawImageOptions {
-	scaleX := o.Bounds().Width() / float64(dx)
-	scaleY := o.Bounds().Height() / float64(dy)
+func ScaleSpriteToMatchBox(shape resolv.IShape, dx, dy int, op *ebiten.DrawImageOptions) *ebiten.DrawImageOptions {
+	scaleX := shape.Bounds().Width() / float64(dx)
+	scaleY := shape.Bounds().Height() / float64(dy)
 	op.GeoM.Scale(scaleX, scaleY)
-	op.GeoM.Translate(float64(o.Bounds().Min.X), float64(o.Bounds().Min.Y))
+	op.GeoM.Translate(float64(shape.Bounds().Min.X), float64(shape.Bounds().Min.Y))
 	return op
 }
 
-func DrawRotatedSprite(screen *ebiten.Image, sprite *ebiten.Image, e *donburi.Entry, angle float64) {
-	o := ConvexPolygon.Get(e)
+func DrawRotatedSprite(screen *ebiten.Image, sprite *ebiten.Image, shape resolv.IShape, angle float64) {
 	op := &ebiten.DrawImageOptions{}
 	halfW := float64(sprite.Bounds().Dx() / 2)
 	halfH := float64(sprite.Bounds().Dy() / 2)
@@ -34,13 +33,12 @@ func DrawRotatedSprite(screen *ebiten.Image, sprite *ebiten.Image, e *donburi.En
 	op.GeoM.Rotate(angle * math.Pi / 180.0)
 	op.GeoM.Translate(halfW, halfH)
 
-	op = ScaleSpriteToMatchBox(o, sprite.Bounds().Dx(), sprite.Bounds().Dy(), op)
+	op = ScaleSpriteToMatchBox(shape, sprite.Bounds().Dx(), sprite.Bounds().Dy(), op)
 
 	screen.DrawImage(sprite, op)
 }
 
-func DrawRotatedSpriteWithScale(screen *ebiten.Image, sprite *ebiten.Image, e *donburi.Entry, angle float64, scaleFactor float64) {
-	o := ConvexPolygon.Get(e)
+func DrawRotatedSpriteWithScale(screen *ebiten.Image, sprite *ebiten.Image, shape resolv.IShape, angle float64, scaleFactor float64) {
 	op := &ebiten.DrawImageOptions{}
 	halfW := float64(sprite.Bounds().Dx() / 2)
 	halfH := float64(sprite.Bounds().Dy() / 2)
@@ -50,50 +48,49 @@ func DrawRotatedSpriteWithScale(screen *ebiten.Image, sprite *ebiten.Image, e *d
 	op.GeoM.Translate(halfW, halfH)
 
 	op.GeoM.Scale(scaleFactor, scaleFactor)
-	op.GeoM.Translate(float64(o.Position().X), float64(o.Position().Y))
+	op.GeoM.Translate(float64(shape.Position().X), float64(shape.Position().Y))
 
 	screen.DrawImage(sprite, op)
 }
 
-func DrawScaledSprite(screen *ebiten.Image, sprite *ebiten.Image, e *donburi.Entry) {
-	o := ConvexPolygon.Get(e)
+func DrawScaledSprite(screen *ebiten.Image, sprite *ebiten.Image, shape resolv.IShape) {
 	op := &ebiten.DrawImageOptions{}
-	op = ScaleSpriteToMatchBox(o, sprite.Bounds().Dx(), sprite.Bounds().Dy(), op)
+	op = ScaleSpriteToMatchBox(shape, sprite.Bounds().Dx(), sprite.Bounds().Dy(), op)
 	screen.DrawImage(sprite, op)
 }
 
-func DrawRepeatedSprite(screen *ebiten.Image, sprite *ebiten.Image, e *donburi.Entry) {
-	o := ConvexPolygon.Get(e)
-	xTimes := o.Bounds().Width() / float64(sprite.Bounds().Dx())
-	yTimes := o.Bounds().Height() / float64(sprite.Bounds().Dy())
-	// scaleX := float64(o.Space.CellWidth) / float64(sprite.Image.Bounds().Dx())
-	// scaleY := float64(o.Space.CellHeight) / float64(sprite.Image.Bounds().Dy())
+func DrawRepeatedSprite(screen *ebiten.Image, sprite *ebiten.Image, shape resolv.IShape) {
+	xTimes := shape.Bounds().Width() / float64(sprite.Bounds().Dx())
+	yTimes := shape.Bounds().Height() / float64(sprite.Bounds().Dy())
+
 	for i := 0; i < int(xTimes); i++ {
+		// dx := float64(sprite.Bounds().Dx() * i)
 		dx := float64(sprite.Bounds().Dx() * i)
 		for j := 0; j < int(yTimes); j++ {
 			dy := float64(sprite.Bounds().Dx() * j)
 			op := &ebiten.DrawImageOptions{}
-			// op.GeoM.Scale(scaleX, scaleY)
-			op.GeoM.Translate(o.Position().X+dx, o.Position().Y+dy)
+			op.GeoM.Translate(shape.Bounds().Min.X+dx, shape.Bounds().Min.Y+dy)
 			screen.DrawImage(sprite, op)
 		}
 	}
 }
 
-func DrawPlaceholder(screen *ebiten.Image, o *resolv.ConvexPolygon, angle float64) {
-	// op.GeoM.Scale(scaleX, scaleY)
+func DrawPlaceholder(screen *ebiten.Image, shape resolv.IShape, angle float64, fill bool) {
 	op := &ebiten.DrawImageOptions{}
-	halfW := float64(o.Bounds().Width() / 2)
-	halfH := float64(o.Bounds().Height() / 2)
+	halfW := float64(shape.Bounds().Width() / 2)
+	halfH := float64(shape.Bounds().Height() / 2)
 
 	op.GeoM.Translate(-halfW, -halfH)
 	op.GeoM.Rotate(angle * math.Pi / 180.0)
 	op.GeoM.Translate(halfW, halfH)
-	op.GeoM.Translate(o.Position().X, o.Position().Y)
-	rectImage := ebiten.NewImage(int(o.Bounds().Width()), int(o.Bounds().Height()))
-	rectImage.Fill(color.White) // Change color as needed
-	rect := rectImage.Bounds()
-	vector.StrokeRect(screen, float32(o.Position().X), float32(o.Position().Y), float32(rect.Dx()), float32(rect.Dy()), 2, color.RGBA{255, 255, 255, 0}, false)
+	op.GeoM.Translate(shape.Bounds().Min.X, shape.Bounds().Min.Y)
+	rectImage := ebiten.NewImage(int(shape.Bounds().Width()), int(shape.Bounds().Height()))
 
-	// screen.DrawImage(rectImage, op)
+	rect := rectImage.Bounds()
+	if fill {
+		rectImage.Fill(color.White) // Change color as needed
+		screen.DrawImage(rectImage, op)
+	} else {
+		vector.StrokeRect(screen, float32(shape.Bounds().Min.X), float32(shape.Bounds().Min.Y), float32(rect.Dx()), float32(rect.Dy()), 2, color.RGBA{255, 255, 255, 0}, false)
+	}
 }

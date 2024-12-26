@@ -32,29 +32,18 @@ func NewLevelScene(ecs *decs.ECS, project *assets.LDtkProject, level string) *Le
 
 func (s *LevelScene) configure() {
 	s.ecs.AddSystem(system.ProcessEvents)
-	s.ecs.AddSystem(system.UpdateObjects)
+	s.ecs.AddSystem(system.UpdatePlayer)
 
 	s.ecs.AddRenderer(layers.Default, system.DrawWall)
+	s.ecs.AddRenderer(layers.Default, system.DrawPlayer)
 
-	level := s.ldtkProject.Project.LevelByIdentifier(s.GetId())
-
-	cellWidth := level.Width / level.Layers[layers.Default].CellWidth
-	CellHeight := level.Height / level.Layers[layers.Default].CellHeight
-	space := factory.CreateSpace(
-		s.ecs,
-		level.Width,
-		level.Height,
-		cellWidth,
-		CellHeight,
-	)
-
-	CreateEntities(s, space)
+	CreateEntities(s)
 	// start gametime
 	factory.CreateGameState(s.ecs)
 
 	// Subscribe events.
 	pkgevents.UpdateSettingEvent.Subscribe(s.ecs.World, system.OnSettingsEvent)
-	pkgevents.CollectEvent.Subscribe(s.ecs.World, system.OnPickupEvent)
+	pkgevents.MoveEvent.Subscribe(s.ecs.World, system.OnMoveEvent)
 	pkgevents.CollideEvent.Subscribe(s.ecs.World, system.OnCollideEvent)
 
 }

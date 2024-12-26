@@ -10,7 +10,8 @@ import (
 
 const (
 	ActionMoveBoost input.Action = iota
-	ActionMovePosition
+	ActionMoveLeft
+	ActionMoveRight
 	ActionMoveMobile
 	ActionClick
 	ActionDebug

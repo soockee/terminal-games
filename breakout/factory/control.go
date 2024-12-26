@@ -8,14 +8,7 @@ import (
 	"github.com/yohamta/donburi/ecs"
 )
 
-var inputMap = input.Keymap{
-	component.ActionMoveBoost:    {input.KeyGamepadA, input.KeySpace, input.KeyMouseRight},
-	component.ActionMovePosition: {input.KeyMouseLeft, input.KeyTouchDrag},
-
-	component.ActionClick: {input.KeyTouchTap, input.KeyMouseLeft},
-	component.ActionDebug: {input.KeyF1},
-	component.ActionHelp:  {input.KeyF2},
-}
+var inputMap = KeyboardMovementGameplay()
 
 func CreateControl(ecs *ecs.ECS) *donburi.Entry {
 	control := archetype.Controls.Spawn(ecs)
@@ -23,4 +16,16 @@ func CreateControl(ecs *ecs.ECS) *donburi.Entry {
 		InputHandler: component.InputSytem.NewHandler(0, inputMap),
 	})
 	return control
+}
+
+func KeyboardMovementGameplay() input.Keymap {
+	return input.Keymap{
+		component.ActionMoveBoost: {input.KeyGamepadA, input.KeySpace},
+		component.ActionMoveLeft:  {input.KeyA, input.KeyLeft, input.KeyGamepadLStickLeft},
+		component.ActionMoveRight: {input.KeyD, input.KeyRight, input.KeyGamepadLStickRight},
+
+		component.ActionClick: {input.KeyTouchTap, input.KeyMouseLeft},
+		component.ActionDebug: {input.KeyF1},
+		component.ActionHelp:  {input.KeyF2},
+	}
 }

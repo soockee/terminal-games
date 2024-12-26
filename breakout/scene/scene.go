@@ -9,7 +9,7 @@ import (
 	"github.com/soockee/terminal-games/breakout/assets"
 	"github.com/soockee/terminal-games/breakout/component"
 	"github.com/soockee/terminal-games/breakout/factory"
-	resolv "github.com/soockee/terminal-games/breakout/resolv"
+	"github.com/soockee/terminal-games/breakout/layers"
 	"github.com/soockee/terminal-games/breakout/tags"
 	"github.com/yohamta/donburi"
 	"github.com/yohamta/donburi/ecs"
@@ -23,8 +23,10 @@ type Scene interface {
 	getOnce() *sync.Once
 }
 
-var TagsMapping = map[string]func(*ecs.ECS, *assets.LDtkProject, *ldtkgo.Entity) *donburi.Entry{
+var TagsMapping = map[string]func(donburi.World, *assets.LDtkProject, *ldtkgo.Entity) *donburi.Entry{
 	tags.Button.Name(): factory.CreateButton,
+	tags.Wall.Name():   factory.CreateWall,
+	tags.Player.Name(): factory.CreatePlayer,
 }
 
 func Update(s Scene) error {
@@ -43,7 +45,18 @@ func Layout(s Scene) (int, int) {
 }
 
 func CreateScene(sceneId string, ecs *ecs.ECS, project *assets.LDtkProject) Scene {
-	//project.Renderer.Render(project.Project.LevelByIdentifier(sceneId))
+	level := project.Project.LevelByIdentifier(sceneId)
+
+	cellWidth := level.Width / level.Layers[layers.Default].CellWidth
+	CellHeight := level.Height / level.Layers[layers.Default].CellHeight
+	factory.CreateSpace(
+		ecs.World,
+		level.Width,
+		level.Height,
+		cellWidth,
+		CellHeight,
+	)
+
 	switch sceneId {
 	case component.StartScene:
 		return NewStartScene(ecs, project)
@@ -60,17 +73,13 @@ func CreateScene(sceneId string, ecs *ecs.ECS, project *assets.LDtkProject) Scen
 	}
 }
 
-func CreateEntities[T Scene](s T, space *donburi.Entry) {
+func CreateEntities[T Scene](s T) {
 	level := s.getLdtkProject().Project.LevelByIdentifier(s.GetId())
 	entities := s.getLdtkProject().GetEntities(level.Identifier)
 
 	for _, entity := range entities {
-		for name, f := range TagsMapping {
-			for _, ldtkTag := range entity.Tags {
-				if name == ldtkTag {
-					resolv.Add(space, f(s.getEcs(), s.getLdtkProject(), entity))
-				}
-			}
+		for _, ldtkTag := range entity.Tags {
+			TagsMapping[ldtkTag](s.getEcs().World, s.getLdtkProject(), entity)
 		}
 	}
 }
@@ -79,19 +88,4 @@ func DrawLevel[T Scene](s T, screen *ebiten.Image) {
 	level := s.getLdtkProject().Project.LevelByIdentifier(s.GetId())
 	opt := assets.NewDefaultDrawOptions()
 	s.getLdtkProject().Renderer.Render(level, screen, opt)
-
-	// if level.BGImage != nil {
-	// 	opt := &ebiten.DrawImageOptions{}
-	// 	bgImage := level.BGImage
-	// 	opt.GeoM.Translate(-bgImage.CropRect[0], -bgImage.CropRect[1])
-	// 	opt.GeoM.Scale(bgImage.ScaleX, bgImage.ScaleY)
-	// 	img := s.getLdtkProject().Renderer.BGImage
-	// 	screen.DrawImage(img, opt)
-	// }
-
-	// for _, layer := range s.getLdtkProject().Renderer.RenderedLayers {
-	// 	if s.getLdtkProject().ActiveLayers[layer.Layer.Identifier] {
-	// 		screen.DrawImage(layer.Image, &ebiten.DrawImageOptions{})
-	// 	}
-	// }
 }

@@ -6,13 +6,10 @@ import (
 
 var (
 	//GameElements
-	Snake       = donburi.NewTag().SetName("Snake")
-	SnakeBody   = donburi.NewTag().SetName("SnakeBody")
+	Player      = donburi.NewTag().SetName("Player")
 	Wall        = donburi.NewTag().SetName("Wall")
-	Food        = donburi.NewTag().SetName("Food")
 	Collidable  = donburi.NewTag().SetName("Collidable")
 	Collectable = donburi.NewTag().SetName("Collectable")
-	Mouse       = donburi.NewTag().SetName("Mouse")
 	Animated    = donburi.NewTag().SetName("Animated")
 
 	//UI

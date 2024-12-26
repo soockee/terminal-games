@@ -8,7 +8,6 @@ import (
 	"github.com/solarlune/resolv"
 	"github.com/soockee/terminal-games/breakout/component"
 	"github.com/soockee/terminal-games/breakout/event"
-	dresolv "github.com/soockee/terminal-games/breakout/resolv"
 	"github.com/soockee/terminal-games/breakout/tags"
 
 	"github.com/yohamta/donburi"
@@ -25,10 +24,10 @@ func UpdateButton(ecs *ecs.ECS) {
 func HandleButtonClick(w donburi.World, e *event.Interaction) {
 	switch e.Action {
 	case component.ActionClick:
-		component.Button.Each(w, func(entity *donburi.Entry) {
-			buttonObject := dresolv.GetObject(entity)
-			if isVecInObject(e.Position, buttonObject) {
-				button := component.Button.Get(entity)
+		component.Button.Each(w, func(entry *donburi.Entry) {
+			b := component.Button.Get(entry)
+			if isVecInObject(e.Position, b.Shape) {
+				button := component.Button.Get(entry)
 				button.HandlerFunc(w)
 			}
 		})
@@ -38,11 +37,12 @@ func HandleButtonClick(w donburi.World, e *event.Interaction) {
 
 func DrawButton(ecs *ecs.ECS, screen *ebiten.Image) {
 	tags.Button.Each(ecs.World, func(e *donburi.Entry) {
-		component.DrawScaledSprite(screen, component.Sprite.Get(e).Images[0], e)
+		b := component.Button.Get(e)
+		component.DrawScaledSprite(screen, component.Sprite.Get(e).Images[0], b.Shape)
 	})
 }
 
-func isVecInObject(vec input.Vec, obj *resolv.ConvexPolygon) bool {
+func isVecInObject(vec input.Vec, obj resolv.IShape) bool {
 	objVec := obj.Bounds()
 	// Y of object is skewed check objc creation
 	slog.Debug("Vecs", slog.Any("VecX", objVec.Width()), slog.Any("VecY", objVec.Height()), slog.Float64("w", objVec.Width()), slog.Float64("h", objVec.Height()), slog.Any("click vec", vec))
