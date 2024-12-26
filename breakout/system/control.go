@@ -47,22 +47,21 @@ func getControl(ecs *ecs.ECS) *component.ControlData {
 }
 
 func checkPlayerInput(ecs *ecs.ECS, c *component.ControlData) {
-	boost := false
-	if c.InputHandler.ActionIsPressed(component.ActionMoveBoost) {
-		boost = true
+	if c.InputHandler.ActionIsPressed(component.ActionReleaseBall) {
+		event.ReleaseEvent.Publish(ecs.World, &event.Release{
+			Action: component.ActionReleaseBall,
+		})
 	}
 	if ok := c.InputHandler.ActionIsPressed(component.ActionMoveLeft); ok {
 		event.MoveEvent.Publish(ecs.World, &event.Move{
 			Action:    component.ActionMoveLeft,
 			Direction: resolv.NewVector(-1, 0),
-			Boost:     boost,
 		})
 	}
 	if ok := c.InputHandler.ActionIsPressed(component.ActionMoveRight); ok {
 		event.MoveEvent.Publish(ecs.World, &event.Move{
 			Action:    component.ActionMoveRight,
 			Direction: resolv.NewVector(1, 0),
-			Boost:     boost,
 		})
 	}
 

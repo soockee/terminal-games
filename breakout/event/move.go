@@ -9,7 +9,6 @@ import (
 type Move struct {
 	Action    input.Action
 	Direction resolv.Vector
-	Boost     bool
 }
 
 var MoveEvent = events.NewEventType[*Move]()

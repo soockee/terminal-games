@@ -1,7 +1,6 @@
 package factory
 
 import (
-	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/solarlune/ldtkgo"
 	"github.com/solarlune/resolv"
 	"github.com/soockee/terminal-games/breakout/archetype"
@@ -20,12 +19,12 @@ func CreateWall(w donburi.World, project *assets.LDtkProject, entity *ldtkgo.Ent
 
 	r := resolv.NewRectangleFromCorners(X, Y, X+width, Y+height)
 	component.Space.Get(component.Space.MustFirst(w)).Add(r)
-	component.Wall.Set(wall, &component.WallData{
+	component.Collidable.Set(wall, &component.CollidableData{
 		Shape: r,
 	})
-	sprite := project.GetSpriteByEntityInstance(entity)
 
-	component.Sprite.SetValue(wall, component.SpriteData{Images: map[int]*ebiten.Image{0: sprite}})
+	// sprite := project.GetSpriteByEntityInstance(entity)
+	//component.Sprite.SetValue(wall, component.SpriteData{Images: map[int]*ebiten.Image{0: sprite}})
 
 	return wall
 }

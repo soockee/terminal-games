@@ -20,9 +20,9 @@ func CreateControl(ecs *ecs.ECS) *donburi.Entry {
 
 func KeyboardMovementGameplay() input.Keymap {
 	return input.Keymap{
-		component.ActionMoveBoost: {input.KeyGamepadA, input.KeySpace},
-		component.ActionMoveLeft:  {input.KeyA, input.KeyLeft, input.KeyGamepadLStickLeft},
-		component.ActionMoveRight: {input.KeyD, input.KeyRight, input.KeyGamepadLStickRight},
+		component.ActionReleaseBall: {input.KeyGamepadA, input.KeySpace},
+		component.ActionMoveLeft:    {input.KeyA, input.KeyLeft, input.KeyGamepadLStickLeft},
+		component.ActionMoveRight:   {input.KeyD, input.KeyRight, input.KeyGamepadLStickRight},
 
 		component.ActionClick: {input.KeyTouchTap, input.KeyMouseLeft},
 		component.ActionDebug: {input.KeyF1},

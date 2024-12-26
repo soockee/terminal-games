@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	ActionMoveBoost input.Action = iota
+	ActionReleaseBall input.Action = iota
 	ActionMoveLeft
 	ActionMoveRight
 	ActionMoveMobile

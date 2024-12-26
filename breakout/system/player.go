@@ -21,10 +21,10 @@ func UpdatePlayer(ecs *ecs.ECS) {
 
 func DrawPlayer(ecs *ecs.ECS, screen *ebiten.Image) {
 	e := tags.Player.MustFirst(ecs.World)
-	player := component.Player.Get(e)
+	collidable := component.Collidable.Get(e)
 	spriteData := component.Sprite.Get(e)
 	sprite := spriteData.Images[0]
-	component.DrawRepeatedSprite(screen, sprite, player.Shape)
+	component.DrawRepeatedSprite(screen, sprite, collidable.Shape)
 }
 
 func OnMoveEvent(w donburi.World, e *event.Move) {
@@ -33,38 +33,29 @@ func OnMoveEvent(w donburi.World, e *event.Move) {
 	velocity.Velocity = velocity.Velocity.Add(e.Direction)
 }
 
-func checkCollision(w donburi.World, playerObject *resolv.ConvexPolygon) {
-	component.Player.Each(w, func(e *donburi.Entry) {
-		tags.Collidable.Each(w, func(e *donburi.Entry) {
-			collidableObject := component.Space.Get(e)
-			if intersection := playerObject.Intersection(collidableObject.FilterShapes().First()); !intersection.IsEmpty() {
-				event.CollideEvent.Publish(w, &event.Collide{
-					Type: event.CollideBody,
-				})
-			}
-		})
-	})
-}
-
 func moveplayer(ecs *ecs.ECS) {
 	playerEntry := component.Player.MustFirst(ecs.World)
 	player := component.Player.Get(playerEntry)
+	collidable := component.Collidable.Get(playerEntry)
+
+	shape := collidable.Shape.(*resolv.ConvexPolygon)
+
 	velocity := component.Velocity.Get(playerEntry)
 	space := component.Space.Get(component.Space.MustFirst(ecs.World))
 	maxX := float64(space.Width())
-	if player.Shape.Bounds().Min.X <= 0 {
+	if shape.Bounds().Min.X <= 0 {
 		// allows player movement to the right
-		player.Shape.SetX(player.Shape.Center().X + 1)
+		shape.SetX(shape.Center().X + 1)
 		velocity.Velocity.X = 0
 		return
-	} else if player.Shape.Bounds().Max.X >= maxX {
+	} else if shape.Bounds().Max.X >= maxX {
 		// allows player movement to the left
-		player.Shape.SetX(player.Shape.Center().X - 1)
+		shape.SetX(shape.Center().X - 1)
 		velocity.Velocity.X = 0
 		return
 	}
 
-	player.Shape.Move(velocity.Velocity.X, velocity.Velocity.Y)
+	shape.Move(velocity.Velocity.X, velocity.Velocity.Y)
 
 	velocity.Velocity = velocity.Velocity.Mult(resolv.NewVector(player.SpeedFriction, player.SpeedFriction))
 }

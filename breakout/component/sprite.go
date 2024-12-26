@@ -79,7 +79,7 @@ func DrawRepeatedSprite(screen *ebiten.Image, sprite *ebiten.Image, shape resolv
 	}
 }
 
-func DrawPlaceholder(screen *ebiten.Image, shape resolv.IShape, angle float64, fill bool) {
+func DrawPlaceholder(screen *ebiten.Image, shape resolv.IShape, angle float64, c color.Color, fill bool) {
 	op := &ebiten.DrawImageOptions{}
 	halfW := float64(shape.Bounds().Width() / 2)
 	halfH := float64(shape.Bounds().Height() / 2)
@@ -92,9 +92,9 @@ func DrawPlaceholder(screen *ebiten.Image, shape resolv.IShape, angle float64, f
 
 	rect := rectImage.Bounds()
 	if fill {
-		rectImage.Fill(color.White) // Change color as needed
+		rectImage.Fill(c)
 		screen.DrawImage(rectImage, op)
 	} else {
-		vector.StrokeRect(screen, float32(shape.Bounds().Min.X), float32(shape.Bounds().Min.Y), float32(rect.Dx()), float32(rect.Dy()), 2, color.RGBA{255, 255, 255, 0}, false)
+		vector.StrokeRect(screen, float32(shape.Bounds().Min.X), float32(shape.Bounds().Min.Y), float32(rect.Dx()), float32(rect.Dy()), 2, c, false)
 	}
 }

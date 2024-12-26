@@ -33,9 +33,11 @@ func NewLevelScene(ecs *decs.ECS, project *assets.LDtkProject, level string) *Le
 func (s *LevelScene) configure() {
 	s.ecs.AddSystem(system.ProcessEvents)
 	s.ecs.AddSystem(system.UpdatePlayer)
+	s.ecs.AddSystem(system.UpdateBall)
 
 	s.ecs.AddRenderer(layers.Default, system.DrawWall)
 	s.ecs.AddRenderer(layers.Default, system.DrawPlayer)
+	s.ecs.AddRenderer(layers.Default, system.DrawBall)
 
 	CreateEntities(s)
 	// start gametime
@@ -45,6 +47,7 @@ func (s *LevelScene) configure() {
 	pkgevents.UpdateSettingEvent.Subscribe(s.ecs.World, system.OnSettingsEvent)
 	pkgevents.MoveEvent.Subscribe(s.ecs.World, system.OnMoveEvent)
 	pkgevents.CollideEvent.Subscribe(s.ecs.World, system.OnCollideEvent)
+	pkgevents.ReleaseEvent.Subscribe(s.ecs.World, system.OnReleaseEvent)
 
 }
 

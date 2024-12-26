@@ -4,6 +4,7 @@ import (
 	"log/slog"
 
 	"github.com/soockee/terminal-games/breakout/event"
+	"github.com/soockee/terminal-games/breakout/tags"
 	"github.com/yohamta/donburi"
 	"github.com/yohamta/donburi/ecs"
 	"github.com/yohamta/donburi/features/events"
@@ -11,22 +12,18 @@ import (
 
 func OnCollideEvent(w donburi.World, e *event.Collide) {
 	switch e.Type {
-	case event.CollideBody:
-		fallthrough
+	case tags.Wall:
+		slog.Debug("collide with Wall")
 
-	case event.CollideWall:
-		event.GameStateEvent.Publish(w, &event.GameStateData{
-			IsGameOver: true,
-		})
+	case tags.Player:
+		slog.Debug("collide with Player")
 	}
 }
 
 func OnPickupEvent(w donburi.World, e *event.Collect) {
-
 	switch e.Type {
 	default:
-		slog.Error("unknown collectable")
-		panic(0)
+		slog.Error("pickup not implemented", slog.Any("Type", e.Type))
 	}
 }
 

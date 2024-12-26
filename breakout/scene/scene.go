@@ -24,9 +24,11 @@ type Scene interface {
 }
 
 var TagsMapping = map[string]func(donburi.World, *assets.LDtkProject, *ldtkgo.Entity) *donburi.Entry{
-	tags.Button.Name(): factory.CreateButton,
-	tags.Wall.Name():   factory.CreateWall,
-	tags.Player.Name(): factory.CreatePlayer,
+	tags.Button.Name():     factory.CreateButton,
+	tags.Collidable.Name(): factory.CreateWall,
+	tags.Player.Name():     factory.CreatePlayer,
+	tags.Ball.Name():       factory.CreateBall,
+	tags.Wall.Name():       factory.CreateWall,
 }
 
 func Update(s Scene) error {

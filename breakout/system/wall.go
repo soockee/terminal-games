@@ -1,6 +1,8 @@
 package system
 
 import (
+	"image/color"
+
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/soockee/terminal-games/breakout/component"
 	"github.com/soockee/terminal-games/breakout/tags"
@@ -10,7 +12,7 @@ import (
 
 func DrawWall(ecs *ecs.ECS, screen *ebiten.Image) {
 	tags.Wall.Each(ecs.World, func(e *donburi.Entry) {
-		w := component.Wall.Get(e)
-		component.DrawRepeatedSprite(screen, component.Sprite.Get(e).Images[0], w.Shape)
+		w := component.Collidable.Get(e)
+		component.DrawPlaceholder(screen, w.Shape, 0, color.RGBA{255, 255, 255, 0}, true)
 	})
 }
