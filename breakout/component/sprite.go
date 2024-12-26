@@ -63,6 +63,10 @@ func DrawRepeatedSprite(screen *ebiten.Image, sprite *ebiten.Image, shape resolv
 	xTimes := shape.Bounds().Width() / float64(sprite.Bounds().Dx())
 	yTimes := shape.Bounds().Height() / float64(sprite.Bounds().Dy())
 
+	// round to nearest whole number, otherwise cause rendering issues
+	xTimes = math.Round(xTimes)
+	yTimes = math.Round(yTimes)
+
 	for i := 0; i < int(xTimes); i++ {
 		// dx := float64(sprite.Bounds().Dx() * i)
 		dx := float64(sprite.Bounds().Dx() * i)

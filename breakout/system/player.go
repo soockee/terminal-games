@@ -1,8 +1,6 @@
 package system
 
 import (
-	"log/slog"
-
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/solarlune/resolv"
 	"github.com/soockee/terminal-games/breakout/component"
@@ -51,27 +49,22 @@ func checkCollision(w donburi.World, playerObject *resolv.ConvexPolygon) {
 func moveplayer(ecs *ecs.ECS) {
 	playerEntry := component.Player.MustFirst(ecs.World)
 	player := component.Player.Get(playerEntry)
-
 	velocity := component.Velocity.Get(playerEntry)
-
 	space := component.Space.Get(component.Space.MustFirst(ecs.World))
-
 	maxX := float64(space.Width())
-
 	if player.Shape.Bounds().Min.X <= 0 {
-		player.Shape.SetX(0)
+		// allows player movement to the right
+		player.Shape.SetX(player.Shape.Center().X + 1)
 		velocity.Velocity.X = 0
 		return
 	} else if player.Shape.Bounds().Max.X >= maxX {
-		player.Shape.SetX(maxX)
+		// allows player movement to the left
+		player.Shape.SetX(player.Shape.Center().X - 1)
 		velocity.Velocity.X = 0
 		return
 	}
 
 	player.Shape.Move(velocity.Velocity.X, velocity.Velocity.Y)
 
-	slog.Debug("velocity.Velocity", slog.Any("before", velocity.Velocity))
 	velocity.Velocity = velocity.Velocity.Mult(resolv.NewVector(player.SpeedFriction, player.SpeedFriction))
-	slog.Debug("velocity.Velocity", slog.Any("after", velocity.Velocity))
-
 }
