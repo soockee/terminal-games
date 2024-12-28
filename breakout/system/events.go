@@ -11,12 +11,10 @@ import (
 )
 
 func OnCollideEvent(w donburi.World, e *event.Collide) {
-	switch e.Type {
-	case tags.Wall:
-		slog.Debug("collide with Wall")
+	ColliderType := e.Collider.Archetype().Layout()
 
-	case tags.Player:
-		slog.Debug("collide with Player")
+	if ColliderType.HasComponent(tags.Ball) {
+		OnBallCollisionEvent(w, e)
 	}
 }
 

@@ -59,3 +59,13 @@ func DirectionVector(vec1, vec2 resolv.Vector) resolv.Vector {
 	direction := resolv.NewVector(vec2.X-vec1.X, vec2.Y-vec1.Y)
 	return direction
 }
+
+// LimitMagnitude limits the vector's magnitude to the specified max value.
+func LimitMagnitude(vec resolv.Vector, maxMagnitude float64) resolv.Vector {
+	mag := vec.Magnitude()
+	if mag > maxMagnitude {
+		vec = vec.Unit().Scale(maxMagnitude)
+		return vec
+	}
+	return vec
+}

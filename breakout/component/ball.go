@@ -6,8 +6,9 @@ import (
 )
 
 type BallData struct {
-	Speed float64
-	Shape *resolv.Circle
+	Speed    float64
+	Shape    *resolv.Circle
+	MaxSpeed float64
 }
 
 var Ball = donburi.NewComponentType[BallData]()

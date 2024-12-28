@@ -15,7 +15,6 @@ func UpdatePlayer(ecs *ecs.ECS) {
 	// player := component.Player.Get(playerEntry)
 
 	moveplayer(ecs)
-	// slog.Debug("Player", slog.Any("Player", player))
 	//checkWallCollision(ecs.World, snakeObject)
 }
 

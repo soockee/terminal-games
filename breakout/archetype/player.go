@@ -40,6 +40,7 @@ func NewPlayer(w donburi.World, project *assets.LDtkProject, entity *ldtkgo.Enti
 	})
 
 	component.Collidable.Set(player, &component.CollidableData{
+		Type:  tags.Player,
 		Shape: r,
 	})
 

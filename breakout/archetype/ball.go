@@ -32,8 +32,9 @@ func NewBall(w donburi.World, project *assets.LDtkProject, entity *ldtkgo.Entity
 	r := resolv.NewCircle(X, Y, width/2)
 	component.Space.Get(component.Space.MustFirst(w)).Add(r)
 	component.Ball.Set(ball, &component.BallData{
-		Speed: 8,
-		Shape: r,
+		Speed:    8,
+		Shape:    r,
+		MaxSpeed: 30,
 	})
 
 	sprite := project.GetSpriteByEntityInstance(entity)

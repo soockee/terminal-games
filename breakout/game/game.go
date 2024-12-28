@@ -13,12 +13,12 @@ import (
 	"github.com/soockee/terminal-games/breakout/scene"
 	"github.com/soockee/terminal-games/breakout/system"
 	"github.com/yohamta/donburi"
-	desc "github.com/yohamta/donburi/ecs"
+	"github.com/yohamta/donburi/ecs"
 	"golang.org/x/exp/maps"
 )
 
 type Game struct {
-	ecs         *desc.ECS
+	ecs         *ecs.ECS
 	scene       scene.Scene
 	ldtkProject *assets.LDtkProject
 }
@@ -27,7 +27,7 @@ func NewGame(project *assets.LDtkProject) *Game {
 	assets.MustLoadAssets()
 
 	g := &Game{
-		ecs:         desc.NewECS(donburi.NewWorld()),
+		ecs:         ecs.NewECS(donburi.NewWorld()),
 		ldtkProject: project,
 	}
 	g.start(component.StartScene, component.Empty)
@@ -77,17 +77,17 @@ func (g *Game) reset() {
 	if slices.Contains(levels, g.scene.GetId()) {
 		gamestate := component.GameState.MustFirst(g.ecs.World)
 		gamedata := component.GameState.Get(gamestate)
-		g.ecs = desc.NewECS(donburi.NewWorld())
+		g.ecs = ecs.NewECS(donburi.NewWorld())
 		archetype.AccumulateGameState(g.ecs, gamedata)
 		return
 	} else if g.scene.GetId() == component.LevelClearScene {
 		gamestate := component.GameState.MustFirst(g.ecs.World)
 		gamedata := component.GameState.Get(gamestate)
-		g.ecs = desc.NewECS(donburi.NewWorld())
+		g.ecs = ecs.NewECS(donburi.NewWorld())
 		archetype.ContinueLevelGameState(g.ecs, gamedata)
 		return
 	} else {
-		g.ecs = desc.NewECS(donburi.NewWorld())
+		g.ecs = ecs.NewECS(donburi.NewWorld())
 	}
 }
 

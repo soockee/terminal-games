@@ -27,6 +27,7 @@ func NewWall(w donburi.World, project *assets.LDtkProject, entity *ldtkgo.Entity
 	r := resolv.NewRectangleFromCorners(X, Y, X+width, Y+height)
 	component.Space.Get(component.Space.MustFirst(w)).Add(r)
 	component.Collidable.Set(wall, &component.CollidableData{
+		Type: tags.Wall,
 		Shape: r,
 	})
 
