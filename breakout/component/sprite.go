@@ -79,7 +79,7 @@ func DrawRepeatedSprite(screen *ebiten.Image, sprite *ebiten.Image, shape resolv
 	}
 }
 
-func DrawPlaceholder(screen *ebiten.Image, shape resolv.IShape, angle float64, c color.Color, fill bool) {
+func DrawPlaceholder(screen *ebiten.Image, sprite *ebiten.Image, shape resolv.IShape, angle float64, c color.Color, fill bool) {
 	op := &ebiten.DrawImageOptions{}
 	halfW := float64(shape.Bounds().Width() / 2)
 	halfH := float64(shape.Bounds().Height() / 2)
@@ -88,13 +88,18 @@ func DrawPlaceholder(screen *ebiten.Image, shape resolv.IShape, angle float64, c
 	op.GeoM.Rotate(angle * math.Pi / 180.0)
 	op.GeoM.Translate(halfW, halfH)
 	op.GeoM.Translate(shape.Bounds().Min.X, shape.Bounds().Min.Y)
-	rectImage := ebiten.NewImage(int(shape.Bounds().Width()), int(shape.Bounds().Height()))
-
-	rect := rectImage.Bounds()
-	if fill {
-		rectImage.Fill(c)
-		screen.DrawImage(rectImage, op)
-	} else {
-		vector.StrokeRect(screen, float32(shape.Bounds().Min.X), float32(shape.Bounds().Min.Y), float32(rect.Dx()), float32(rect.Dy()), 2, c, false)
+	switch s := shape.(type) {
+	case *resolv.Circle:
+		if fill {
+			vector.DrawFilledCircle(screen, float32(s.Bounds().Min.X), float32(s.Bounds().Min.Y), float32(s.Radius()), c, true)
+		} else {
+			vector.DrawFilledCircle(screen, float32(s.Bounds().Min.X), float32(s.Bounds().Min.Y), float32(s.Radius()), c, true)
+		}
+	case *resolv.ConvexPolygon:
+		if fill {
+			vector.DrawFilledRect(screen, float32(s.Bounds().Min.X), float32(s.Bounds().Min.Y), float32(s.Bounds().Width()), float32(s.Bounds().Height()), c, true)
+		} else {
+			vector.DrawFilledRect(screen, float32(s.Bounds().Min.X), float32(s.Bounds().Min.Y), float32(s.Bounds().Width()), float32(s.Bounds().Height()), c, false)
+		}
 	}
 }

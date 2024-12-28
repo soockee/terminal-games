@@ -33,10 +33,12 @@ func (s *LevelScene) configure() {
 	s.ecs.AddSystem(system.ProcessEvents)
 	s.ecs.AddSystem(system.UpdatePlayer)
 	s.ecs.AddSystem(system.UpdateBall)
+	s.ecs.AddSystem(system.UpdateBrick)
 
 	s.ecs.AddRenderer(layers.Default, system.DrawWall)
 	s.ecs.AddRenderer(layers.Default, system.DrawPlayer)
 	s.ecs.AddRenderer(layers.Default, system.DrawBall)
+	s.ecs.AddRenderer(layers.Default, system.DrawBrick)
 
 	CreateEntities(s)
 	// start gametime

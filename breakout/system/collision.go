@@ -18,6 +18,7 @@ func checkCollision[T any](w donburi.World, shape resolv.IShape, c *donburi.Comp
 					Collider:     collider,
 					Intersection: intersection,
 				})
+				return
 			}
 		})
 	})

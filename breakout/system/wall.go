@@ -13,6 +13,8 @@ import (
 func DrawWall(ecs *ecs.ECS, screen *ebiten.Image) {
 	tags.Wall.Each(ecs.World, func(e *donburi.Entry) {
 		w := component.Collidable.Get(e)
-		component.DrawPlaceholder(screen, w.Shape, 0, color.RGBA{255, 255, 255, 0}, true)
+		spriteData := component.Sprite.Get(e)
+		sprite := spriteData.Images[0]
+		component.DrawPlaceholder(screen, sprite, w.Shape, 0, color.RGBA{255, 255, 255, 0}, true)
 	})
 }

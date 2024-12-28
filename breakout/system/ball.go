@@ -1,12 +1,14 @@
 package system
 
 import (
+	"image/color"
 	"log/slog"
 	"math/rand"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/solarlune/resolv"
 	"github.com/soockee/terminal-games/breakout/component"
+	"github.com/soockee/terminal-games/breakout/engine"
 	"github.com/soockee/terminal-games/breakout/event"
 	"github.com/soockee/terminal-games/breakout/tags"
 	"github.com/soockee/terminal-games/breakout/util"
@@ -21,8 +23,11 @@ func UpdateBall(ecs *ecs.ECS) {
 		return
 	}
 
-	moveball(ecs)
-	checkCollision(ecs.World, ball.Shape, component.Ball)
+	ball.CooldownTimer.Update()
+	moveball(ecs.World)
+	if ball.CooldownTimer.IsReady() {
+		checkCollision(ecs.World, ball.Shape, component.Ball)
+	}
 }
 
 func DrawBall(ecs *ecs.ECS, screen *ebiten.Image) {
@@ -30,7 +35,8 @@ func DrawBall(ecs *ecs.ECS, screen *ebiten.Image) {
 	ball := component.Ball.Get(e)
 	spriteData := component.Sprite.Get(e)
 	sprite := spriteData.Images[0]
-	component.DrawScaledSprite(screen, sprite, ball.Shape)
+	// component.DrawScaledSprite(screen, sprite, ball.Shape)
+	component.DrawPlaceholder(screen, sprite, ball.Shape, 0, color.White, false)
 }
 
 func OnBallCollisionEvent(w donburi.World, e *event.Collide) {
@@ -39,18 +45,26 @@ func OnBallCollisionEvent(w donburi.World, e *event.Collide) {
 
 	CollideWithType := e.CollideWith.Archetype().Layout()
 	ball := component.Ball.Get(entry)
-	// wall := component.Collidable.Get(e.CollideWith).Shape
-	//space := component.Space.Get(component.Space.MustFirst(w))
 
 	if CollideWithType.HasComponent(tags.Wall) {
 		velocity.Velocity = velocity.Velocity.Reflect(e.Intersection.Intersections[0].Normal)
+
 	} else if CollideWithType.HasComponent(tags.Player) {
 		playerVelocity := component.Velocity.Get(e.CollideWith)
 		out := velocity.Velocity.Reflect(e.Intersection.Intersections[0].Normal)
-		velocity.Velocity = out.Add(playerVelocity.Velocity.Scale(0.9))
+		playerFactor := util.LimitMagnitude(playerVelocity.Velocity, 3)
+		velocity.Velocity = out.Add(playerFactor)
 		velocity.Velocity = util.LimitMagnitude(velocity.Velocity, ball.MaxSpeed)
+		ball.CooldownTimer = *engine.NewTimer(ball.CollisionCooldownPlayer)
+
+	} else if CollideWithType.HasComponent(tags.Brick) {
+		velocity.Velocity = velocity.Velocity.Reflect(e.Intersection.Intersections[0].Normal)
+		w.Remove(e.CollideWith.Entity())
 	}
-	slog.Debug("Ball magnitude", slog.Any("magnitude", velocity.Velocity.Magnitude()))
+
+	moveball(w)
+
+	slog.Debug("ball.CooldownTimer", slog.Any("cooldown", ball.CooldownTimer))
 }
 
 func OnReleaseEvent(w donburi.World, e *event.Release) {
@@ -67,23 +81,23 @@ func OnReleaseEvent(w donburi.World, e *event.Release) {
 
 }
 
-func moveball(ecs *ecs.ECS) {
-	ballEntry := component.Ball.MustFirst(ecs.World)
+func moveball(w donburi.World) {
+	ballEntry := component.Ball.MustFirst(w)
 	ball := component.Ball.Get(ballEntry)
 	velocity := component.Velocity.Get(ballEntry)
-	space := component.Space.Get(component.Space.MustFirst(ecs.World))
+	space := component.Space.Get(component.Space.MustFirst(w))
 
 	ball.Shape.Move(velocity.Velocity.X, velocity.Velocity.Y)
 	if ball.Shape.Position().Y <= 0 {
-		ball.Shape.SetPosition(ball.Shape.Position().X, ball.Shape.Position().Y+ball.Shape.Bounds().Height()+1)
+		ball.Shape.SetPosition(ball.Shape.Position().X, ball.Shape.Position().Y+ball.Shape.Bounds().Height()+2)
 	}
 	if ball.Shape.Position().Y >= float64(space.Height()) {
-		ball.Shape.SetPosition(ball.Shape.Position().X, ball.Shape.Position().Y-ball.Shape.Bounds().Height()-1)
+		ball.Shape.SetPosition(ball.Shape.Position().X, ball.Shape.Position().Y-ball.Shape.Bounds().Height()-2)
 	}
 	if ball.Shape.Position().X <= 0 {
-		ball.Shape.SetPosition(ball.Shape.Position().X+ball.Shape.Bounds().Width()+1, ball.Shape.Position().Y)
+		ball.Shape.SetPosition(ball.Shape.Position().X+ball.Shape.Bounds().Width()+2, ball.Shape.Position().Y)
 	}
 	if ball.Shape.Position().X >= float64(space.Width()) {
-		ball.Shape.SetPosition(ball.Shape.Position().X-ball.Shape.Bounds().Width()-1, ball.Shape.Position().Y)
+		ball.Shape.SetPosition(ball.Shape.Position().X-ball.Shape.Bounds().Width()-2, ball.Shape.Position().Y)
 	}
 }

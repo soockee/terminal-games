@@ -8,6 +8,7 @@ var (
 	//GameElements
 	Player      = donburi.NewTag().SetName("Player")
 	Ball        = donburi.NewTag().SetName("Ball")
+	Brick       = donburi.NewTag().SetName("Brick")
 	Wall        = donburi.NewTag().SetName("Wall")
 	Collidable  = donburi.NewTag().SetName("Collidable")
 	Collectable = donburi.NewTag().SetName("Collectable")

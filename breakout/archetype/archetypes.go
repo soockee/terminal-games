@@ -16,6 +16,7 @@ var (
 		tags.Player.Name():     NewPlayer,
 		tags.Ball.Name():       NewBall,
 		tags.Wall.Name():       NewWall,
+		tags.Brick.Name():      NewBrick,
 	}
 )
 
