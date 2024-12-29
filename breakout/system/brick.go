@@ -11,12 +11,11 @@ import (
 
 func UpdateBrick(ecs *ecs.ECS) {
 	component.Brick.Each(ecs.World, func(e *donburi.Entry) {
-		// buttonObject := dresolv.GetObject(e)
-		// buttonData := component.Brick.Get(e)
 	})
 }
 
 func DrawBrick(ecs *ecs.ECS, screen *ebiten.Image) {
+
 	tags.Brick.Each(ecs.World, func(e *donburi.Entry) {
 		b := component.Collidable.Get(e)
 		component.DrawScaledSprite(screen, component.Sprite.Get(e).Images[0], b.Shape)

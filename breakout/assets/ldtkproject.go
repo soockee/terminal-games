@@ -147,7 +147,7 @@ func (ldtk LDtkProject) GetAnimatedSprite(tileRect *ldtkgo.TileRect, frameW, fra
 	frameCount := sprite.Bounds().Dx() / frameW
 	animationTime := time.Millisecond * 100
 	frameRowSelection := fmt.Sprintf("1-%d", frameCount)
-	// use only column 1
+	// use only row 1
 	frames := grid.Frames(frameRowSelection, 1)
 	animation := ganim8.New(sprite, frames, animationTime)
 	return animation

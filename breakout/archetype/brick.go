@@ -18,6 +18,7 @@ var (
 		component.Brick,
 		component.Sprite,
 		component.Collidable,
+		component.Animations,
 	)
 )
 

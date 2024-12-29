@@ -3,10 +3,8 @@ package system
 import (
 	"image/color"
 	"log/slog"
-	"math/rand"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/solarlune/resolv"
 	"github.com/soockee/terminal-games/breakout/component"
 	"github.com/soockee/terminal-games/breakout/engine"
 	"github.com/soockee/terminal-games/breakout/event"
@@ -59,26 +57,13 @@ func OnBallCollisionEvent(w donburi.World, e *event.Collide) {
 
 	} else if CollideWithType.HasComponent(tags.Brick) {
 		velocity.Velocity = velocity.Velocity.Reflect(e.Intersection.Intersections[0].Normal)
+
 		w.Remove(e.CollideWith.Entity())
 	}
 
 	moveball(w)
 
 	slog.Debug("ball.CooldownTimer", slog.Any("cooldown", ball.CooldownTimer))
-}
-
-func OnReleaseEvent(w donburi.World, e *event.Release) {
-	entry := component.Ball.MustFirst(w)
-	ball := component.Ball.Get(entry)
-	velocity := component.Velocity.Get(entry)
-
-	// randomize direction
-	direction := resolv.NewVector(2*rand.Float64()-1, -1)
-
-	velocity.Velocity = velocity.Velocity.Add(direction)
-
-	velocity.Velocity = util.LimitMagnitude(velocity.Velocity, ball.MaxSpeed)
-
 }
 
 func moveball(w donburi.World) {

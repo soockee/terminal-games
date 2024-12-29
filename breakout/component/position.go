@@ -5,4 +5,4 @@ import (
 	"github.com/yohamta/donburi"
 )
 
-var PositionComponent = donburi.NewComponentType[input.Vec]()
+var Position = donburi.NewComponentType[input.Vec]()

@@ -2,11 +2,21 @@ package component
 
 import (
 	"github.com/yohamta/donburi"
+	"github.com/yohamta/donburi/features/math"
 	"github.com/yohamta/ganim8/v2"
 )
 
-type AnimationData struct {
-	Animations map[int]*ganim8.Animation
+type AnimationType int
+
+const (
+	BrickExplosion AnimationType = iota
+)
+
+type Animation struct {
+	Animation *ganim8.Animation
+	Position  math.Vec2
 }
 
-var Animation = donburi.NewComponentType[AnimationData]()
+type AnimationsData map[AnimationType]Animation
+
+var Animations = donburi.NewComponentType[AnimationsData]()

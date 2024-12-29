@@ -37,7 +37,7 @@ func NewBall(w donburi.World, project *assets.LDtkProject, entity *ldtkgo.Entity
 	component.Ball.Set(ball, &component.BallData{
 		Speed:                   8,
 		Shape:                   r,
-		MaxSpeed:                16,
+		MaxSpeed:                10,
 		CollisionCooldownBlock:  time.Duration(time.Millisecond * 34),  // 2 frame
 		CollisionCooldownPlayer: time.Duration(time.Millisecond * 134), // 8 frames
 		CooldownTimer:           engine.Timer{},

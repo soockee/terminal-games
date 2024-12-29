@@ -70,6 +70,10 @@ func CreateEntities[T Scene](s T) {
 
 	for _, entity := range entities {
 		for _, ldtkTag := range entity.Tags {
+			if archetype.TagsMapping[ldtkTag] == nil {
+				slog.Error("tag not found: noop", slog.Any("tag", ldtkTag))
+				continue
+			}
 			archetype.TagsMapping[ldtkTag](s.getEcs().World, s.getLdtkProject(), entity)
 		}
 	}

@@ -6,6 +6,7 @@ import (
 	"errors"
 	"image"
 	"io/fs"
+	"path/filepath"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
@@ -46,7 +47,8 @@ func New(fs fs.FS, project *ldtkgo.Project) (*Renderer, error) {
 		_, exists := renderer.Backgrounds[level.BGImage.Path]
 
 		if !exists {
-			img, _, err := ebitenutil.NewImageFromFileSystem(renderer.FileSystem, level.BGImage.Path)
+			p := filepath.ToSlash(level.BGImage.Path)
+			img, _, err := ebitenutil.NewImageFromFileSystem(renderer.FileSystem, p)
 			if err != nil {
 				return nil, errors.New(ErrorBackgroundNotFound + ": [" + level.BGImage.Path + "]")
 			}
@@ -60,7 +62,8 @@ func New(fs fs.FS, project *ldtkgo.Project) (*Renderer, error) {
 		_, exists := renderer.Tilesets[tileset.Path]
 
 		if !exists {
-			img, _, err := ebitenutil.NewImageFromFileSystem(renderer.FileSystem, tileset.Path)
+			p := filepath.ToSlash(tileset.Path)
+			img, _, err := ebitenutil.NewImageFromFileSystem(renderer.FileSystem, p)
 			if err != nil {
 				return nil, errors.New(ErrorTilesetNotFound + ": [" + tileset.Path + "]")
 			}
