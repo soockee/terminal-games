@@ -9,6 +9,7 @@ type ButtonData struct {
 	Clicked     bool
 	HandlerFunc func(donburi.World)
 	Shape       *resolv.ConvexPolygon
+	Type        string
 }
 
 var Button = donburi.NewComponentType[ButtonData]()

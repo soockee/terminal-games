@@ -1,22 +1,17 @@
 package component
 
 import (
+	"github.com/solarlune/resolv"
 	"github.com/yohamta/donburi"
-	"github.com/yohamta/donburi/features/math"
 	"github.com/yohamta/ganim8/v2"
 )
 
 type AnimationType int
 
-const (
-	BrickExplosion AnimationType = iota
-)
-
-type Animation struct {
+type AnimationsData struct {
 	Animation *ganim8.Animation
-	Position  math.Vec2
+	Shape     resolv.IShape
+	Loop    bool
 }
 
-type AnimationsData map[AnimationType]Animation
-
-var Animations = donburi.NewComponentType[AnimationsData]()
+var Animation = donburi.NewComponentType[AnimationsData]()

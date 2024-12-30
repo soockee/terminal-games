@@ -5,13 +5,13 @@ import (
 	"math/rand"
 
 	"github.com/solarlune/resolv"
-	"github.com/soockee/terminal-games/breakout/archetype"
 	"github.com/soockee/terminal-games/breakout/component"
 	"github.com/soockee/terminal-games/breakout/event"
 	"github.com/soockee/terminal-games/breakout/tags"
 	"github.com/soockee/terminal-games/breakout/util"
 	"github.com/yohamta/donburi"
 	"github.com/yohamta/donburi/ecs"
+
 	"github.com/yohamta/donburi/features/events"
 )
 
@@ -43,11 +43,8 @@ func OnReleaseEvent(w donburi.World, e *event.Release) {
 	velocity.Velocity = util.LimitMagnitude(velocity.Velocity, ball.MaxSpeed)
 }
 
-func OnExplodeEvent(w donburi.World, e *event.Explode) {
-	archetype.NewExplosion(w, e.Brick.Entity())
-	w.Remove(e.Brick.Entity())
-}
 
 func ProcessEvents(ecs *ecs.ECS) {
+	events.Debug = true
 	events.ProcessAllEvents(ecs.World)
 }

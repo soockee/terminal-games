@@ -12,7 +12,7 @@ var (
 	Wall        = donburi.NewTag().SetName("Wall")
 	Collidable  = donburi.NewTag().SetName("Collidable")
 	Collectable = donburi.NewTag().SetName("Collectable")
-	Animated    = donburi.NewTag().SetName("Animated")
+	Animation   = donburi.NewTag().SetName("Animated")
 	Explosion   = donburi.NewTag().SetName("Explosion")
 
 	//UI

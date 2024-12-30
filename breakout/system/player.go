@@ -22,6 +22,7 @@ func DrawPlayer(ecs *ecs.ECS, screen *ebiten.Image) {
 	e := tags.Player.MustFirst(ecs.World)
 	collidable := component.Collidable.Get(e)
 	spriteData := component.Sprite.Get(e)
+
 	sprite := spriteData.Images[0]
 	component.DrawRepeatedSprite(screen, sprite, collidable.Shape)
 }

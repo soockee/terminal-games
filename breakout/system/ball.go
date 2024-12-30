@@ -31,10 +31,11 @@ func UpdateBall(ecs *ecs.ECS) {
 func DrawBall(ecs *ecs.ECS, screen *ebiten.Image) {
 	e := tags.Ball.MustFirst(ecs.World)
 	ball := component.Ball.Get(e)
-	spriteData := component.Sprite.Get(e)
-	sprite := spriteData.Images[0]
+
+	sprite := component.Sprite.Get(e)
+
 	// component.DrawScaledSprite(screen, sprite, ball.Shape)
-	component.DrawPlaceholder(screen, sprite, ball.Shape, 0, color.White, false)
+	component.DrawPlaceholder(screen, sprite.Images[0], ball.Shape, 0, color.White, false)
 }
 
 func OnBallCollisionEvent(w donburi.World, e *event.Collide) {
@@ -58,7 +59,20 @@ func OnBallCollisionEvent(w donburi.World, e *event.Collide) {
 	} else if CollideWithType.HasComponent(tags.Brick) {
 		velocity.Velocity = velocity.Velocity.Reflect(e.Intersection.Intersections[0].Normal)
 
-		w.Remove(e.CollideWith.Entity())
+		brick := component.Brick.Get(e.CollideWith)
+		brick.Health--
+		if brick.Health <= 0 {
+			collidable := component.Collidable.Get(e.CollideWith)
+			event.CreateEntityEvent.Publish(w, &event.CreateEntityData{
+				Tags:       []string{tags.Explosion.Name()},
+				Identifier: "Explosion",
+				X:          collidable.Shape.Bounds().Min.X,
+				Y:          collidable.Shape.Bounds().Min.Y,
+				W:          collidable.Shape.Bounds().Width(),
+				H:          collidable.Shape.Bounds().Height(),
+			})
+			w.Remove(e.CollideWith.Entity())
+		}
 	}
 
 	moveball(w)

@@ -6,11 +6,9 @@ import (
 )
 
 type TextData struct {
-	Identifier          string
-	Text                []string
-	IsAnimated          bool
-	CurrentCharPosition int
-	Shape               *resolv.ConvexPolygon
+	Text       []string
+	IsAnimated bool
+	Shape      resolv.IShape
 }
 
 var Text = donburi.NewComponentType[TextData]()

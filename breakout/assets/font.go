@@ -1,11 +1,12 @@
 package assets
 
 import (
+	"bytes"
 	_ "embed"
 	_ "image/png"
+	"log"
 
-	"golang.org/x/image/font"
-	"golang.org/x/image/font/opentype"
+	"github.com/hajimehoshi/ebiten/v2/text/v2"
 )
 
 var (
@@ -14,9 +15,9 @@ var (
 	//go:embed fonts/kenney_pixel_square.ttf
 	SquareFontData []byte
 
-	SmallFont  font.Face
-	NormalFont font.Face
-	SqaureFont font.Face
+	SmallFont  *text.GoTextFace
+	NormalFont *text.GoTextFace
+	SqaureFont *text.GoTextFace
 )
 
 func MustLoadAssets() {
@@ -25,20 +26,17 @@ func MustLoadAssets() {
 	SqaureFont = MustLoadFont(SquareFontData, 24)
 }
 
-func MustLoadFont(data []byte, size int) font.Face {
-	f, err := opentype.Parse(data)
+func MustLoadFont(data []byte, size int) *text.GoTextFace {
+
+	s, err := text.NewGoTextFaceSource(bytes.NewReader(data))
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
-	face, err := opentype.NewFace(f, &opentype.FaceOptions{
-		Size:    float64(size),
-		DPI:     72,
-		Hinting: font.HintingFull,
-	})
-	if err != nil {
-		panic(err)
+	f := &text.GoTextFace{
+		Source: s,
+		Size:   float64(size),
 	}
 
-	return face
+	return f
 }

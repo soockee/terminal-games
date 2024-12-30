@@ -5,6 +5,7 @@ import (
 )
 
 type BrickData struct {
+	Health int
 }
 
 var Brick = donburi.NewComponentType[BrickData]()

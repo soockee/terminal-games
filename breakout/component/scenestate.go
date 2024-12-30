@@ -13,6 +13,7 @@ import (
 const (
 	Empty   = "Level_Empty"
 	Level_0 = "Level_0"
+	Level_1 = "Level_1"
 
 	StartScene      = "Level_Start"
 	LevelClearScene = "Level_Clear"
@@ -22,6 +23,7 @@ const (
 // key naming matters, determines order of levels
 var Levels = map[string]bool{
 	Level_0: false,
+	Level_1: false,
 }
 
 type SceneData struct {

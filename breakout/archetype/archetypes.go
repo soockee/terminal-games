@@ -1,23 +1,9 @@
 package archetype
 
 import (
-	"github.com/solarlune/ldtkgo"
-	"github.com/soockee/terminal-games/breakout/assets"
 	"github.com/soockee/terminal-games/breakout/layers"
-	"github.com/soockee/terminal-games/breakout/tags"
 	"github.com/yohamta/donburi"
 	"github.com/yohamta/donburi/ecs"
-)
-
-var (
-	TagsMapping = map[string]func(donburi.World, *assets.LDtkProject, *ldtkgo.Entity) *donburi.Entry{
-		tags.Button.Name():     NewButton,
-		tags.Collidable.Name(): NewWall,
-		tags.Player.Name():     NewPlayer,
-		tags.Ball.Name():       NewBall,
-		tags.Wall.Name():       NewWall,
-		tags.Brick.Name():      NewBrick,
-	}
 )
 
 type Archetype struct {
