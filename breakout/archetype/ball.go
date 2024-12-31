@@ -30,7 +30,7 @@ func NewBall(w donburi.World, shape *resolv.Circle, sprite *ebiten.Image) *donbu
 		Speed:                   8,
 		Shape:                   shape,
 		MaxSpeed:                10,
-		CollisionCooldownBlock:  time.Duration(time.Millisecond * 1),   // 2 frame
+		CollisionCooldownBlock:  time.Duration(time.Millisecond * 17),  // 1 frame
 		CollisionCooldownPlayer: time.Duration(time.Millisecond * 134), // 8 frames
 		CooldownTimer:           engine.Timer{},
 	})

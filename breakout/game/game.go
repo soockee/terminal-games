@@ -40,7 +40,7 @@ func NewGame(project *assets.LDtkProject) *Game {
 
 	store = project
 
-	g.start(component.GameOverScene, component.Empty)
+	g.start(component.StartScene, component.Empty)
 	return g
 }
 

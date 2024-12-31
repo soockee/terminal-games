@@ -38,7 +38,16 @@ func CreateScene(sceneId string, ecs *ecs.ECS, project *assets.LDtkProject) Scen
 	level := project.Project.LevelByIdentifier(sceneId)
 	entities := project.GetEntities(level.Identifier)
 
-	archetype.NewSpace(ecs.World, level.Width, level.Height, level.Layers[layers.Default].CellWidth, level.Layers[layers.Default].CellHeight)
+	cellWidth := level.Width / level.Layers[layers.Default].CellWidth
+	CellHeight := level.Height / level.Layers[layers.Default].CellHeight
+
+	archetype.NewSpace(
+		ecs.World,
+		level.Width,
+		level.Height,
+		cellWidth,
+		CellHeight,
+	)
 	// Create entities
 	for _, entity := range entities {
 		data := &event.CreateEntityData{
@@ -51,16 +60,6 @@ func CreateScene(sceneId string, ecs *ecs.ECS, project *assets.LDtkProject) Scen
 		}
 		event.CreateEntityEvent.Publish(ecs.World, data)
 	}
-
-	cellWidth := level.Width / level.Layers[layers.Default].CellWidth
-	CellHeight := level.Height / level.Layers[layers.Default].CellHeight
-	archetype.NewSpace(
-		ecs.World,
-		level.Width,
-		level.Height,
-		cellWidth,
-		CellHeight,
-	)
 
 	switch sceneId {
 	case component.StartScene:

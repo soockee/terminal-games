@@ -22,6 +22,7 @@ func main() {
 	})
 	slog.SetDefault(slog.New(h))
 
+	ebiten.SetVsyncEnabled(false)
 	ebiten.SetWindowSize(ldtkProject.Project.LevelByIdentifier(component.StartScene).Width, ldtkProject.Project.LevelByIdentifier(component.StartScene).Height)
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
 	ebiten.SetWindowTitle("Breakout")

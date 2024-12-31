@@ -25,6 +25,8 @@ func DrawAnimation(ecs *ecs.ECS, screen *ebiten.Image) {
 		animation.Animation.Update()
 		if animation.Animation.IsEnd() && !animation.Loop {
 			ecs.World.Remove(e.Entity())
+			space := component.Space.Get(component.Space.MustFirst(ecs.World))
+			space.Remove(animation.Shape)
 		}
 	})
 }
