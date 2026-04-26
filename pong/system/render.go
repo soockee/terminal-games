@@ -28,8 +28,7 @@ func DrawEntities(e *ecs.ECS, screen *ebiten.Image) {
 			op.GeoM.Translate(bounds.Min.X, bounds.Min.Y)
 			screen.DrawImage(sprite, op)
 		} else {
-			ref := component.EntityRef.Get(entry)
-			c := ref.Entity.ColorRGBA()
+			c := component.Color.Get(entry).Color
 			vector.DrawFilledRect(screen, float32(bounds.Min.X), float32(bounds.Min.Y),
 				float32(bounds.Width()), float32(bounds.Height()), c, false)
 		}
@@ -51,8 +50,7 @@ func DrawEntities(e *ecs.ECS, screen *ebiten.Image) {
 			op.GeoM.Translate(bounds.Min.X, bounds.Min.Y)
 			screen.DrawImage(sprite, op)
 		} else {
-			ref := component.EntityRef.Get(ballEntry)
-			c := ref.Entity.ColorRGBA()
+			c := component.Color.Get(ballEntry).Color
 			vector.DrawFilledCircle(screen, cx, cy, r, c, false)
 		}
 	}

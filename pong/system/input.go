@@ -9,8 +9,6 @@ import (
 	"github.com/yohamta/donburi/ecs"
 )
 
-const paddleSpeed = 5.0
-
 // UpdateInput reads keyboard input and sets paddle velocities.
 // F3 toggles the debug overlay.
 func UpdateInput(e *ecs.ECS) {

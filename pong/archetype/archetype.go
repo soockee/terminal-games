@@ -37,7 +37,7 @@ func NewPaddle(w donburi.World, entity *ldtkgo.Entity, side component.PaddleSide
 		component.Shape,
 		component.Velocity,
 		component.Sprite,
-		component.EntityRef,
+		component.Color,
 	))
 
 	component.Paddle.Set(e, &component.PaddleData{
@@ -46,7 +46,7 @@ func NewPaddle(w donburi.World, entity *ldtkgo.Entity, side component.PaddleSide
 	})
 	component.Shape.Set(e, &component.ShapeData{Shape: shape})
 	component.Velocity.Set(e, &component.VelocityData{})
-	component.EntityRef.Set(e, &component.EntityRefData{Entity: entity})
+	component.Color.Set(e, &component.ColorData{Color: entity.ColorRGBA()})
 
 	if sub := entity.SubImage(); sub != nil {
 		component.Sprite.Set(e, &component.SpriteData{Image: ebiten.NewImageFromImage(sub)})
@@ -72,13 +72,15 @@ func NewBall(w donburi.World, entity *ldtkgo.Entity, speed float64) *donburi.Ent
 		component.Shape,
 		component.Velocity,
 		component.Sprite,
-		component.EntityRef,
+		component.SpawnPos,
+		component.Color,
 	))
 
 	component.Ball.Set(e, &component.BallData{Speed: speed, MaxSpeed: speed * 2})
 	component.Shape.Set(e, &component.ShapeData{Shape: shape})
 	component.Velocity.Set(e, &component.VelocityData{X: speed, Y: speed})
-	component.EntityRef.Set(e, &component.EntityRefData{Entity: entity})
+	component.SpawnPos.Set(e, &component.SpawnPosData{X: float64(cx), Y: float64(cy)})
+	component.Color.Set(e, &component.ColorData{Color: entity.ColorRGBA()})
 
 	if sub := entity.SubImage(); sub != nil {
 		component.Sprite.Set(e, &component.SpriteData{Image: ebiten.NewImageFromImage(sub)})
@@ -101,4 +103,27 @@ func NewWall(w donburi.World, x, y, width, height float64) *donburi.Entry {
 
 	component.Shape.Set(e, &component.ShapeData{Shape: shape})
 	return e
+}
+
+// NewWallsFromIntGrid creates merged wall rectangles from IntGrid rows.
+// Consecutive solid cells in a row are merged into a single wall entity.
+func NewWallsFromIntGrid(w donburi.World, ig *ldtkgo.IntGrid) {
+	gridSize := ig.Def.GridSize
+	for row := 0; row < ig.Height; row++ {
+		startCol := -1
+		for col := 0; col <= ig.Width; col++ {
+			solid := col < ig.Width && ig.At(col, row) != 0
+			if solid && startCol < 0 {
+				startCol = col
+			}
+			if !solid && startCol >= 0 {
+				x := float64(startCol * gridSize)
+				y := float64(row * gridSize)
+				width := float64((col - startCol) * gridSize)
+				height := float64(gridSize)
+				NewWall(w, x, y, width, height)
+				startCol = -1
+			}
+		}
+	}
 }

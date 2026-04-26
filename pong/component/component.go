@@ -1,9 +1,10 @@
 package component
 
 import (
+	"image/color"
+
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/solarlune/resolv"
-	ldtkgo "github.com/soockee/ldtk-super-simple-loader"
 	"github.com/yohamta/donburi"
 )
 
@@ -57,13 +58,21 @@ type SpriteData struct {
 
 var Sprite = donburi.NewComponentType[SpriteData]()
 
-// ---- LDtk entity reference (optional, for reset positions etc.) ----
+// ---- Spawn position (for reset after scoring) ----
 
-type EntityRefData struct {
-	Entity *ldtkgo.Entity
+type SpawnPosData struct {
+	X, Y float64
 }
 
-var EntityRef = donburi.NewComponentType[EntityRefData]()
+var SpawnPos = donburi.NewComponentType[SpawnPosData]()
+
+// ---- Fallback color (when no sprite is set) ----
+
+type ColorData struct {
+	Color color.RGBA
+}
+
+var Color = donburi.NewComponentType[ColorData]()
 
 // ---- Resolv Space (singleton) ----
 
