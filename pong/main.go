@@ -1,16 +1,15 @@
 package main
 
 import (
+	"io/fs"
 	"log"
-	"os"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	ldtkgo "github.com/soockee/ldtk-super-simple-loader"
+	"github.com/soockee/terminal-games/pong/assets"
 	"github.com/soockee/terminal-games/pong/game"
 	"github.com/soockee/terminal-games/pong/system"
 )
-
-const ldtkDir = "assets/ldtk"
 
 // Game holds the loaded level state and LDtk data.
 type Game struct {
@@ -28,7 +27,11 @@ type Game struct {
 }
 
 func main() {
-	world, err := ldtkgo.LoadWorld("pong.ldtk", os.DirFS(ldtkDir))
+	ldtkFS, err := fs.Sub(assets.FS, "ldtk")
+	if err != nil {
+		log.Fatalf("sub fs: %v", err)
+	}
+	world, err := ldtkgo.LoadWorld("pong.ldtk", ldtkFS)
 	if err != nil {
 		log.Fatalf("loading world: %v", err)
 	}
