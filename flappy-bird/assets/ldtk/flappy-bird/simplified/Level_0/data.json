@@ -1,0 +1,40 @@
+{
+	"identifier": "Level_0",
+	"uniqueIdentifer": "784b7550-21a0-11f1-984e-cbbc1f979c96",
+	"x": 0,
+	"y": 0,
+	"width": 514,
+	"height": 360,
+	"bgColor": "#696A79",
+	"neighbourLevels": [],
+	"customFields" : {},
+	"layers": [],
+	"entities": {
+		"Bird": [
+			{
+				"id": "Bird",
+				"iid": "7138ebd0-21a0-11f1-9b4d-c74a5b5d79d7",
+				"layer": "Entities",
+				"x": 248,
+				"y": 200,
+				"width": 24,
+				"height": 20,
+				"color": 12470831,
+				"customFields" : {}
+			}
+		],
+		"Ground": [
+			{
+				"id": "Ground",
+				"iid": "e5aca0b0-21a0-11f1-9b4d-13b34827c17a",
+				"layer": "Entities",
+				"x": 0,
+				"y": 160,
+				"width": 16,
+				"height": 16,
+				"color": 14120515,
+				"customFields" : {}
+			}
+		]
+	}
+}
