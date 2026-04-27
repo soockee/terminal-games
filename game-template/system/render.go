@@ -5,23 +5,54 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
-	"github.com/soockee/terminal-games/pong/component"
+	"github.com/soockee/terminal-games/game-template/component"
 	"github.com/yohamta/donburi"
 	"github.com/yohamta/donburi/ecs"
 )
 
-// DrawEntities renders all paddles, balls, and walls.
+// DrawEntities renders all game entities using the camera projection.
+// Extend this with your entity-specific draw logic.
 func DrawEntities(e *ecs.ECS, screen *ebiten.Image) {
-
+	_ = NewProjection(e.World)
+	// TODO: iterate over tagged entities and draw them using proj.WorldToScreen*
 }
 
-// DrawScore renders the score at the top center.
+// DrawScore renders the current score at the top center of the screen.
 func DrawScore(e *ecs.ECS, screen *ebiten.Image) {
-	var leftScore, rightScore int
+	entry, ok := component.Score.First(e.World)
+	if !ok {
+		return
+	}
+	score := component.Score.Get(entry)
+	bounds := screen.Bounds()
+	text := fmt.Sprintf("%d", score.Value)
+	ebitenutil.DebugPrintAt(screen, text, bounds.Dx()/2-10, 10)
+}
 
-	space := component.Space.Get(component.Space.MustFirst(e.World))
-	text := fmt.Sprintf("%d - %d", leftScore, rightScore)
-	ebitenutil.DebugPrintAt(screen, text, space.Width()/2-20, 10)
+// DrawHUD renders overlays for game state: start prompt, game over, or win.
+func DrawHUD(e *ecs.ECS, screen *ebiten.Image) {
+	entry, ok := component.GameOver.First(e.World)
+	if !ok {
+		return
+	}
+	go_ := component.GameOver.Get(entry)
+	bounds := screen.Bounds()
+	cx := bounds.Dx() / 2
+
+	if !go_.Started {
+		ebitenutil.DebugPrintAt(screen, "Tap or press Space to start", cx-80, bounds.Dy()/2)
+		return
+	}
+	if go_.Won {
+		ebitenutil.DebugPrintAt(screen, "YOU WIN!", cx-30, bounds.Dy()/2-20)
+		ebitenutil.DebugPrintAt(screen, "Tap or press Space to restart", cx-90, bounds.Dy()/2+10)
+		return
+	}
+	if go_.Dead {
+		ebitenutil.DebugPrintAt(screen, "GAME OVER", cx-35, bounds.Dy()/2-20)
+		ebitenutil.DebugPrintAt(screen, "Tap or press Space to restart", cx-90, bounds.Dy()/2+10)
+		return
+	}
 }
 
 func getSpriteImage(entry *donburi.Entry) (*ebiten.Image, bool) {

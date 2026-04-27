@@ -8,7 +8,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/vector"
 	"github.com/solarlune/resolv"
-	"github.com/soockee/terminal-games/pong/component"
+	"github.com/soockee/terminal-games/game-template/component"
 	"github.com/yohamta/donburi"
 	"github.com/yohamta/donburi/ecs"
 )
@@ -16,6 +16,7 @@ import (
 var debugColor = color.RGBA{0, 255, 0, 180}
 
 // DrawDebug renders collision boxes and FPS when debug mode is enabled (F3).
+// Uses the camera projection so overlays match the rendered positions.
 func DrawDebug(e *ecs.ECS, screen *ebiten.Image) {
 	entry, ok := component.Debug.First(e.World)
 	if !ok {
@@ -26,29 +27,30 @@ func DrawDebug(e *ecs.ECS, screen *ebiten.Image) {
 		return
 	}
 
+	proj := NewProjection(e.World)
+
 	// Draw collision shape for every entity that has a Shape component.
 	component.Shape.Each(e.World, func(entry *donburi.Entry) {
 		s := component.Shape.Get(entry)
 		bounds := s.Shape.Bounds()
 
+		sx := float32(proj.WorldToScreenX(bounds.Min.X))
+		sy := float32(proj.WorldToScreenY(bounds.Min.Y))
+		sw := float32(proj.WorldToScreenW(bounds.Width()))
+		sh := float32(proj.WorldToScreenH(bounds.Height()))
+
 		// Circle shapes get a circle outline; everything else gets a rect.
 		if circle, ok := s.Shape.(*resolv.Circle); ok {
-			cx := float32(circle.Position().X)
-			cy := float32(circle.Position().Y)
-			r := float32(circle.Radius())
-			vector.StrokeCircle(screen, cx, cy, r, 1, debugColor, false)
+			cr := float32(proj.WorldToScreenW(circle.Radius()))
+			vector.StrokeCircle(screen, sx+sw/2, sy+sh/2, cr, 1, debugColor, false)
 		} else {
-			x := float32(bounds.Min.X)
-			y := float32(bounds.Min.Y)
-			w := float32(bounds.Width())
-			h := float32(bounds.Height())
-			vector.StrokeRect(screen, x, y, w, h, 1, debugColor, false)
+			vector.StrokeRect(screen, sx, sy, sw, sh, 1, debugColor, false)
 		}
 
 		// Label with tag name
 		label := entityLabel(entry)
 		if label != "" {
-			ebitenutil.DebugPrintAt(screen, label, int(bounds.Min.X), int(bounds.Min.Y)-12)
+			ebitenutil.DebugPrintAt(screen, label, int(sx), int(sy)-12)
 		}
 	})
 
