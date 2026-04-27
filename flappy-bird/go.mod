@@ -9,8 +9,6 @@ require (
 	github.com/yohamta/donburi v1.15.7
 )
 
-replace github.com/soockee/ldtk-super-simple-loader => /Users/U783213/workspace/private/ldtk-super-simple-loader
-
 require (
 	github.com/ebitengine/gomobile v0.0.0-20250923094054-ea854a63cce1 // indirect
 	github.com/ebitengine/hideconsole v1.0.0 // indirect
