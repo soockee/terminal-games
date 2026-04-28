@@ -25,3 +25,5 @@ jobs:
                   goversion: "https://go.dev/dl/go1.22.1.linux-amd64.tar.gz"
                   project_path: "./tictacgoe/cmd/tictacgoe"
                   binary_name: "tictacgoe.wasm"
+                  pre_command: "cp \"$(go env GOROOT)/misc/wasm/wasm_exec.js\" ."
+                  extra_files: "wasm_exec.js"
