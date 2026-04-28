@@ -26,3 +26,5 @@ jobs:
                   goversion: "https://go.dev/dl/go1.23.0.linux-amd64.tar.gz"
                   project_path: "./pong"
                   binary_name: "pong.wasm"
+                  extra_files: wasm_exec.js
+                  pre_command: cp "$(go env GOROOT)/lib/wasm/wasm_exec.js" .
