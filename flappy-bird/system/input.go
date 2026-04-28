@@ -8,10 +8,12 @@ import (
 	"github.com/yohamta/donburi/ecs"
 )
 
-// pauseButtonTapped returns true if any just-released touch was inside the pause button.
+// pauseButtonTapped returns true if any just-pressed touch was inside the pause button.
+// We use JustPressedTouchIDs (not JustReleasedTouchIDs) because TouchPosition
+// returns (0,0) for released touches — the position is only available while active.
 func pauseButtonTapped(screenW int) bool {
 	bx, by, bw, bh := pauseButtonBounds(screenW)
-	for _, id := range inpututil.AppendJustReleasedTouchIDs(nil) {
+	for _, id := range inpututil.AppendJustPressedTouchIDs(nil) {
 		x, y := ebiten.TouchPosition(id)
 		if x >= bx && x <= bx+bw && y >= by && y <= by+bh {
 			return true
