@@ -9,10 +9,10 @@ import (
 
 // UpdateMovement applies gravity and velocity to the bird each tick.
 func UpdateMovement(e *ecs.ECS) {
-	// No movement until the player has started (first jump), or when dead/won.
-	if goEntry, ok := component.GameOver.First(e.World); ok {
-		go_ := component.GameOver.Get(goEntry)
-		if !go_.Started || go_.Dead || go_.Won {
+	// No movement until the player has started (first jump), or when dead/won/paused.
+	if goEntry, ok := component.GameState.First(e.World); ok {
+		go_ := component.GameState.Get(goEntry)
+		if !go_.Started || go_.Dead || go_.Won || go_.Paused {
 			return
 		}
 	}

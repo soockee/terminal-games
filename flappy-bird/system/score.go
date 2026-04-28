@@ -21,12 +21,12 @@ func UpdateScore(e *ecs.ECS) {
 	if !ok {
 		return
 	}
-	goEntry, ok := component.GameOver.First(e.World)
+	goEntry, ok := component.GameState.First(e.World)
 	if !ok {
 		return
 	}
-	gd := component.GameOver.Get(goEntry)
-	if gd.Dead || gd.Won {
+	gd := component.GameState.Get(goEntry)
+	if gd.Dead || gd.Won || gd.Paused {
 		return
 	}
 

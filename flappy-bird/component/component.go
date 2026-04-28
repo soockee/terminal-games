@@ -90,9 +90,10 @@ type GameOverData struct {
 	Started bool // false until first jump input
 	Restart bool // set by input to signal a level reload
 	Won     bool // true when all pipes are passed
+	Paused  bool // true while the game is paused
 }
 
-var GameOver = donburi.NewComponentType[GameOverData]()
+var GameState = donburi.NewComponentType[GameOverData]()
 
 // ---- Camera (singleton) ----
 

@@ -2,6 +2,7 @@ package system
 
 import (
 	"fmt"
+	"image/color"
 	"math"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -96,18 +97,59 @@ func DrawScore(e *ecs.ECS, screen *ebiten.Image) {
 	ebitenutil.DebugPrintAt(screen, text, sw/2, 10)
 }
 
+// pauseButtonBounds returns the pause button rectangle [x, y, w, h] in virtual screen coordinates.
+func pauseButtonBounds(screenW int) (x, y, w, h int) {
+	return screenW - 44, 4, 40, 40
+}
+
+// drawPauseButton draws a pixel-art style pause/resume button.
+func drawPauseButton(screen *ebiten.Image, bx, by, bw, bh int, paused bool) {
+	// Background
+	vector.DrawFilledRect(screen, float32(bx), float32(by), float32(bw), float32(bh), color.RGBA{20, 20, 30, 220}, false)
+	// 1px pixel border
+	border := color.RGBA{180, 220, 180, 255}
+	vector.DrawFilledRect(screen, float32(bx), float32(by), float32(bw), 1, border, false)
+	vector.DrawFilledRect(screen, float32(bx), float32(by+bh-1), float32(bw), 1, border, false)
+	vector.DrawFilledRect(screen, float32(bx), float32(by), 1, float32(bh), border, false)
+	vector.DrawFilledRect(screen, float32(bx+bw-1), float32(by), 1, float32(bh), border, false)
+
+	cx := float32(bx + bw/2)
+	cy := float32(by + bh/2)
+	icon := color.RGBA{180, 220, 180, 255}
+
+	if paused {
+		// Pixel play triangle (pointing right): 3 rows of decreasing width
+		vector.DrawFilledRect(screen, cx-4, cy-6, 3, 12, icon, false)
+		vector.DrawFilledRect(screen, cx-1, cy-4, 3, 8, icon, false)
+		vector.DrawFilledRect(screen, cx+2, cy-2, 3, 4, icon, false)
+	} else {
+		// Two pixel bars (pause symbol)
+		vector.DrawFilledRect(screen, cx-6, cy-6, 4, 12, icon, false)
+		vector.DrawFilledRect(screen, cx+2, cy-6, 4, 12, icon, false)
+	}
+}
+
 // DrawHUD shows contextual instructions (start / game over / win + restart).
 func DrawHUD(e *ecs.ECS, screen *ebiten.Image) {
-	goEntry, ok := component.GameOver.First(e.World)
+	goEntry, ok := component.GameState.First(e.World)
 	if !ok {
 		return
 	}
-	go_ := component.GameOver.Get(goEntry)
+	go_ := component.GameState.Get(goEntry)
 
 	sw := screen.Bounds().Dx()
 	sh := screen.Bounds().Dy()
 
-	if go_.Won {
+	// Draw pause button when game is active (started, not dead/won).
+	if go_.Started && !go_.Dead && !go_.Won {
+		bx, by, bw, bh := pauseButtonBounds(sw)
+		drawPauseButton(screen, bx, by, bw, bh, go_.Paused)
+	}
+
+	if go_.Paused {
+		ebitenutil.DebugPrintAt(screen, "PAUSED", sw/2-18, sh/2-8)
+		ebitenutil.DebugPrintAt(screen, "Press Escape or P / tap II to resume", sw/2-108, sh/2+8)
+	} else if go_.Won {
 		ebitenutil.DebugPrintAt(screen, "YOU ABSOLUTE MADLAD!", sw/2-62, sh/2-32)
 		ebitenutil.DebugPrintAt(screen, "Congratulations on your insanity.", sw/2-100, sh/2-16)
 		ebitenutil.DebugPrintAt(screen, "All pipes cleared. Devil Teemo approves.", sw/2-120, sh/2)
