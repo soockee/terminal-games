@@ -26,3 +26,5 @@ jobs:
                   goversion: "https://go.dev/dl/go1.24.0.linux-amd64.tar.gz"
                   project_path: "./flappy-bird"
                   binary_name: "flappy-bird.wasm"
+                  pre_command: "cp \"$(go env GOROOT)/lib/wasm/wasm_exec.js\" ."
+                  extra_files: "wasm_exec.js"
