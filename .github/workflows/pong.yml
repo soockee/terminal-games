@@ -27,4 +27,4 @@ jobs:
                   project_path: "./pong"
                   binary_name: "pong.wasm"
                   extra_files: wasm_exec.js
-                  pre_command: cp "$(go env GOROOT)/misc/wasm/wasm_exec.js" .
+                  pre_command: cp "$(go env GOROOT)/misc/wasm/wasm_exec.js" . 2>/dev/null || cp "$(go env GOROOT)/lib/wasm/wasm_exec.js" .
