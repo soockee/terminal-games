@@ -1,15 +1,18 @@
 package main
 
 import (
+	"image/png"
 	"io/fs"
 	"log"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	ldtkgo "github.com/soockee/ldtk-super-simple-loader"
-	"github.com/soockee/terminal-games/game-template/assets"
-	"github.com/soockee/terminal-games/game-template/component"
-	"github.com/soockee/terminal-games/game-template/game"
-	"github.com/soockee/terminal-games/game-template/system"
+	"github.com/soockee/terminal-games/match-3/assets"
+	"github.com/soockee/terminal-games/match-3/component"
+	"github.com/soockee/terminal-games/match-3/event"
+	"github.com/soockee/terminal-games/match-3/game"
+	"github.com/soockee/terminal-games/match-3/system"
 	"github.com/yohamta/donburi"
 )
 
@@ -22,8 +25,12 @@ type Game struct {
 	levelConfigs map[string]game.LevelConfig
 	audioState   *game.AudioState
 
-	loaded *game.LoadedLevel
-	level  *ldtkgo.Level
+	tileSheet *ebiten.Image
+
+	loaded     *game.LoadedLevel
+	level      *ldtkgo.Level
+	levelIndex int
+	bg         *system.ScrollingBG
 
 	// Level switching keys 1-9.
 	levelKeys []ebiten.Key
@@ -35,14 +42,15 @@ func main() {
 		log.Fatalf("sub fs: %v", err)
 	}
 
-	// TODO: replace with your LDtk project file name.
-	world, err := ldtkgo.LoadWorld("game.ldtk", ldtkFS)
+	world, err := ldtkgo.LoadWorld("match-3.ldtk", ldtkFS)
 	if err != nil {
 		log.Fatalf("loading world: %v", err)
 	}
 
+	// Load the gem tileset.
+	tileSheet := loadTileSheet()
+
 	// Virtual screen: the logical resolution the game renders at.
-	// The LDtk level dimensions define the world; VirtualW/H can differ.
 	const virtualW, virtualH = 0, 0 // 0 = use LDtk level size
 
 	gameConfig := game.GameConfig{
@@ -50,8 +58,8 @@ func main() {
 		VirtualH: virtualH,
 		Systems: []game.SystemFunc{
 			system.UpdateInput,
-			system.UpdateMovement,
-			system.UpdateCamera,
+			system.UpdateBoard,
+			system.UpdateTween,
 			system.UpdateScore,
 			system.ProcessEvents,
 		},
@@ -64,18 +72,26 @@ func main() {
 	}
 
 	defaultLevel := game.LevelConfig{}
-
-	// Per-level overrides keyed by LDtk level identifier.
 	levelConfigs := map[string]game.LevelConfig{}
 
-	// Audio — configure paths relative to the embedded FS.
-	// audioState := game.InitAudio(assets.FS, game.AudioConfig{
-	//     BGMusicPath: "audio/bgm.mp3",
-	//     SFX: map[string]string{
-	//         "jump": "audio/jump.wav",
-	//     },
-	// })
-	var audioState *game.AudioState
+	audioState := game.InitAudio(assets.FS, game.AudioConfig{
+		BGMusicPath: "ldtk/audio/bgm.ogg",
+		SFX: map[string]string{
+			"swap":         "ldtk/audio/swap.mp3",
+			"match":        "ldtk/audio/match.wav",
+			"invalid_swap": "ldtk/audio/invalid_swap.wav",
+			"select":       "ldtk/audio/select.mp3",
+			"pause":        "ldtk/audio/pause.wav",
+			"chain_1":      "ldtk/audio/chain_1.wav",
+			"chain_2":      "ldtk/audio/chain_2.wav",
+			"chain_3":      "ldtk/audio/chain_3.wav",
+			"chain_4":      "ldtk/audio/chain_4.wav",
+			"chain_5":      "ldtk/audio/chain_5.wav",
+			"chain_6":      "ldtk/audio/chain_6.wav",
+			"chain_7":      "ldtk/audio/chain_7.wav",
+			"chain_8":      "ldtk/audio/chain_8.wav",
+		},
+	})
 
 	g := &Game{
 		world:        world,
@@ -83,6 +99,7 @@ func main() {
 		defaultLevel: defaultLevel,
 		levelConfigs: levelConfigs,
 		audioState:   audioState,
+		tileSheet:    tileSheet,
 		levelKeys: []ebiten.Key{
 			ebiten.Key1, ebiten.Key2, ebiten.Key3,
 			ebiten.Key4, ebiten.Key5, ebiten.Key6,
@@ -91,14 +108,27 @@ func main() {
 	}
 
 	g.loadLevel(0)
+	g.bg = system.NewScrollingBG(g.loaded.ScreenW, g.loaded.ScreenH, 0.3)
 
-	// Window = 2× virtual screen for crisp display.
 	ebiten.SetWindowSize(g.loaded.ScreenW*2, g.loaded.ScreenH*2)
-	ebiten.SetWindowTitle("Game Template — ECS + LDtk")
+	ebiten.SetWindowTitle("Match-3")
 
 	if err := ebiten.RunGame(g); err != nil {
 		log.Fatal(err)
 	}
+}
+
+func loadTileSheet() *ebiten.Image {
+	f, err := assets.FS.Open("ldtk/tilesets/match_3_art.png")
+	if err != nil {
+		log.Fatalf("open tileset: %v", err)
+	}
+	defer f.Close()
+	img, err := png.Decode(f)
+	if err != nil {
+		log.Fatalf("decode tileset: %v", err)
+	}
+	return ebiten.NewImageFromImage(img)
 }
 
 // loadLevel builds a fresh ECS world from the given level index.
@@ -107,6 +137,7 @@ func (g *Game) loadLevel(index int) {
 		return
 	}
 
+	g.levelIndex = index
 	level := g.world.Levels[index]
 	g.level = level
 
@@ -115,17 +146,27 @@ func (g *Game) loadLevel(index int) {
 		lc = override
 	}
 
-	g.loaded = game.Build(level, donburi.NewWorld(), g.gameConfig, lc, g.audioState)
+	g.loaded = game.Build(level, donburi.NewWorld(), g.gameConfig, lc, g.audioState, g.tileSheet)
 	system.SubscribeAudioEvents(g.loaded.ECS.World)
 
-	// Start BGM on first load.
+	// Mark the win screen level so the HUD can show the congratulatory message.
+	if level.Identifier == "Win_screen" {
+		if entry, ok := component.GameState.First(g.loaded.ECS.World); ok {
+			gs := component.GameState.Get(entry)
+			gs.WinScreen = true
+			gs.Started = true // no gameplay needed, auto-start
+		}
+	}
+
 	if g.audioState != nil && g.audioState.BGMusic != nil && !g.audioState.BGMusic.IsPlaying() {
 		g.audioState.BGMusic.Play()
 	}
 }
 
 func (g *Game) Update() error {
-	// Level switching: keys 1-9
+	// Always update background scroll (even when paused for visual continuity).
+	g.bg.Update()
+
 	for i, key := range g.levelKeys {
 		if i >= len(g.world.Levels) {
 			break
@@ -136,13 +177,45 @@ func (g *Game) Update() error {
 		}
 	}
 
+	// Pause toggle (P key).
+	if inpututil.IsKeyJustPressed(ebiten.KeyP) {
+		if entry, ok := component.GameState.First(g.loaded.ECS.World); ok {
+			gs := component.GameState.Get(entry)
+			if gs.Started && !gs.Won && !gs.Dead {
+				gs.Paused = !gs.Paused
+				event.AudioEvent.Publish(g.loaded.ECS.World, event.AudioEventData{Name: "pause"})
+			}
+		}
+	}
+
+	// Skip ECS update while paused.
+	if entry, ok := component.GameState.First(g.loaded.ECS.World); ok {
+		gs := component.GameState.Get(entry)
+		if gs.Paused {
+			system.ProcessEvents(g.loaded.ECS)
+			return nil
+		}
+	}
+
 	g.loaded.ECS.Update()
 
-	// Check restart.
-	if entry, ok := component.GameOver.First(g.loaded.ECS.World); ok {
-		go_ := component.GameOver.Get(entry)
-		if go_.Restart {
-			g.loadLevel(0)
+	if entry, ok := component.GameState.First(g.loaded.ECS.World); ok {
+		gs := component.GameState.Get(entry)
+		if gs.Restart {
+			if gs.WinScreen {
+				// Restart from beginning after win screen.
+				g.loadLevel(0)
+			} else if gs.Won {
+				// Advance to next level on win.
+				next := g.levelIndex + 1
+				if next >= len(g.world.Levels) {
+					next = 0 // wrap to first level
+				}
+				g.loadLevel(next)
+			} else {
+				// Retry current level on game over.
+				g.loadLevel(g.levelIndex)
+			}
 			return nil
 		}
 	}
@@ -151,23 +224,18 @@ func (g *Game) Update() error {
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
-	// Background image scaled to virtual screen.
+	// Use LDtk background image if the level has one (e.g., win screen),
+	// otherwise use the procedural scrolling background.
 	if g.loaded.BGImage != nil {
 		op := &ebiten.DrawImageOptions{}
 		bw := float64(g.loaded.BGImage.Bounds().Dx())
 		bh := float64(g.loaded.BGImage.Bounds().Dy())
 		op.GeoM.Scale(float64(g.loaded.ScreenW)/bw, float64(g.loaded.ScreenH)/bh)
 		screen.DrawImage(g.loaded.BGImage, op)
+	} else {
+		g.bg.Draw(screen)
 	}
 
-	// Layer images scaled by virtual-to-world ratio.
-	for _, img := range g.loaded.LayerImages {
-		op := &ebiten.DrawImageOptions{}
-		op.GeoM.Scale(g.loaded.ScaleX, g.loaded.ScaleY)
-		screen.DrawImage(img, op)
-	}
-
-	// ECS renderers (entities, score, HUD, debug).
 	g.loaded.ECS.Draw(screen)
 }
 

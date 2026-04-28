@@ -1,0 +1,17 @@
+{
+	"identifier": "Win_screen",
+	"uniqueIdentifer": "d23609f0-21a0-11f1-9b4d-1fcacdca7b04",
+	"x": -32,
+	"y": 512,
+	"width": 514,
+	"height": 360,
+	"bgColor": "#696A79",
+	"neighbourLevels": [],
+	"customFields": {
+		"NumColors": 6,
+		"ScoreTarget": 1000,
+		"TimeLimit": 0
+	},
+	"layers": [],
+	"entities" : {}
+}

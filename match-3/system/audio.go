@@ -1,8 +1,8 @@
 package system
 
 import (
-	"github.com/soockee/terminal-games/game-template/component"
-	"github.com/soockee/terminal-games/game-template/event"
+	"github.com/soockee/terminal-games/match-3/component"
+	"github.com/soockee/terminal-games/match-3/event"
 	"github.com/yohamta/donburi"
 	"github.com/yohamta/donburi/ecs"
 	"github.com/yohamta/donburi/features/events"

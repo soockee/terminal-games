@@ -1,21 +1,9 @@
 package system
 
 import (
-	"github.com/soockee/terminal-games/game-template/component"
+	"github.com/soockee/terminal-games/match-3/component"
 	"github.com/yohamta/donburi"
-	"github.com/yohamta/donburi/ecs"
 )
-
-// UpdateCamera tracks a target entity horizontally.
-// Customise the tracking logic for your game (e.g. follow player, scroll).
-func UpdateCamera(e *ecs.ECS) {
-	_, ok := component.Camera.First(e.World)
-	if !ok {
-		return
-	}
-	// TODO: implement camera tracking for your game.
-	// Example: track a player entity at screenW/4 from the left.
-}
 
 // Projection converts world coordinates to virtual screen coordinates.
 type Projection struct {

@@ -1,0 +1,69 @@
+{
+	"__header__": {
+		"fileType": "LDtk Project JSON",
+		"app": "LDtk",
+		"doc": "https://ldtk.io/json",
+		"schema": "https://ldtk.io/files/JSON_SCHEMA.json",
+		"appAuthor": "Sebastien 'deepnight' Benard",
+		"appVersion": "1.5.3",
+		"url": "https://ldtk.io"
+	},
+	"identifier": "Level_1",
+	"iid": "bd3f10a0-21a0-11f1-9b4d-93fb112aaea8",
+	"uid": 5,
+	"worldX": 544,
+	"worldY": 0,
+	"worldDepth": 0,
+	"pxWid": 514,
+	"pxHei": 360,
+	"__bgColor": "#696A79",
+	"bgColor": null,
+	"useAutoIdentifier": true,
+	"bgRelPath": null,
+	"bgPos": null,
+	"bgPivotX": 0.5,
+	"bgPivotY": 0.5,
+	"__smartColor": "#ADADB5",
+	"__bgPos": null,
+	"externalRelPath": null,
+	"fieldInstances": [
+		{ "__identifier": "NumColors", "__type": "Int", "__value": 6, "__tile": null, "defUid": 1, "realEditorValues": [] },
+		{ "__identifier": "ScoreTarget", "__type": "Int", "__value": 1000, "__tile": null, "defUid": 2, "realEditorValues": [] },
+		{ "__identifier": "TimeLimit", "__type": "Int", "__value": 0, "__tile": null, "defUid": 3, "realEditorValues": [] }
+	],
+	"layerInstances": [
+		{
+			"__identifier": "Board",
+			"__type": "IntGrid",
+			"__cWid": 17,
+			"__cHei": 12,
+			"__gridSize": 32,
+			"__opacity": 1,
+			"__pxTotalOffsetX": 0,
+			"__pxTotalOffsetY": 0,
+			"__tilesetDefUid": null,
+			"__tilesetRelPath": null,
+			"iid": "bd3f10a1-21a0-11f1-9b4d-1191349d960f",
+			"levelId": 5,
+			"layerDefUid": 4,
+			"pxOffsetX": 0,
+			"pxOffsetY": 0,
+			"visible": true,
+			"optionalRules": [],
+			"intGridCsv": [
+				0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+				0,0,0,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,
+				0,0,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,
+				0,2,2,2,3,3,2,2,2,0,0,0,0,0,0,0,0,0,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,
+				2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,
+				0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+			],
+			"autoLayerTiles": [],
+			"seed": 375041,
+			"overrideTilesetUid": null,
+			"gridTiles": [],
+			"entityInstances": []
+		}
+	],
+	"__neighbours": []
+}

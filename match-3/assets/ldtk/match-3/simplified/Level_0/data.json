@@ -1,0 +1,17 @@
+{
+	"identifier": "Level_0",
+	"uniqueIdentifer": "784b7550-21a0-11f1-984e-cbbc1f979c96",
+	"x": 0,
+	"y": 0,
+	"width": 514,
+	"height": 360,
+	"bgColor": "#696A79",
+	"neighbourLevels": [],
+	"customFields": {
+		"NumColors": 6,
+		"ScoreTarget": 500,
+		"TimeLimit": 0
+	},
+	"layers": [],
+	"entities" : {}
+}

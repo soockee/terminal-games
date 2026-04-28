@@ -1,0 +1,17 @@
+{
+	"bgColor": "#696A79",
+	"customFields": {
+		"NumColors": 6,
+		"ScoreTarget": 1850,
+		"TimeLimit": 60
+	},
+	"entities": {},
+	"height": 360,
+	"identifier": "Level_8",
+	"layers": [],
+	"neighbourLevels": [],
+	"uniqueIdentifer": "5a749640-0625-1d6c-a46f-c977343d1c5d",
+	"width": 514,
+	"x": 4352,
+	"y": 0
+}

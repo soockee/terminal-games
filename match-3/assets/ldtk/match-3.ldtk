@@ -1,0 +1,1119 @@
+{
+	"__header__": {
+		"app": "LDtk",
+		"appAuthor": "Sebastien 'deepnight' Benard",
+		"appVersion": "1.5.3",
+		"doc": "https://ldtk.io/json",
+		"fileType": "LDtk Project JSON",
+		"schema": "https://ldtk.io/files/JSON_SCHEMA.json",
+		"url": "https://ldtk.io"
+	},
+	"appBuildId": 493652,
+	"backupLimit": 10,
+	"backupOnSave": false,
+	"backupRelPath": null,
+	"bgColor": "#40465B",
+	"customCommands": [],
+	"defaultEntityHeight": 16,
+	"defaultEntityWidth": 16,
+	"defaultGridSize": 16,
+	"defaultLevelBgColor": "#696A79",
+	"defaultLevelHeight": 360,
+	"defaultLevelWidth": 514,
+	"defaultPivotX": 0,
+	"defaultPivotY": 0,
+	"defs": {
+		"entities": [],
+		"enums": [],
+		"externalEnums": [],
+		"layers": [
+			{
+				"__type": "IntGrid",
+				"autoRuleGroups": [],
+				"autoSourceLayerDefUid": null,
+				"autoTilesKilledByOtherLayerUid": null,
+				"biomeFieldUid": null,
+				"canSelectWhenInactive": true,
+				"displayOpacity": 1,
+				"doc": null,
+				"excludedTags": [],
+				"gridSize": 32,
+				"guideGridHei": 0,
+				"guideGridWid": 0,
+				"hideFieldsWhenInactive": false,
+				"hideInList": false,
+				"identifier": "Board",
+				"inactiveOpacity": 1,
+				"intGridValues": [
+					{
+						"color": "#000000",
+						"groupUid": 0,
+						"identifier": "Empty",
+						"tile": null,
+						"value": 1
+					},
+					{
+						"color": "#63C74D",
+						"groupUid": 0,
+						"identifier": "Playable",
+						"tile": null,
+						"value": 2
+					},
+					{
+						"color": "#FF0044",
+						"groupUid": 0,
+						"identifier": "Blocked",
+						"tile": null,
+						"value": 3
+					}
+				],
+				"intGridValuesGroups": [],
+				"parallaxFactorX": 0,
+				"parallaxFactorY": 0,
+				"parallaxScaling": true,
+				"pxOffsetX": 0,
+				"pxOffsetY": 0,
+				"renderInWorldView": true,
+				"requiredTags": [],
+				"tilePivotX": 0,
+				"tilePivotY": 0,
+				"tilesetDefUid": null,
+				"type": "IntGrid",
+				"uiColor": null,
+				"uiFilterTags": [],
+				"uid": 4,
+				"useAsyncRender": false
+			}
+		],
+		"levelFields": [
+			{
+				"__type": "Int",
+				"acceptFileTypes": null,
+				"allowOutOfLevelRef": true,
+				"allowedRefTags": [],
+				"allowedRefs": "OnlySame",
+				"allowedRefsEntityUid": null,
+				"arrayMaxLength": null,
+				"arrayMinLength": null,
+				"autoChainRef": true,
+				"canBeNull": false,
+				"defaultOverride": {
+					"id": "V_Int",
+					"params": [
+						6
+					]
+				},
+				"doc": null,
+				"editorAlwaysShow": false,
+				"editorCutLongValues": true,
+				"editorDisplayColor": null,
+				"editorDisplayMode": "Hidden",
+				"editorDisplayPos": "Above",
+				"editorDisplayScale": 1,
+				"editorLinkStyle": "StraightArrow",
+				"editorShowInWorld": true,
+				"editorTextPrefix": null,
+				"editorTextSuffix": null,
+				"exportToToc": false,
+				"identifier": "NumColors",
+				"isArray": false,
+				"max": null,
+				"min": null,
+				"regex": null,
+				"searchable": false,
+				"symmetricalRef": false,
+				"textLanguageMode": null,
+				"tilesetUid": null,
+				"type": "F_Int",
+				"uid": 1,
+				"useForSmartColor": false
+			},
+			{
+				"__type": "Int",
+				"acceptFileTypes": null,
+				"allowOutOfLevelRef": true,
+				"allowedRefTags": [],
+				"allowedRefs": "OnlySame",
+				"allowedRefsEntityUid": null,
+				"arrayMaxLength": null,
+				"arrayMinLength": null,
+				"autoChainRef": true,
+				"canBeNull": false,
+				"defaultOverride": {
+					"id": "V_Int",
+					"params": [
+						1000
+					]
+				},
+				"doc": null,
+				"editorAlwaysShow": false,
+				"editorCutLongValues": true,
+				"editorDisplayColor": null,
+				"editorDisplayMode": "Hidden",
+				"editorDisplayPos": "Above",
+				"editorDisplayScale": 1,
+				"editorLinkStyle": "StraightArrow",
+				"editorShowInWorld": true,
+				"editorTextPrefix": null,
+				"editorTextSuffix": null,
+				"exportToToc": false,
+				"identifier": "ScoreTarget",
+				"isArray": false,
+				"max": null,
+				"min": null,
+				"regex": null,
+				"searchable": false,
+				"symmetricalRef": false,
+				"textLanguageMode": null,
+				"tilesetUid": null,
+				"type": "F_Int",
+				"uid": 2,
+				"useForSmartColor": false
+			},
+			{
+				"__type": "Int",
+				"acceptFileTypes": null,
+				"allowOutOfLevelRef": true,
+				"allowedRefTags": [],
+				"allowedRefs": "OnlySame",
+				"allowedRefsEntityUid": null,
+				"arrayMaxLength": null,
+				"arrayMinLength": null,
+				"autoChainRef": true,
+				"canBeNull": false,
+				"defaultOverride": {
+					"id": "V_Int",
+					"params": [
+						0
+					]
+				},
+				"doc": null,
+				"editorAlwaysShow": false,
+				"editorCutLongValues": true,
+				"editorDisplayColor": null,
+				"editorDisplayMode": "Hidden",
+				"editorDisplayPos": "Above",
+				"editorDisplayScale": 1,
+				"editorLinkStyle": "StraightArrow",
+				"editorShowInWorld": true,
+				"editorTextPrefix": null,
+				"editorTextSuffix": null,
+				"exportToToc": false,
+				"identifier": "TimeLimit",
+				"isArray": false,
+				"max": null,
+				"min": null,
+				"regex": null,
+				"searchable": false,
+				"symmetricalRef": false,
+				"textLanguageMode": null,
+				"tilesetUid": null,
+				"type": "F_Int",
+				"uid": 3,
+				"useForSmartColor": false
+			}
+		],
+		"tilesets": [
+			{
+				"__cHei": 16,
+				"__cWid": 6,
+				"cachedPixelData": {
+					"averageColors": "f743f844f843f844f843f844fa55fa55fa55fa65fa55fa65f644f644f644f644f644f654fa64fa75fa75fa75fa75fa75fca6fca7fca7fca7fca7fca7f453f554f454f554f454f554f463f464f464f464f463f464f783f793f793f793f793f793f57af579f579f579f57af579f446f447f447f447f447f447f445f445f445f445f445f545f744f844f744f744f844f844f755f755f755f755f755f755f544f544f544f544f544f544f666f666f666f666f666f666f788f788f788f788f788f788",
+					"opaqueTiles": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+				},
+				"customData": [],
+				"embedAtlas": null,
+				"enumTags": [],
+				"identifier": "Match_3_art",
+				"padding": 0,
+				"pxHei": 256,
+				"pxWid": 96,
+				"relPath": "tilesets/match_3_art.png",
+				"savedSelections": [],
+				"spacing": 0,
+				"tags": [],
+				"tagsSourceEnumUid": null,
+				"tileGridSize": 16,
+				"uid": 7
+			}
+		]
+	},
+	"dummyWorldIid": "784b4e40-21a0-11f1-984e-7d1070288724",
+	"exportLevelBg": true,
+	"exportTiled": false,
+	"externalLevels": true,
+	"flags": [],
+	"identifierStyle": "Capitalize",
+	"iid": "784b2730-21a0-11f1-984e-e57b244cf832",
+	"imageExportMode": "None",
+	"jsonVersion": "1.5.3",
+	"levelNamePattern": "Level_%idx",
+	"levels": [
+		{
+			"__bgColor": "#696A79",
+			"__bgPos": null,
+			"__neighbours": [],
+			"__smartColor": "#ADADB5",
+			"bgColor": null,
+			"bgPivotX": 0.5,
+			"bgPivotY": 0.5,
+			"bgPos": null,
+			"bgRelPath": null,
+			"externalRelPath": "match-3/Level_0.ldtkl",
+			"fieldInstances": [
+				{
+					"__identifier": "NumColors",
+					"__tile": null,
+					"__type": "Int",
+					"__value": 6,
+					"defUid": 1,
+					"realEditorValues": []
+				},
+				{
+					"__identifier": "ScoreTarget",
+					"__tile": null,
+					"__type": "Int",
+					"__value": 500,
+					"defUid": 2,
+					"realEditorValues": [
+						{
+							"id": "V_Int",
+							"params": [
+								500
+							]
+						}
+					]
+				},
+				{
+					"__identifier": "TimeLimit",
+					"__tile": null,
+					"__type": "Int",
+					"__value": 0,
+					"defUid": 3,
+					"realEditorValues": []
+				}
+			],
+			"identifier": "Level_0",
+			"iid": "784b7550-21a0-11f1-984e-cbbc1f979c96",
+			"layerInstances": null,
+			"pxHei": 360,
+			"pxWid": 514,
+			"uid": 0,
+			"useAutoIdentifier": true,
+			"worldDepth": 0,
+			"worldX": 0,
+			"worldY": 0
+		},
+		{
+			"__bgColor": "#696A79",
+			"__bgPos": null,
+			"__neighbours": [],
+			"__smartColor": "#ADADB5",
+			"bgColor": null,
+			"bgPivotX": 0.5,
+			"bgPivotY": 0.5,
+			"bgPos": null,
+			"bgRelPath": null,
+			"externalRelPath": "match-3/Level_1.ldtkl",
+			"fieldInstances": [
+				{
+					"__identifier": "NumColors",
+					"__tile": null,
+					"__type": "Int",
+					"__value": 6,
+					"defUid": 1,
+					"realEditorValues": []
+				},
+				{
+					"__identifier": "ScoreTarget",
+					"__tile": null,
+					"__type": "Int",
+					"__value": 1000,
+					"defUid": 2,
+					"realEditorValues": []
+				},
+				{
+					"__identifier": "TimeLimit",
+					"__tile": null,
+					"__type": "Int",
+					"__value": 0,
+					"defUid": 3,
+					"realEditorValues": []
+				}
+			],
+			"identifier": "Level_1",
+			"iid": "bd3f10a0-21a0-11f1-9b4d-93fb112aaea8",
+			"layerInstances": null,
+			"pxHei": 360,
+			"pxWid": 514,
+			"uid": 5,
+			"useAutoIdentifier": true,
+			"worldDepth": 0,
+			"worldX": 544,
+			"worldY": 0
+		},
+		{
+			"__bgColor": "#696A79",
+			"__bgPos": null,
+			"__neighbours": [],
+			"__smartColor": "#ADADB5",
+			"bgColor": null,
+			"bgPivotX": 0.5,
+			"bgPivotY": 0.5,
+			"bgPos": null,
+			"bgRelPath": null,
+			"externalRelPath": "match-3/Level_2.ldtkl",
+			"fieldInstances": [
+				{
+					"__identifier": "NumColors",
+					"__tile": null,
+					"__type": "Int",
+					"__value": 4,
+					"defUid": 1,
+					"realEditorValues": [
+						{
+							"id": "V_Int",
+							"params": [
+								4
+							]
+						}
+					]
+				},
+				{
+					"__identifier": "ScoreTarget",
+					"__tile": null,
+					"__type": "Int",
+					"__value": 200,
+					"defUid": 2,
+					"realEditorValues": [
+						{
+							"id": "V_Int",
+							"params": [
+								200
+							]
+						}
+					]
+				},
+				{
+					"__identifier": "TimeLimit",
+					"__tile": null,
+					"__type": "Int",
+					"__value": 0,
+					"defUid": 3,
+					"realEditorValues": [
+						{
+							"id": "V_Int",
+							"params": [
+								0
+							]
+						}
+					]
+				}
+			],
+			"identifier": "Level_2",
+			"iid": "e03dbf4b-a5a4-179b-bf0f-ad6828bf5887",
+			"layerInstances": null,
+			"pxHei": 360,
+			"pxWid": 514,
+			"uid": 8,
+			"useAutoIdentifier": true,
+			"worldDepth": 0,
+			"worldX": 1088,
+			"worldY": 0
+		},
+		{
+			"__bgColor": "#696A79",
+			"__bgPos": null,
+			"__neighbours": [],
+			"__smartColor": "#ADADB5",
+			"bgColor": null,
+			"bgPivotX": 0.5,
+			"bgPivotY": 0.5,
+			"bgPos": null,
+			"bgRelPath": null,
+			"externalRelPath": "match-3/Level_3.ldtkl",
+			"fieldInstances": [
+				{
+					"__identifier": "NumColors",
+					"__tile": null,
+					"__type": "Int",
+					"__value": 5,
+					"defUid": 1,
+					"realEditorValues": [
+						{
+							"id": "V_Int",
+							"params": [
+								5
+							]
+						}
+					]
+				},
+				{
+					"__identifier": "ScoreTarget",
+					"__tile": null,
+					"__type": "Int",
+					"__value": 450,
+					"defUid": 2,
+					"realEditorValues": [
+						{
+							"id": "V_Int",
+							"params": [
+								450
+							]
+						}
+					]
+				},
+				{
+					"__identifier": "TimeLimit",
+					"__tile": null,
+					"__type": "Int",
+					"__value": 0,
+					"defUid": 3,
+					"realEditorValues": [
+						{
+							"id": "V_Int",
+							"params": [
+								0
+							]
+						}
+					]
+				}
+			],
+			"identifier": "Level_3",
+			"iid": "c616dbaf-9e89-1811-a6b9-79b7e0f643d0",
+			"layerInstances": null,
+			"pxHei": 360,
+			"pxWid": 514,
+			"uid": 9,
+			"useAutoIdentifier": true,
+			"worldDepth": 0,
+			"worldX": 1632,
+			"worldY": 0
+		},
+		{
+			"__bgColor": "#696A79",
+			"__bgPos": null,
+			"__neighbours": [],
+			"__smartColor": "#ADADB5",
+			"bgColor": null,
+			"bgPivotX": 0.5,
+			"bgPivotY": 0.5,
+			"bgPos": null,
+			"bgRelPath": null,
+			"externalRelPath": "match-3/Level_4.ldtkl",
+			"fieldInstances": [
+				{
+					"__identifier": "NumColors",
+					"__tile": null,
+					"__type": "Int",
+					"__value": 5,
+					"defUid": 1,
+					"realEditorValues": [
+						{
+							"id": "V_Int",
+							"params": [
+								5
+							]
+						}
+					]
+				},
+				{
+					"__identifier": "ScoreTarget",
+					"__tile": null,
+					"__type": "Int",
+					"__value": 950,
+					"defUid": 2,
+					"realEditorValues": [
+						{
+							"id": "V_Int",
+							"params": [
+								950
+							]
+						}
+					]
+				},
+				{
+					"__identifier": "TimeLimit",
+					"__tile": null,
+					"__type": "Int",
+					"__value": 0,
+					"defUid": 3,
+					"realEditorValues": [
+						{
+							"id": "V_Int",
+							"params": [
+								0
+							]
+						}
+					]
+				}
+			],
+			"identifier": "Level_4",
+			"iid": "6949e526-c053-1371-96a2-0dc58ffcf5e0",
+			"layerInstances": null,
+			"pxHei": 360,
+			"pxWid": 514,
+			"uid": 10,
+			"useAutoIdentifier": true,
+			"worldDepth": 0,
+			"worldX": 2176,
+			"worldY": 0
+		},
+		{
+			"__bgColor": "#696A79",
+			"__bgPos": null,
+			"__neighbours": [],
+			"__smartColor": "#ADADB5",
+			"bgColor": null,
+			"bgPivotX": 0.5,
+			"bgPivotY": 0.5,
+			"bgPos": null,
+			"bgRelPath": null,
+			"externalRelPath": "match-3/Level_5.ldtkl",
+			"fieldInstances": [
+				{
+					"__identifier": "NumColors",
+					"__tile": null,
+					"__type": "Int",
+					"__value": 6,
+					"defUid": 1,
+					"realEditorValues": [
+						{
+							"id": "V_Int",
+							"params": [
+								6
+							]
+						}
+					]
+				},
+				{
+					"__identifier": "ScoreTarget",
+					"__tile": null,
+					"__type": "Int",
+					"__value": 1450,
+					"defUid": 2,
+					"realEditorValues": [
+						{
+							"id": "V_Int",
+							"params": [
+								1450
+							]
+						}
+					]
+				},
+				{
+					"__identifier": "TimeLimit",
+					"__tile": null,
+					"__type": "Int",
+					"__value": 90,
+					"defUid": 3,
+					"realEditorValues": [
+						{
+							"id": "V_Int",
+							"params": [
+								90
+							]
+						}
+					]
+				}
+			],
+			"identifier": "Level_5",
+			"iid": "6a9d74e2-65a4-1a27-999d-11a2f0cfa26f",
+			"layerInstances": null,
+			"pxHei": 360,
+			"pxWid": 514,
+			"uid": 11,
+			"useAutoIdentifier": true,
+			"worldDepth": 0,
+			"worldX": 2720,
+			"worldY": 0
+		},
+		{
+			"__bgColor": "#696A79",
+			"__bgPos": null,
+			"__neighbours": [],
+			"__smartColor": "#ADADB5",
+			"bgColor": null,
+			"bgPivotX": 0.5,
+			"bgPivotY": 0.5,
+			"bgPos": null,
+			"bgRelPath": null,
+			"externalRelPath": "match-3/Level_6.ldtkl",
+			"fieldInstances": [
+				{
+					"__identifier": "NumColors",
+					"__tile": null,
+					"__type": "Int",
+					"__value": 6,
+					"defUid": 1,
+					"realEditorValues": [
+						{
+							"id": "V_Int",
+							"params": [
+								6
+							]
+						}
+					]
+				},
+				{
+					"__identifier": "ScoreTarget",
+					"__tile": null,
+					"__type": "Int",
+					"__value": 2500,
+					"defUid": 2,
+					"realEditorValues": [
+						{
+							"id": "V_Int",
+							"params": [
+								2500
+							]
+						}
+					]
+				},
+				{
+					"__identifier": "TimeLimit",
+					"__tile": null,
+					"__type": "Int",
+					"__value": 60,
+					"defUid": 3,
+					"realEditorValues": [
+						{
+							"id": "V_Int",
+							"params": [
+								60
+							]
+						}
+					]
+				}
+			],
+			"identifier": "Level_6",
+			"iid": "1b535a07-e246-188f-81cc-f103ad4f3f61",
+			"layerInstances": null,
+			"pxHei": 360,
+			"pxWid": 514,
+			"uid": 12,
+			"useAutoIdentifier": true,
+			"worldDepth": 0,
+			"worldX": 3264,
+			"worldY": 0
+		},
+		{
+			"__bgColor": "#696A79",
+			"__bgPos": null,
+			"__neighbours": [],
+			"__smartColor": "#ADADB5",
+			"bgColor": null,
+			"bgPivotX": 0.5,
+			"bgPivotY": 0.5,
+			"bgPos": null,
+			"bgRelPath": null,
+			"externalRelPath": "match-3/Level_7.ldtkl",
+			"fieldInstances": [
+				{
+					"__identifier": "NumColors",
+					"__tile": null,
+					"__type": "Int",
+					"__value": 6,
+					"defUid": 1,
+					"realEditorValues": [
+						{
+							"id": "V_Int",
+							"params": [
+								6
+							]
+						}
+					]
+				},
+				{
+					"__identifier": "ScoreTarget",
+					"__tile": null,
+					"__type": "Int",
+					"__value": 1450,
+					"defUid": 2,
+					"realEditorValues": [
+						{
+							"id": "V_Int",
+							"params": [
+								1450
+							]
+						}
+					]
+				},
+				{
+					"__identifier": "TimeLimit",
+					"__tile": null,
+					"__type": "Int",
+					"__value": 60,
+					"defUid": 3,
+					"realEditorValues": [
+						{
+							"id": "V_Int",
+							"params": [
+								60
+							]
+						}
+					]
+				}
+			],
+			"identifier": "Level_7",
+			"iid": "abe60901-fa36-1450-b45f-9562c15481a4",
+			"layerInstances": null,
+			"pxHei": 360,
+			"pxWid": 514,
+			"uid": 13,
+			"useAutoIdentifier": true,
+			"worldDepth": 0,
+			"worldX": 3808,
+			"worldY": 0
+		},
+		{
+			"__bgColor": "#696A79",
+			"__bgPos": null,
+			"__neighbours": [],
+			"__smartColor": "#ADADB5",
+			"bgColor": null,
+			"bgPivotX": 0.5,
+			"bgPivotY": 0.5,
+			"bgPos": null,
+			"bgRelPath": null,
+			"externalRelPath": "match-3/Level_8.ldtkl",
+			"fieldInstances": [
+				{
+					"__identifier": "NumColors",
+					"__tile": null,
+					"__type": "Int",
+					"__value": 6,
+					"defUid": 1,
+					"realEditorValues": [
+						{
+							"id": "V_Int",
+							"params": [
+								6
+							]
+						}
+					]
+				},
+				{
+					"__identifier": "ScoreTarget",
+					"__tile": null,
+					"__type": "Int",
+					"__value": 1850,
+					"defUid": 2,
+					"realEditorValues": [
+						{
+							"id": "V_Int",
+							"params": [
+								1850
+							]
+						}
+					]
+				},
+				{
+					"__identifier": "TimeLimit",
+					"__tile": null,
+					"__type": "Int",
+					"__value": 60,
+					"defUid": 3,
+					"realEditorValues": [
+						{
+							"id": "V_Int",
+							"params": [
+								60
+							]
+						}
+					]
+				}
+			],
+			"identifier": "Level_8",
+			"iid": "5a749640-0625-1d6c-a46f-c977343d1c5d",
+			"layerInstances": null,
+			"pxHei": 360,
+			"pxWid": 514,
+			"uid": 14,
+			"useAutoIdentifier": true,
+			"worldDepth": 0,
+			"worldX": 4352,
+			"worldY": 0
+		},
+		{
+			"__bgColor": "#696A79",
+			"__bgPos": null,
+			"__neighbours": [],
+			"__smartColor": "#ADADB5",
+			"bgColor": null,
+			"bgPivotX": 0.5,
+			"bgPivotY": 0.5,
+			"bgPos": null,
+			"bgRelPath": null,
+			"externalRelPath": "match-3/Level_9.ldtkl",
+			"fieldInstances": [
+				{
+					"__identifier": "NumColors",
+					"__tile": null,
+					"__type": "Int",
+					"__value": 6,
+					"defUid": 1,
+					"realEditorValues": [
+						{
+							"id": "V_Int",
+							"params": [
+								6
+							]
+						}
+					]
+				},
+				{
+					"__identifier": "ScoreTarget",
+					"__tile": null,
+					"__type": "Int",
+					"__value": 1800,
+					"defUid": 2,
+					"realEditorValues": [
+						{
+							"id": "V_Int",
+							"params": [
+								1800
+							]
+						}
+					]
+				},
+				{
+					"__identifier": "TimeLimit",
+					"__tile": null,
+					"__type": "Int",
+					"__value": 60,
+					"defUid": 3,
+					"realEditorValues": [
+						{
+							"id": "V_Int",
+							"params": [
+								60
+							]
+						}
+					]
+				}
+			],
+			"identifier": "Level_9",
+			"iid": "c347fcfe-6990-1acb-bb30-6e0d06590494",
+			"layerInstances": null,
+			"pxHei": 360,
+			"pxWid": 514,
+			"uid": 15,
+			"useAutoIdentifier": true,
+			"worldDepth": 0,
+			"worldX": 4896,
+			"worldY": 0
+		},
+		{
+			"__bgColor": "#696A79",
+			"__bgPos": null,
+			"__neighbours": [],
+			"__smartColor": "#ADADB5",
+			"bgColor": null,
+			"bgPivotX": 0.5,
+			"bgPivotY": 0.5,
+			"bgPos": null,
+			"bgRelPath": null,
+			"externalRelPath": "match-3/Level_10.ldtkl",
+			"fieldInstances": [
+				{
+					"__identifier": "NumColors",
+					"__tile": null,
+					"__type": "Int",
+					"__value": 6,
+					"defUid": 1,
+					"realEditorValues": [
+						{
+							"id": "V_Int",
+							"params": [
+								6
+							]
+						}
+					]
+				},
+				{
+					"__identifier": "ScoreTarget",
+					"__tile": null,
+					"__type": "Int",
+					"__value": 1900,
+					"defUid": 2,
+					"realEditorValues": [
+						{
+							"id": "V_Int",
+							"params": [
+								1900
+							]
+						}
+					]
+				},
+				{
+					"__identifier": "TimeLimit",
+					"__tile": null,
+					"__type": "Int",
+					"__value": 60,
+					"defUid": 3,
+					"realEditorValues": [
+						{
+							"id": "V_Int",
+							"params": [
+								60
+							]
+						}
+					]
+				}
+			],
+			"identifier": "Level_10",
+			"iid": "8fb3c24f-ee18-1f4e-aa2e-2c93efd0249c",
+			"layerInstances": null,
+			"pxHei": 360,
+			"pxWid": 514,
+			"uid": 16,
+			"useAutoIdentifier": true,
+			"worldDepth": 0,
+			"worldX": 5440,
+			"worldY": 0
+		},
+		{
+			"__bgColor": "#696A79",
+			"__bgPos": null,
+			"__neighbours": [],
+			"__smartColor": "#ADADB5",
+			"bgColor": null,
+			"bgPivotX": 0.5,
+			"bgPivotY": 0.5,
+			"bgPos": null,
+			"bgRelPath": null,
+			"externalRelPath": "match-3/Level_11.ldtkl",
+			"fieldInstances": [
+				{
+					"__identifier": "NumColors",
+					"__tile": null,
+					"__type": "Int",
+					"__value": 6,
+					"defUid": 1,
+					"realEditorValues": [
+						{
+							"id": "V_Int",
+							"params": [
+								6
+							]
+						}
+					]
+				},
+				{
+					"__identifier": "ScoreTarget",
+					"__tile": null,
+					"__type": "Int",
+					"__value": 2500,
+					"defUid": 2,
+					"realEditorValues": [
+						{
+							"id": "V_Int",
+							"params": [
+								2500
+							]
+						}
+					]
+				},
+				{
+					"__identifier": "TimeLimit",
+					"__tile": null,
+					"__type": "Int",
+					"__value": 60,
+					"defUid": 3,
+					"realEditorValues": [
+						{
+							"id": "V_Int",
+							"params": [
+								60
+							]
+						}
+					]
+				}
+			],
+			"identifier": "Level_11",
+			"iid": "cd17ebfe-652a-1238-8d79-9f6c57e630a2",
+			"layerInstances": null,
+			"pxHei": 360,
+			"pxWid": 514,
+			"uid": 17,
+			"useAutoIdentifier": true,
+			"worldDepth": 0,
+			"worldX": 5984,
+			"worldY": 0
+		},
+		{
+			"__bgColor": "#696A79",
+			"__bgPos": {
+				"cropRect": [
+					0,
+					343.6887159533074,
+					1086,
+					760.6225680933852
+				],
+				"scale": [
+					0.4732965009208103,
+					0.4732965009208103
+				],
+				"topLeftPx": [
+					0,
+					0
+				]
+			},
+			"__neighbours": [],
+			"__smartColor": "#ADADB5",
+			"bgColor": null,
+			"bgPivotX": 0.5,
+			"bgPivotY": 0.5,
+			"bgPos": "Cover",
+			"bgRelPath": "tilesets/devil-bird-win.png",
+			"externalRelPath": "match-3/Win_screen.ldtkl",
+			"fieldInstances": [
+				{
+					"__identifier": "NumColors",
+					"__tile": null,
+					"__type": "Int",
+					"__value": 6,
+					"defUid": 1,
+					"realEditorValues": []
+				},
+				{
+					"__identifier": "ScoreTarget",
+					"__tile": null,
+					"__type": "Int",
+					"__value": 1000,
+					"defUid": 2,
+					"realEditorValues": []
+				},
+				{
+					"__identifier": "TimeLimit",
+					"__tile": null,
+					"__type": "Int",
+					"__value": 0,
+					"defUid": 3,
+					"realEditorValues": []
+				}
+			],
+			"identifier": "Win_screen",
+			"iid": "d23609f0-21a0-11f1-9b4d-1fcacdca7b04",
+			"layerInstances": null,
+			"pxHei": 360,
+			"pxWid": 514,
+			"uid": 6,
+			"useAutoIdentifier": false,
+			"worldDepth": 0,
+			"worldX": 6528,
+			"worldY": 512
+		}
+	],
+	"minifyJson": false,
+	"nextUid": 18,
+	"pngFilePattern": null,
+	"simplifiedExport": true,
+	"toc": [],
+	"tutorialDesc": null,
+	"worldGridHeight": 256,
+	"worldGridWidth": 256,
+	"worldLayout": "Free",
+	"worlds": []
+}
