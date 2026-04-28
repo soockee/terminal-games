@@ -62,20 +62,24 @@ func SpawnEntities(w donburi.World, level *ldtkgo.Level, world *ldtkgo.World, cf
 	if def := world.Project.EntityDefByID("Pipe"); def != nil {
 		if sub := def.SubImage(world.Project); sub != nil {
 			pipeImg := ebiten.NewImageFromImage(sub)
-			startX := float64(level.Width)
+			x := float64(level.Width)
 			for i := 0; i < cfg.PipeCount; i++ {
-				x := startX + float64(i)*cfg.PipeInterval
-				// Clamp so both top and bottom pipes are at least minPipeH tall.
+				if i > 0 {
+					// random horizontal spacing between PipeMinGapHorizontal and 2x PipeInterval
+					x += cfg.PipeMinGapHorizontal + rand.Float64()*(cfg.PipeInterval*2-cfg.PipeMinGapHorizontal)
+				}
+				// random vertical gap between PipeMinGapVertical and 2x PipeMinGapVertical
 				minPipeH := 40.0
-				halfGap := cfg.PipeGap / 2
+				gapSize := cfg.PipeMinGapVertical + rand.Float64()*cfg.PipeMinGapVertical
+				halfGap := gapSize / 2
 				minGapY := halfGap + minPipeH           // top pipe >= minPipeH
 				maxGapY := groundY - halfGap - minPipeH // bottom pipe >= minPipeH
 				if minGapY > maxGapY {
-					minGapY = (groundY + halfGap) / 2
+					minGapY = groundY / 2
 					maxGapY = minGapY
 				}
 				gapCenterY := minGapY + rand.Float64()*(maxGapY-minGapY)
-				NewPipePair(w, pipeImg, x, gapCenterY, cfg.PipeGap, groundY)
+				NewPipePair(w, pipeImg, x, gapCenterY, gapSize, groundY)
 			}
 		}
 	}
@@ -179,6 +183,6 @@ func NewScore(w donburi.World, target int) {
 
 // NewGameOver creates the singleton game-over state entity.
 func NewGameOver(w donburi.World) {
-	e := w.Entry(w.Create(component.GameOver))
-	component.GameOver.Set(e, &component.GameOverData{})
+	e := w.Entry(w.Create(component.GameState))
+	component.GameState.Set(e, &component.GameOverData{})
 }

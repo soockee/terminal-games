@@ -61,12 +61,13 @@ func main() {
 
 	defaultLevel := game.LevelConfig{
 		SpawnConfig: archetype.SpawnConfig{
-			BirdVelX:     2,
-			BirdJump:     8,
-			BirdGravity:  0.4,
-			PipeGap:      130,
-			PipeInterval: 200,
-			PipeCount:    25,
+			BirdVelX:             2,
+			BirdJump:             8,
+			BirdGravity:          0.4,
+			PipeMinGapVertical:   130,
+			PipeMinGapHorizontal: 200,
+			PipeInterval:         200,
+			PipeCount:            25,
 		},
 	}
 
@@ -144,8 +145,8 @@ func (g *Game) Update() error {
 	g.loaded.ECS.Update()
 
 	// Restart or win-switch on signal from input/score systems.
-	if goEntry, ok := component.GameOver.First(g.loaded.ECS.World); ok {
-		go_ := component.GameOver.Get(goEntry)
+	if goEntry, ok := component.GameState.First(g.loaded.ECS.World); ok {
+		go_ := component.GameState.Get(goEntry)
 		if go_.Restart {
 			// From win screen or death screen → back to gameplay.
 			g.loadLevel(0)
@@ -153,8 +154,8 @@ func (g *Game) Update() error {
 			// Just won on gameplay level → switch to win screen.
 			g.loadLevel(1)
 			// Mark the win level so HUD shows congratulations.
-			if goEntry2, ok2 := component.GameOver.First(g.loaded.ECS.World); ok2 {
-				go2 := component.GameOver.Get(goEntry2)
+			if goEntry2, ok2 := component.GameState.First(g.loaded.ECS.World); ok2 {
+				go2 := component.GameState.Get(goEntry2)
 				go2.Won = true
 				go2.Started = true
 			}

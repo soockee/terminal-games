@@ -14,12 +14,12 @@ import (
 // UpdateCollision checks the bird against all Collidable entities.
 // A hit sets GameOver.Dead = true.
 func UpdateCollision(e *ecs.ECS) {
-	goEntry, ok := component.GameOver.First(e.World)
+	goEntry, ok := component.GameState.First(e.World)
 	if !ok {
 		return
 	}
-	gd := component.GameOver.Get(goEntry)
-	if gd.Dead {
+	gd := component.GameState.Get(goEntry)
+	if gd.Dead || gd.Paused {
 		return
 	}
 
