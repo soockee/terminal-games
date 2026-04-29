@@ -210,8 +210,7 @@ func Build(level *ldtkgo.Level, w donburi.World, gc GameConfig, lc LevelConfig, 
 	archetype.NewScore(e.World, scoreTarget)
 
 	// Build the board from the IntGrid layer named "Board".
-	boardData := buildBoard(level, numColors, scoreTarget, timeLimit, tileSheet, e.World)
-	archetype.NewBoard(e.World, boardData)
+	buildBoard(level, numColors, scoreTarget, timeLimit, tileSheet, e.World)
 
 	// Audio.
 	if audioState != nil {
@@ -247,11 +246,18 @@ func Build(level *ldtkgo.Level, w donburi.World, gc GameConfig, lc LevelConfig, 
 }
 
 // buildBoard reads the "Board" IntGrid layer and creates tile entities.
-func buildBoard(level *ldtkgo.Level, numColors, scoreTarget, timeLimit int, tileSheet *ebiten.Image, w donburi.World) *component.BoardData {
+func buildBoard(level *ldtkgo.Level, numColors, scoreTarget, timeLimit int, tileSheet *ebiten.Image, w donburi.World) {
 	ig := level.IntGrids["Board"]
 	if ig == nil {
 		log.Println("warning: no 'Board' IntGrid layer found, creating empty board")
-		return &component.BoardData{SelectedCol: -1, SelectedRow: -1, TileSize: 32}
+		archetype.NewBoard(w,
+			&component.GridData{},
+			&component.PhaseData{SelectedCol: -1, SelectedRow: -1},
+			&component.InputData{},
+			&component.DisplayData{TileSize: 32},
+			&component.RulesData{},
+		)
+		return
 	}
 
 	cols := ig.Width
@@ -301,23 +307,32 @@ func buildBoard(level *ldtkgo.Level, numColors, scoreTarget, timeLimit int, tile
 		}
 	}
 
-	return &component.BoardData{
-		Cols:          cols,
-		Rows:          rows,
-		CellType:      cellType,
-		Cells:         cells,
-		Phase:         component.PhaseIdle,
-		SelectedCol:   -1,
-		SelectedRow:   -1,
-		NumColors:     numColors,
-		ScoreTarget:   scoreTarget,
-		TimeLimit:     float64(timeLimit),
-		TimeRemaining: float64(timeLimit),
-		OffsetX:       0,
-		OffsetY:       0,
-		TileSize:      tileSize,
-		GemSprites:    gemSprites,
-	}
+	archetype.NewBoard(w,
+		&component.GridData{
+			Cols:     cols,
+			Rows:     rows,
+			CellType: cellType,
+			Cells:    cells,
+		},
+		&component.PhaseData{
+			Phase:       component.PhaseIdle,
+			SelectedCol: -1,
+			SelectedRow: -1,
+		},
+		&component.InputData{},
+		&component.DisplayData{
+			OffsetX:    0,
+			OffsetY:    0,
+			TileSize:   tileSize,
+			GemSprites: gemSprites,
+		},
+		&component.RulesData{
+			NumColors:     numColors,
+			ScoreTarget:   scoreTarget,
+			TimeLimit:     float64(timeLimit),
+			TimeRemaining: float64(timeLimit),
+		},
+	)
 }
 
 // randomMatchFreeColor picks a random color that doesn't create a match at (c, r).

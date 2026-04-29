@@ -8,56 +8,10 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
-// ScrollingBG holds the state for a looping scrolling background.
-type ScrollingBG struct {
-	tile    *ebiten.Image
-	offsetX float64
-	speed   float64 // pixels per frame
-}
-
-// NewScrollingBG creates a procedurally generated symmetric tile pattern
-// and returns a ScrollingBG that scrolls left at the given speed.
-func NewScrollingBG(screenW, screenH int, speed float64) *ScrollingBG {
-	const tileSize = 64
-	tile := generateSymmetricTile(tileSize)
-	return &ScrollingBG{
-		tile:  tile,
-		speed: speed,
-	}
-}
-
-// Update advances the scroll offset.
-func (bg *ScrollingBG) Update() {
-	bg.offsetX -= bg.speed
-	tileW := float64(bg.tile.Bounds().Dx())
-	if bg.offsetX <= -tileW {
-		bg.offsetX += tileW
-	}
-}
-
-// Draw renders the scrolling tiled background.
-func (bg *ScrollingBG) Draw(screen *ebiten.Image) {
-	screen.Fill(color.RGBA{15, 10, 30, 255})
-
-	tileW := bg.tile.Bounds().Dx()
-	tileH := bg.tile.Bounds().Dy()
-	screenW := screen.Bounds().Dx()
-	screenH := screen.Bounds().Dy()
-
-	// Number of tiles needed to cover screen + 1 extra for scroll.
-	cols := screenW/tileW + 2
-	rows := screenH/tileH + 1
-
-	for row := 0; row <= rows; row++ {
-		for col := 0; col <= cols; col++ {
-			op := &ebiten.DrawImageOptions{}
-			x := float64(col*tileW) + bg.offsetX
-			y := float64(row * tileH)
-			op.GeoM.Translate(x, y)
-			op.ColorScale.ScaleAlpha(0.3)
-			screen.DrawImage(bg.tile, op)
-		}
-	}
+// GenerateSymmetricTile creates a procedurally generated symmetric tile pattern
+// for use as a scrolling background.
+func GenerateSymmetricTile(tileSize int) *ebiten.Image {
+	return generateSymmetricTile(tileSize)
 }
 
 // generateSymmetricTile creates a 4-fold symmetric diamond/grid pattern.

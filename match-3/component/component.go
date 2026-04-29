@@ -31,7 +31,7 @@ const (
 	EaseOutQuad
 )
 
-// ---- Board (singleton) ----
+// ---- Board components (split by responsibility) ----
 
 // CellType values (matches LDtk IntGrid: 1=empty, 2=playable, 3=blocked).
 const (
@@ -40,41 +40,71 @@ const (
 	CellBlocked  = 3
 )
 
-type BoardData struct {
-	Cols int
-	Rows int
-
+// GridData holds the board's topology and tile references.
+type GridData struct {
+	Cols     int
+	Rows     int
 	CellType [][]int            // [col][row] IntGrid value
 	Cells    [][]*donburi.Entry // [col][row] tile entity (nil if empty/blocked)
+}
 
+var BoardGrid = donburi.NewComponentType[GridData]()
+
+// PhaseData tracks the match-3 state machine progress.
+type PhaseData struct {
 	Phase Phase
 
 	SelectedCol int // -1 = none
 	SelectedRow int
 
-	CursorCol int // keyboard cursor position
-	CursorRow int
-
 	SwapA [2]int // [col, row]
 	SwapB [2]int
 
-	ChainDepth int
+	ChainDepth     int
+	ReshuffleTimer float64 // countdown (seconds) to show "Reshuffling" message
+}
 
-	NumColors     int
-	ScoreTarget   int
-	TimeLimit     float64 // seconds, 0 = unlimited
-	TimeRemaining float64
+var BoardPhase = donburi.NewComponentType[PhaseData]()
 
+// InputData holds UI-only input tracking.
+type InputData struct {
+	CursorCol     int // keyboard cursor position
+	CursorRow     int
+	AutoPlay      bool    // when true, automatically pick valid swaps
+	AutoPlayDelay float64 // seconds to wait before next autoplay move
+}
+
+var BoardInput = donburi.NewComponentType[InputData]()
+
+// DisplayData holds rendering layout and sprite data.
+type DisplayData struct {
 	OffsetX    float64 // board pixel origin on screen
 	OffsetY    float64
 	TileSize   int
 	GemSprites []*ebiten.Image // pre-sliced per-color sprites
-	AutoPlay   bool            // when true, automatically pick valid swaps
-
-	ReshuffleTimer float64 // countdown (seconds) to show "Reshuffling" message
 }
 
-var Board = donburi.NewComponentType[BoardData]()
+var BoardDisplay = donburi.NewComponentType[DisplayData]()
+
+// RulesData holds per-level game rule parameters.
+type RulesData struct {
+	NumColors     int
+	ScoreTarget   int
+	TimeLimit     float64 // seconds, 0 = unlimited
+	TimeRemaining float64
+}
+
+var BoardRules = donburi.NewComponentType[RulesData]()
+
+// ---- ScrollingBG (singleton) ----
+
+type ScrollingBGData struct {
+	Tile    *ebiten.Image
+	OffsetX float64
+	Speed   float64 // pixels per frame
+}
+
+var ScrollingBG = donburi.NewComponentType[ScrollingBGData]()
 
 // ---- GridPos (per-tile) ----
 

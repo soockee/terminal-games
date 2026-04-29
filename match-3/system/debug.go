@@ -23,9 +23,9 @@ func DrawDebug(e *ecs.ECS, screen *ebiten.Image) {
 	fps := fmt.Sprintf("FPS: %.0f  TPS: %.0f", ebiten.ActualFPS(), ebiten.ActualTPS())
 	ebitenutil.DebugPrintAt(screen, fps, 4, 4)
 
-	if boardEntry, ok := component.Board.First(e.World); ok {
-		board := component.Board.Get(boardEntry)
-		info := fmt.Sprintf("Phase: %d  Sel: (%d,%d)", board.Phase, board.SelectedCol, board.SelectedRow)
+	if boardEntry, ok := component.BoardPhase.First(e.World); ok {
+		phase := component.BoardPhase.Get(boardEntry)
+		info := fmt.Sprintf("Phase: %d  Sel: (%d,%d)", phase.Phase, phase.SelectedCol, phase.SelectedRow)
 		ebitenutil.DebugPrintAt(screen, info, 4, 20)
 	}
 }

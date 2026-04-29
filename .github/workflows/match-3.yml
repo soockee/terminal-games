@@ -1,0 +1,30 @@
+on:
+    release:
+        types: [created]
+
+permissions:
+    contents: write
+    packages: write
+
+jobs:
+    releases-matrix:
+        if: startsWith(github.ref, 'refs/tags/v') && contains(github.ref, '-match-3')
+
+        name: Release Go Binary
+        runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                goos: ["js"]
+                goarch: ["wasm"]
+        steps:
+            - uses: actions/checkout@v4
+            - uses: wangyoucao577/go-release-action@v1
+              with:
+                  github_token: ${{ secrets.GITHUB_TOKEN }}
+                  goos: ${{ matrix.goos }}
+                  goarch: ${{ matrix.goarch }}
+                  goversion: "https://go.dev/dl/go1.24.0.linux-amd64.tar.gz"
+                  project_path: "./match-3"
+                  binary_name: "match-3.wasm"
+                  pre_command: "cp \"$(go env GOROOT)/lib/wasm/wasm_exec.js\" ."
+                  extra_files: "wasm_exec.js"

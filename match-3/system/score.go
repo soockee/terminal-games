@@ -16,17 +16,17 @@ func UpdateScore(e *ecs.ECS) {
 		return
 	}
 
-	boardEntry, boardOK := component.Board.First(e.World)
+	boardEntry, boardOK := component.BoardRules.First(e.World)
 	if !boardOK {
 		return
 	}
-	board := component.Board.Get(boardEntry)
+	lvl := component.BoardRules.Get(boardEntry)
 
 	// Timer countdown.
-	if board.TimeLimit > 0 {
-		board.TimeRemaining -= 1.0 / 60.0
-		if board.TimeRemaining <= 0 {
-			board.TimeRemaining = 0
+	if lvl.TimeLimit > 0 {
+		lvl.TimeRemaining -= 1.0 / 60.0
+		if lvl.TimeRemaining <= 0 {
+			lvl.TimeRemaining = 0
 			gs.Dead = true
 			return
 		}

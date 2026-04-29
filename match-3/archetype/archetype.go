@@ -8,10 +8,27 @@ import (
 	"github.com/yohamta/donburi"
 )
 
-// NewBoard creates the singleton Board entity.
-func NewBoard(w donburi.World, data *component.BoardData) *donburi.Entry {
-	e := w.Entry(w.Create(component.Board))
-	component.Board.Set(e, data)
+// NewBoard creates the singleton Board entity with all sub-components.
+func NewBoard(w donburi.World, grid *component.GridData, phase *component.PhaseData, input *component.InputData, display *component.DisplayData, rules *component.RulesData) *donburi.Entry {
+	e := w.Entry(w.Create(
+		component.BoardGrid,
+		component.BoardPhase,
+		component.BoardInput,
+		component.BoardDisplay,
+		component.BoardRules,
+	))
+	component.BoardGrid.Set(e, grid)
+	component.BoardPhase.Set(e, phase)
+	component.BoardInput.Set(e, input)
+	component.BoardDisplay.Set(e, display)
+	component.BoardRules.Set(e, rules)
+	return e
+}
+
+// NewScrollingBG creates the singleton scrolling background entity.
+func NewScrollingBG(w donburi.World, tile *ebiten.Image, speed float64) *donburi.Entry {
+	e := w.Entry(w.Create(component.ScrollingBG))
+	component.ScrollingBG.Set(e, &component.ScrollingBGData{Tile: tile, Speed: speed})
 	return e
 }
 

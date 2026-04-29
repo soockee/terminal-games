@@ -18,114 +18,173 @@ func UpdateInput(e *ecs.ECS) {
 		}
 	}
 
-	boardEntry, ok := component.Board.First(e.World)
+	boardEntry, ok := component.BoardGrid.First(e.World)
 	if !ok {
 		return
 	}
-	board := component.Board.Get(boardEntry)
+	grid := component.BoardGrid.Get(boardEntry)
+	phase := component.BoardPhase.Get(boardEntry)
+	input := component.BoardInput.Get(boardEntry)
+	display := component.BoardDisplay.Get(boardEntry)
 
 	// Toggle autoplay on F4 (only functional with -tags=autoplay build).
 	if inpututil.IsKeyJustPressed(ebiten.KeyF4) && autoPlayEnabled {
-		board.AutoPlay = !board.AutoPlay
+		input.AutoPlay = !input.AutoPlay
 	}
 
 	// Only accept input during Idle or Selected phases.
-	if board.Phase != component.PhaseIdle && board.Phase != component.PhaseSelected {
+	if phase.Phase != component.PhaseIdle && phase.Phase != component.PhaseSelected {
 		return
 	}
 
+	// Autoplay: find and execute a valid swap automatically.
+	if input.AutoPlay && phase.Phase == component.PhaseIdle {
+		// Stop autoplay if score target is reached.
+		if scoreEntry, ok := component.Score.First(e.World); ok {
+			s := component.Score.Get(scoreEntry)
+			if s.Target > 0 && s.Value >= s.Target {
+				input.AutoPlay = false
+				return
+			}
+		}
+		// Cooldown between moves so autoplay has the same pacing as a player.
+		if input.AutoPlayDelay > 0 {
+			input.AutoPlayDelay -= 1.0 / float64(ebiten.TPS())
+			return
+		}
+		if tryAutoPlay(grid, phase, input) {
+			input.AutoPlayDelay = 0.4 // seconds before next move
+			return
+		}
+		input.AutoPlay = false
+		return
+	}
+
+	// Map raw input to intent.
+	intent := mapInput(grid, phase, input, display, e)
+	if intent == nil {
+		return
+	}
+
+	// Execute intent.
+	executeIntent(intent, grid, phase, input, e)
+}
+
+// mapInput converts raw hardware input into a typed Intent.
+// Returns nil if no actionable input was detected.
+func mapInput(grid *component.GridData, phase *component.PhaseData, input *component.InputData, display *component.DisplayData, e *ecs.ECS) Intent {
 	// Check for game state (start / restart).
 	if gsEntry, gsOK := component.GameState.First(e.World); gsOK {
 		gs := component.GameState.Get(gsEntry)
 		if !gs.Started {
-			actionPressed := inpututil.IsKeyJustPressed(ebiten.KeySpace) ||
-				inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) ||
-				len(inpututil.AppendJustPressedTouchIDs(nil)) > 0
-			if actionPressed {
-				gs.Started = true
+			if actionPressed() {
+				return StartGame{}
 			}
-			return
+			return nil
 		}
 		if gs.Won || gs.Dead || gs.WinScreen {
-			actionPressed := inpututil.IsKeyJustPressed(ebiten.KeySpace) ||
-				inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) ||
-				len(inpututil.AppendJustPressedTouchIDs(nil)) > 0
-			if actionPressed {
-				gs.Restart = true
+			if actionPressed() {
+				return RestartGame{}
 			}
-			return
+			return nil
 		}
 	}
 
-	// Detect tap/click position → grid coordinates.
-	col, row, tapped := inputToGrid(board)
-
-	// Autoplay: find and execute a valid swap automatically.
-	if board.AutoPlay && board.Phase == component.PhaseIdle {
-		if tryAutoPlay(board) {
-			return
-		}
-		// No valid move found — dead end. Stop autoplay.
-		board.AutoPlay = false
-		return
+	// Keyboard navigation.
+	if intent := mapKeyboardInput(grid, phase, input); intent != nil {
+		return intent
 	}
 
-	// Keyboard navigation: arrow keys move cursor, Enter/Space selects.
-	if handleKeyboardInput(board, e) {
-		return
-	}
-
+	// Mouse/touch tap → grid coordinates.
+	col, row, tapped := inputToGrid(display)
 	if !tapped {
-		return
+		return nil
 	}
 
 	// Validate: must be a playable cell with a tile.
-	if col < 0 || col >= board.Cols || row < 0 || row >= board.Rows {
-		return
+	if col < 0 || col >= grid.Cols || row < 0 || row >= grid.Rows {
+		return nil
 	}
-	if board.CellType[col][row] != component.CellPlayable || board.Cells[col][row] == nil {
-		return
+	if grid.CellType[col][row] != component.CellPlayable || grid.Cells[col][row] == nil {
+		return nil
 	}
 
-	switch board.Phase {
+	return classifyTap(phase, col, row)
+}
+
+// classifyTap determines the intent for a tap at (col, row) given current board phase.
+func classifyTap(phase *component.PhaseData, col, row int) Intent {
+	switch phase.Phase {
 	case component.PhaseIdle:
-		board.SelectedCol = col
-		board.SelectedRow = row
-		board.Phase = component.PhaseSelected
-		event.AudioEvent.Publish(e.World, event.AudioEventData{Name: "select"})
+		return SelectTile{Col: col, Row: row}
 
 	case component.PhaseSelected:
-		if col == board.SelectedCol && row == board.SelectedRow {
-			// Deselect.
-			board.SelectedCol = -1
-			board.SelectedRow = -1
-			board.Phase = component.PhaseIdle
-			return
+		if col == phase.SelectedCol && row == phase.SelectedRow {
+			return Deselect{}
 		}
-
-		// Check adjacency (Manhattan distance == 1).
-		dc := col - board.SelectedCol
-		dr := row - board.SelectedRow
+		dc := col - phase.SelectedCol
+		dr := row - phase.SelectedRow
 		if abs(dc)+abs(dr) != 1 {
-			// Non-adjacent: change selection.
-			board.SelectedCol = col
-			board.SelectedRow = row
-			return
+			return ChangeSelection{Col: col, Row: row}
+		}
+		return InitiateSwap{
+			FromCol: phase.SelectedCol, FromRow: phase.SelectedRow,
+			ToCol: col, ToRow: row,
+		}
+	}
+	return nil
+}
+
+// executeIntent applies an intent to the board state.
+func executeIntent(intent Intent, grid *component.GridData, phase *component.PhaseData, input *component.InputData, e *ecs.ECS) {
+	switch i := intent.(type) {
+	case StartGame:
+		if gsEntry, ok := component.GameState.First(e.World); ok {
+			gs := component.GameState.Get(gsEntry)
+			gs.Started = true
 		}
 
-		// Initiate swap.
-		board.SwapA = [2]int{board.SelectedCol, board.SelectedRow}
-		board.SwapB = [2]int{col, row}
-		board.SelectedCol = -1
-		board.SelectedRow = -1
-		startSwapTweens(board, component.EaseOutQuad, 0.15)
-		board.Phase = component.PhaseSwapping
+	case RestartGame:
+		if gsEntry, ok := component.GameState.First(e.World); ok {
+			gs := component.GameState.Get(gsEntry)
+			gs.Restart = true
+		}
+
+	case SelectTile:
+		phase.SelectedCol = i.Col
+		phase.SelectedRow = i.Row
+		phase.Phase = component.PhaseSelected
+		event.AudioEvent.Publish(e.World, event.AudioEventData{Name: "select"})
+
+	case Deselect:
+		phase.SelectedCol = -1
+		phase.SelectedRow = -1
+		phase.Phase = component.PhaseIdle
+
+	case ChangeSelection:
+		phase.SelectedCol = i.Col
+		phase.SelectedRow = i.Row
+
+	case InitiateSwap:
+		phase.SwapA = [2]int{i.FromCol, i.FromRow}
+		phase.SwapB = [2]int{i.ToCol, i.ToRow}
+		phase.SelectedCol = -1
+		phase.SelectedRow = -1
+		StartSwapTween(grid, phase, component.EaseOutQuad, 0.15)
+		phase.Phase = component.PhaseSwapping
 		event.AudioEvent.Publish(e.World, event.AudioEventData{Name: "swap"})
 	}
 }
 
+// actionPressed returns true if any action button was just pressed (Space, click, or touch).
+func actionPressed() bool {
+	return inpututil.IsKeyJustPressed(ebiten.KeySpace) ||
+		inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) ||
+		len(inpututil.AppendJustPressedTouchIDs(nil)) > 0
+}
+
 // inputToGrid converts mouse/touch position to grid col/row.
-func inputToGrid(board *component.BoardData) (col, row int, ok bool) {
+func inputToGrid(display *component.DisplayData) (col, row int, ok bool) {
 	var px, py int
 
 	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
@@ -143,34 +202,9 @@ func inputToGrid(board *component.BoardData) (col, row int, ok bool) {
 		return 0, 0, false
 	}
 
-	col = int(float64(px)-board.OffsetX) / board.TileSize
-	row = int(float64(py)-board.OffsetY) / board.TileSize
+	col = int(float64(px)-display.OffsetX) / display.TileSize
+	row = int(float64(py)-display.OffsetY) / display.TileSize
 	return col, row, true
-}
-
-// startSwapTweens initiates position tweens on both swap tiles.
-func startSwapTweens(board *component.BoardData, ease component.EaseFunc, duration float64) {
-	a := board.Cells[board.SwapA[0]][board.SwapA[1]]
-	b := board.Cells[board.SwapB[0]][board.SwapB[1]]
-
-	posA := component.PixelPos.Get(a)
-	posB := component.PixelPos.Get(b)
-
-	twA := component.Tween.Get(a)
-	twA.StartX, twA.StartY = posA.X, posA.Y
-	twA.EndX, twA.EndY = posB.X, posB.Y
-	twA.Elapsed = 0
-	twA.Duration = duration
-	twA.Active = true
-	twA.Ease = ease
-
-	twB := component.Tween.Get(b)
-	twB.StartX, twB.StartY = posB.X, posB.Y
-	twB.EndX, twB.EndY = posA.X, posA.Y
-	twB.Elapsed = 0
-	twB.Duration = duration
-	twB.Active = true
-	twB.Ease = ease
 }
 
 func abs(x int) int {
@@ -180,85 +214,57 @@ func abs(x int) int {
 	return x
 }
 
-// handleKeyboardInput processes arrow key navigation and Enter/Space selection.
-// Returns true if a keyboard action was consumed.
-func handleKeyboardInput(board *component.BoardData, e *ecs.ECS) bool {
+// mapKeyboardInput processes arrow key navigation and Enter/Space selection.
+// Returns an Intent if a keyboard action produced one, nil otherwise.
+func mapKeyboardInput(grid *component.GridData, phase *component.PhaseData, input *component.InputData) Intent {
 	moved := false
 
 	if inpututil.IsKeyJustPressed(ebiten.KeyArrowLeft) {
-		board.CursorCol--
+		input.CursorCol--
 		moved = true
 	}
 	if inpututil.IsKeyJustPressed(ebiten.KeyArrowRight) {
-		board.CursorCol++
+		input.CursorCol++
 		moved = true
 	}
 	if inpututil.IsKeyJustPressed(ebiten.KeyArrowUp) {
-		board.CursorRow--
+		input.CursorRow--
 		moved = true
 	}
 	if inpututil.IsKeyJustPressed(ebiten.KeyArrowDown) {
-		board.CursorRow++
+		input.CursorRow++
 		moved = true
 	}
 
 	// Clamp cursor to board bounds.
-	if board.CursorCol < 0 {
-		board.CursorCol = 0
+	if input.CursorCol < 0 {
+		input.CursorCol = 0
 	}
-	if board.CursorCol >= board.Cols {
-		board.CursorCol = board.Cols - 1
+	if input.CursorCol >= grid.Cols {
+		input.CursorCol = grid.Cols - 1
 	}
-	if board.CursorRow < 0 {
-		board.CursorRow = 0
+	if input.CursorRow < 0 {
+		input.CursorRow = 0
 	}
-	if board.CursorRow >= board.Rows {
-		board.CursorRow = board.Rows - 1
+	if input.CursorRow >= grid.Rows {
+		input.CursorRow = grid.Rows - 1
 	}
 
 	// Enter/Space acts as a tap on the cursor position.
 	if inpututil.IsKeyJustPressed(ebiten.KeyEnter) || inpututil.IsKeyJustPressed(ebiten.KeySpace) {
-		col, row := board.CursorCol, board.CursorRow
-		if col < 0 || col >= board.Cols || row < 0 || row >= board.Rows {
-			return moved
+		col, row := input.CursorCol, input.CursorRow
+		if col < 0 || col >= grid.Cols || row < 0 || row >= grid.Rows {
+			return nil
 		}
-		if board.CellType[col][row] != component.CellPlayable || board.Cells[col][row] == nil {
-			return moved
+		if grid.CellType[col][row] != component.CellPlayable || grid.Cells[col][row] == nil {
+			return nil
 		}
-
-		switch board.Phase {
-		case component.PhaseIdle:
-			board.SelectedCol = col
-			board.SelectedRow = row
-			board.Phase = component.PhaseSelected
-			event.AudioEvent.Publish(e.World, event.AudioEventData{Name: "select"})
-
-		case component.PhaseSelected:
-			if col == board.SelectedCol && row == board.SelectedRow {
-				board.SelectedCol = -1
-				board.SelectedRow = -1
-				board.Phase = component.PhaseIdle
-				return true
-			}
-
-			dc := col - board.SelectedCol
-			dr := row - board.SelectedRow
-			if abs(dc)+abs(dr) != 1 {
-				board.SelectedCol = col
-				board.SelectedRow = row
-				return true
-			}
-
-			board.SwapA = [2]int{board.SelectedCol, board.SelectedRow}
-			board.SwapB = [2]int{col, row}
-			board.SelectedCol = -1
-			board.SelectedRow = -1
-			startSwapTweens(board, component.EaseOutQuad, 0.15)
-			board.Phase = component.PhaseSwapping
-			event.AudioEvent.Publish(e.World, event.AudioEventData{Name: "swap"})
-		}
-		return true
+		return classifyTap(phase, col, row)
 	}
 
-	return moved
+	// Arrow keys moved the cursor but didn't produce an intent that needs execution.
+	if moved {
+		return nil
+	}
+	return nil
 }

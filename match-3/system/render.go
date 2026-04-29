@@ -32,25 +32,78 @@ func DrawEntities(e *ecs.ECS, screen *ebiten.Image) {
 	})
 
 	// Draw selection highlight.
-	boardEntry, ok := component.Board.First(e.World)
+	boardEntry, ok := component.BoardGrid.First(e.World)
 	if !ok {
 		return
 	}
-	board := component.Board.Get(boardEntry)
-	ts := float64(board.TileSize)
+	grid := component.BoardGrid.Get(boardEntry)
+	phase := component.BoardPhase.Get(boardEntry)
+	input := component.BoardInput.Get(boardEntry)
+	display := component.BoardDisplay.Get(boardEntry)
+	ts := float64(display.TileSize)
 
 	// Draw keyboard cursor (thin border).
-	if board.CursorCol >= 0 && board.CursorCol < board.Cols && board.CursorRow >= 0 && board.CursorRow < board.Rows {
-		cx := board.OffsetX + float64(board.CursorCol*board.TileSize)
-		cy := board.OffsetY + float64(board.CursorRow*board.TileSize)
+	if input.CursorCol >= 0 && input.CursorCol < grid.Cols && input.CursorRow >= 0 && input.CursorRow < grid.Rows {
+		cx := display.OffsetX + float64(input.CursorCol*display.TileSize)
+		cy := display.OffsetY + float64(input.CursorRow*display.TileSize)
 		drawBorder(screen, cx, cy, ts, ts, 1, color.RGBA{200, 200, 200, 120})
 	}
 
 	// Draw selected tile (thicker highlighted border).
-	if board.SelectedCol >= 0 && board.SelectedRow >= 0 {
-		sx := board.OffsetX + float64(board.SelectedCol*board.TileSize)
-		sy := board.OffsetY + float64(board.SelectedRow*board.TileSize)
+	if phase.SelectedCol >= 0 && phase.SelectedRow >= 0 {
+		sx := display.OffsetX + float64(phase.SelectedCol*display.TileSize)
+		sy := display.OffsetY + float64(phase.SelectedRow*display.TileSize)
 		drawBorder(screen, sx, sy, ts, ts, 2, color.RGBA{255, 255, 100, 200})
+	}
+}
+
+// DrawBackground renders the scrolling tiled background from the ECS entity.
+func DrawBackground(e *ecs.ECS, screen *ebiten.Image) {
+	entry, ok := component.ScrollingBG.First(e.World)
+	if !ok {
+		return
+	}
+	bg := component.ScrollingBG.Get(entry)
+	if bg.Tile == nil {
+		return
+	}
+
+	screen.Fill(color.RGBA{15, 10, 30, 255})
+
+	tileW := bg.Tile.Bounds().Dx()
+	tileH := bg.Tile.Bounds().Dy()
+	screenW := screen.Bounds().Dx()
+	screenH := screen.Bounds().Dy()
+
+	cols := screenW/tileW + 2
+	rows := screenH/tileH + 1
+
+	for row := 0; row <= rows; row++ {
+		for col := 0; col <= cols; col++ {
+			op := &ebiten.DrawImageOptions{}
+			x := float64(col*tileW) + bg.OffsetX
+			y := float64(row * tileH)
+			op.GeoM.Translate(x, y)
+			op.ColorScale.ScaleAlpha(0.3)
+			screen.DrawImage(bg.Tile, op)
+		}
+	}
+}
+
+// UpdateBackground advances the scrolling background offset.
+func UpdateBackground(e *ecs.ECS) {
+	entry, ok := component.ScrollingBG.First(e.World)
+	if !ok {
+		return
+	}
+	bg := component.ScrollingBG.Get(entry)
+	if bg.Tile == nil {
+		return
+	}
+	bg.OffsetX -= bg.Speed
+	tileW := float64(bg.Tile.Bounds().Dx())
+	if bg.OffsetX <= -tileW {
+		bg.OffsetX += tileW
 	}
 }
 
@@ -79,20 +132,21 @@ func DrawScore(e *ecs.ECS, screen *ebiten.Image) {
 	drawText(screen, scoreText, face, 10, 18, color.White)
 
 	// Display timer if level has a time limit.
-	boardEntry, boardOK := component.Board.First(e.World)
+	boardEntry, boardOK := component.BoardRules.First(e.World)
 	if !boardOK {
 		return
 	}
-	board := component.Board.Get(boardEntry)
-	if board.TimeLimit > 0 {
-		secs := int(board.TimeRemaining)
+	lvl := component.BoardRules.Get(boardEntry)
+	if lvl.TimeLimit > 0 {
+		secs := int(lvl.TimeRemaining)
 		timer := fmt.Sprintf("Time: %d:%02d", secs/60, secs%60)
 		drawText(screen, timer, face, 10, 36, color.White)
 	}
 
 	// Display chain multiplier when active.
-	if board.ChainDepth > 1 {
-		chain := fmt.Sprintf("Chain x%d!", board.ChainDepth)
+	phase := component.BoardPhase.Get(boardEntry)
+	if phase.ChainDepth > 1 {
+		chain := fmt.Sprintf("Chain x%d!", phase.ChainDepth)
 		drawText(screen, chain, face, 10, 54, color.RGBA{255, 200, 50, 255})
 	}
 }
@@ -127,9 +181,9 @@ func DrawHUD(e *ecs.ECS, screen *ebiten.Image) {
 	}
 
 	// Show reshuffle notification.
-	if boardEntry, boardOK := component.Board.First(e.World); boardOK {
-		board := component.Board.Get(boardEntry)
-		if board.ReshuffleTimer > 0 {
+	if boardEntry, boardOK := component.BoardPhase.First(e.World); boardOK {
+		phase := component.BoardPhase.Get(boardEntry)
+		if phase.ReshuffleTimer > 0 {
 			drawTextCentered(screen, "No moves! Reshuffling...", smallFace, cx, cy-30, color.RGBA{255, 150, 50, 255})
 		}
 	}
