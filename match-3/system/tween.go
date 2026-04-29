@@ -2,13 +2,12 @@ package system
 
 import (
 	"github.com/soockee/terminal-games/match-3/component"
-	"github.com/soockee/terminal-games/match-3/tags"
 	"github.com/yohamta/donburi"
 	"github.com/yohamta/donburi/ecs"
 	"github.com/yohamta/donburi/filter"
 )
 
-var tileQuery = donburi.NewQuery(filter.Contains(tags.Tile))
+var tileQuery = donburi.NewQuery(filter.Contains(component.Tile))
 
 // StartTween initiates a position tween on an entity, reading its current PixelPos
 // as the start and animating to (endX, endY) over the given duration.
@@ -49,9 +48,11 @@ func StartSwapTween(grid *component.GridData, phase *component.PhaseData, ease c
 	twB.Ease = ease
 }
 
-// UpdateTween advances all active tweens by 1/60s and updates PixelPos.
+// UpdateTween advances all active tweens by 1/60s, updates PixelPos,
+// and writes the remaining active tween count to PhaseData.ActiveTweens.
 func UpdateTween(e *ecs.ECS) {
 	const dt = 1.0 / 60.0
+	active := 0
 
 	tileQuery.Each(e.World, func(entry *donburi.Entry) {
 		tw := component.Tween.Get(entry)
@@ -77,7 +78,13 @@ func UpdateTween(e *ecs.ECS) {
 
 		pos.X = tw.StartX + (tw.EndX-tw.StartX)*t
 		pos.Y = tw.StartY + (tw.EndY-tw.StartY)*t
+		active++
 	})
+
+	if boardEntry, ok := component.BoardPhase.First(e.World); ok {
+		phase := component.BoardPhase.Get(boardEntry)
+		phase.ActiveTweens = active
+	}
 }
 
 func applyEase(ease component.EaseFunc, t float64) float64 {

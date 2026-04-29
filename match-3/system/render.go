@@ -8,13 +8,12 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/soockee/terminal-games/match-3/component"
-	"github.com/soockee/terminal-games/match-3/tags"
 	"github.com/yohamta/donburi"
 	"github.com/yohamta/donburi/ecs"
 	"github.com/yohamta/donburi/filter"
 )
 
-var renderTileQuery = donburi.NewQuery(filter.Contains(tags.Tile))
+var renderTileQuery = donburi.NewQuery(filter.Contains(component.Tile))
 
 // DrawEntities renders all tile gems at their PixelPos with Sprite.
 // Gems are 16×16 sprites scaled 2x to fill 32×32 board cells.

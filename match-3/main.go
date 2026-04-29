@@ -59,8 +59,8 @@ func main() {
 		Systems: []game.SystemFunc{
 			system.UpdateBackground,
 			system.UpdateInput,
-			system.UpdateBoard,
 			system.UpdateTween,
+			system.UpdateBoard,
 			system.UpdateScore,
 			system.ProcessEvents,
 		},

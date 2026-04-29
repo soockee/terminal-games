@@ -39,7 +39,6 @@ type GameConfig struct {
 // LevelConfig holds per-level overrides. Systems and Renderers here are
 // appended after the game-wide ones.
 type LevelConfig struct {
-	archetype.SpawnConfig
 	Systems   []SystemFunc
 	Renderers []RendererFunc
 }

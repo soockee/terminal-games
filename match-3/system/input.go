@@ -5,6 +5,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/soockee/terminal-games/match-3/component"
 	"github.com/soockee/terminal-games/match-3/event"
+	"github.com/yohamta/donburi"
 	"github.com/yohamta/donburi/ecs"
 )
 
@@ -101,15 +102,7 @@ func mapInput(grid *component.GridData, phase *component.PhaseData, input *compo
 		return nil
 	}
 
-	// Validate: must be a playable cell with a tile.
-	if col < 0 || col >= grid.Cols || row < 0 || row >= grid.Rows {
-		return nil
-	}
-	if grid.CellType[col][row] != component.CellPlayable || grid.Cells[col][row] == nil {
-		return nil
-	}
-
-	return classifyTap(phase, col, row)
+	return ResolveIntent(col, row, phase, grid.CellType, grid.Cells)
 }
 
 // classifyTap determines the intent for a tap at (col, row) given current board phase.
@@ -133,6 +126,18 @@ func classifyTap(phase *component.PhaseData, col, row int) Intent {
 		}
 	}
 	return nil
+}
+
+// ResolveIntent validates a grid tap and classifies it into an Intent.
+// Pure function: no Ebiten or ECS dependencies. Returns nil for invalid input.
+func ResolveIntent(col, row int, phase *component.PhaseData, cellType [][]int, cells [][]*donburi.Entry) Intent {
+	if col < 0 || col >= len(cellType) || row < 0 || (len(cellType) > 0 && row >= len(cellType[0])) {
+		return nil
+	}
+	if cellType[col][row] != component.CellPlayable || cells[col][row] == nil {
+		return nil
+	}
+	return classifyTap(phase, col, row)
 }
 
 // executeIntent applies an intent to the board state.
@@ -253,13 +258,7 @@ func mapKeyboardInput(grid *component.GridData, phase *component.PhaseData, inpu
 	// Enter/Space acts as a tap on the cursor position.
 	if inpututil.IsKeyJustPressed(ebiten.KeyEnter) || inpututil.IsKeyJustPressed(ebiten.KeySpace) {
 		col, row := input.CursorCol, input.CursorRow
-		if col < 0 || col >= grid.Cols || row < 0 || row >= grid.Rows {
-			return nil
-		}
-		if grid.CellType[col][row] != component.CellPlayable || grid.Cells[col][row] == nil {
-			return nil
-		}
-		return classifyTap(phase, col, row)
+		return ResolveIntent(col, row, phase, grid.CellType, grid.Cells)
 	}
 
 	// Arrow keys moved the cursor but didn't produce an intent that needs execution.

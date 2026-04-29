@@ -61,6 +61,7 @@ type PhaseData struct {
 	SwapB [2]int
 
 	ChainDepth     int
+	ActiveTweens   int     // number of currently animating tweens
 	ReshuffleTimer float64 // countdown (seconds) to show "Reshuffling" message
 }
 
@@ -200,6 +201,10 @@ type AudioData struct {
 }
 
 var Audio = donburi.NewComponentType[AudioData]()
+
+// ---- Tags (zero-size query filters) ----
+
+var Tile = donburi.NewTag().SetName("Tile")
 
 // ---- GemQuads (tileset mapping) ----
 

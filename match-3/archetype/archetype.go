@@ -4,7 +4,6 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/audio"
 	"github.com/soockee/terminal-games/match-3/component"
-	"github.com/soockee/terminal-games/match-3/tags"
 	"github.com/yohamta/donburi"
 )
 
@@ -35,7 +34,7 @@ func NewScrollingBG(w donburi.World, tile *ebiten.Image, speed float64) *donburi
 // NewTile creates a gem tile entity with all required components.
 func NewTile(w donburi.World, col, row int, color int, img *ebiten.Image, px, py float64) *donburi.Entry {
 	e := w.Entry(w.Create(
-		tags.Tile,
+		component.Tile,
 		component.GridPos,
 		component.GemType,
 		component.PixelPos,
