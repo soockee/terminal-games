@@ -5,10 +5,13 @@ import (
 	"io"
 	"io/fs"
 	"log"
+	"path/filepath"
+	"strings"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/audio"
 	"github.com/hajimehoshi/ebiten/v2/audio/mp3"
+	"github.com/hajimehoshi/ebiten/v2/audio/vorbis"
 	"github.com/hajimehoshi/ebiten/v2/audio/wav"
 	ldtkgo "github.com/soockee/ldtk-super-simple-loader"
 	"github.com/soockee/terminal-games/game-template/archetype"
@@ -34,15 +37,14 @@ type GameConfig struct {
 // LevelConfig holds per-level overrides. Systems and Renderers here are
 // appended after the game-wide ones.
 type LevelConfig struct {
-	archetype.SpawnConfig
 	Systems   []SystemFunc
 	Renderers []RendererFunc
 }
 
 // AudioConfig defines the asset paths for background music and SFX.
 type AudioConfig struct {
-	BGMusicPath string            // path inside embed FS (mp3)
-	SFX         map[string]string // name → path inside embed FS (wav)
+	BGMusicPath string            // path inside embed FS (mp3/ogg)
+	SFX         map[string]string // name → path inside embed FS (wav/mp3/ogg)
 }
 
 // AudioState holds the decoded audio context and players.
@@ -62,18 +64,36 @@ func InitAudio(fsys fs.FS, cfg AudioConfig) *AudioState {
 	ctx := audio.NewContext(sampleRate)
 	state := &AudioState{Ctx: ctx, SFXData: make(map[string][]byte)}
 
-	// Background music (mp3, infinite loop).
+	// Background music (ogg/mp3, infinite loop).
 	if cfg.BGMusicPath != "" {
 		f, err := fsys.Open(cfg.BGMusicPath)
 		if err != nil {
 			log.Printf("audio: open bgm: %v", err)
 		} else {
 			defer f.Close()
-			decoded, err := mp3.DecodeWithSampleRate(sampleRate, f)
-			if err != nil {
-				log.Printf("audio: decode bgm: %v", err)
-			} else {
-				loop := audio.NewInfiniteLoop(decoded, decoded.Length())
+			var decoded io.ReadSeeker
+			var length int64
+			ext := strings.ToLower(filepath.Ext(cfg.BGMusicPath))
+			switch ext {
+			case ".ogg":
+				d, err2 := vorbis.DecodeWithSampleRate(sampleRate, f)
+				if err2 != nil {
+					log.Printf("audio: decode bgm ogg: %v", err2)
+				} else {
+					decoded, length = d, d.Length()
+				}
+			case ".mp3":
+				d, err2 := mp3.DecodeWithSampleRate(sampleRate, f)
+				if err2 != nil {
+					log.Printf("audio: decode bgm mp3: %v", err2)
+				} else {
+					decoded, length = d, d.Length()
+				}
+			default:
+				log.Printf("audio: unsupported bgm format: %s", ext)
+			}
+			if decoded != nil {
+				loop := audio.NewInfiniteLoop(decoded, length)
 				p, err := ctx.NewPlayer(loop)
 				if err == nil {
 					state.BGMusic = p
@@ -82,20 +102,46 @@ func InitAudio(fsys fs.FS, cfg AudioConfig) *AudioState {
 		}
 	}
 
-	// SFX (wav).
+	// SFX (wav/mp3/ogg).
 	for name, path := range cfg.SFX {
 		f, err := fsys.Open(path)
 		if err != nil {
 			log.Printf("audio: open sfx %s: %v", name, err)
 			continue
 		}
-		decoded, err := wav.DecodeWithSampleRate(sampleRate, f)
-		f.Close()
-		if err != nil {
-			log.Printf("audio: decode sfx %s: %v", name, err)
+		var raw []byte
+		ext := strings.ToLower(filepath.Ext(path))
+		switch ext {
+		case ".wav":
+			decoded, err2 := wav.DecodeWithSampleRate(sampleRate, f)
+			if err2 != nil {
+				log.Printf("audio: decode sfx %s (wav): %v", name, err2)
+				f.Close()
+				continue
+			}
+			raw, _ = io.ReadAll(decoded)
+		case ".mp3":
+			decoded, err2 := mp3.DecodeWithSampleRate(sampleRate, f)
+			if err2 != nil {
+				log.Printf("audio: decode sfx %s (mp3): %v", name, err2)
+				f.Close()
+				continue
+			}
+			raw, _ = io.ReadAll(decoded)
+		case ".ogg":
+			decoded, err2 := vorbis.DecodeWithSampleRate(sampleRate, f)
+			if err2 != nil {
+				log.Printf("audio: decode sfx %s (ogg): %v", name, err2)
+				f.Close()
+				continue
+			}
+			raw, _ = io.ReadAll(decoded)
+		default:
+			log.Printf("audio: unsupported sfx format for %s: %s", name, ext)
+			f.Close()
 			continue
 		}
-		raw, _ := io.ReadAll(decoded)
+		f.Close()
 		state.SFXData[name] = raw
 	}
 
@@ -149,11 +195,10 @@ func Build(level *ldtkgo.Level, w donburi.World, gc GameConfig, lc LevelConfig, 
 	scaleY := float64(vh) / float64(level.Height)
 
 	// Singletons.
-	archetype.NewSpace(e.World, level.Width, level.Height, 8, 8)
 	archetype.NewDebug(e.World)
 	archetype.NewCamera(e.World, scaleX, scaleY)
 	archetype.NewScore(e.World, 0)
-	archetype.NewGameOver(e.World)
+	archetype.NewGameState(e.World)
 
 	// Audio.
 	if audioState != nil {

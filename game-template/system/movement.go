@@ -6,15 +6,15 @@ import (
 )
 
 // UpdateMovement applies velocity and physics to game entities.
-// Gates on Started && !Dead && !Won so nothing moves before the game begins
-// or after it ends.
+// Gates on Started && !Dead && !Won && !Paused so nothing moves before
+// the game begins, after it ends, or while paused.
 func UpdateMovement(e *ecs.ECS) {
-	entry, ok := component.GameOver.First(e.World)
+	entry, ok := component.GameState.First(e.World)
 	if !ok {
 		return
 	}
-	go_ := component.GameOver.Get(entry)
-	if !go_.Started || go_.Dead || go_.Won {
+	gs := component.GameState.Get(entry)
+	if !gs.Started || gs.Dead || gs.Won || gs.Paused {
 		return
 	}
 

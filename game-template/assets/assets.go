@@ -2,5 +2,5 @@ package assets
 
 import "embed"
 
-//go:embed ldtk/*
+//go:embed all:ldtk/*
 var FS embed.FS

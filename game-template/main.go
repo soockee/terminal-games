@@ -5,9 +5,11 @@ import (
 	"log"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	ldtkgo "github.com/soockee/ldtk-super-simple-loader"
 	"github.com/soockee/terminal-games/game-template/assets"
 	"github.com/soockee/terminal-games/game-template/component"
+	"github.com/soockee/terminal-games/game-template/event"
 	"github.com/soockee/terminal-games/game-template/game"
 	"github.com/soockee/terminal-games/game-template/system"
 	"github.com/yohamta/donburi"
@@ -136,12 +138,32 @@ func (g *Game) Update() error {
 		}
 	}
 
+	// Pause toggle (P key).
+	if inpututil.IsKeyJustPressed(ebiten.KeyP) {
+		if entry, ok := component.GameState.First(g.loaded.ECS.World); ok {
+			gs := component.GameState.Get(entry)
+			if gs.Started && !gs.Won && !gs.Dead {
+				gs.Paused = !gs.Paused
+				event.AudioEvent.Publish(g.loaded.ECS.World, event.AudioEventData{Name: "pause"})
+			}
+		}
+	}
+
+	// Skip ECS update while paused.
+	if entry, ok := component.GameState.First(g.loaded.ECS.World); ok {
+		gs := component.GameState.Get(entry)
+		if gs.Paused {
+			system.ProcessEvents(g.loaded.ECS)
+			return nil
+		}
+	}
+
 	g.loaded.ECS.Update()
 
 	// Check restart.
-	if entry, ok := component.GameOver.First(g.loaded.ECS.World); ok {
-		go_ := component.GameOver.Get(entry)
-		if go_.Restart {
+	if entry, ok := component.GameState.First(g.loaded.ECS.World); ok {
+		gs := component.GameState.Get(entry)
+		if gs.Restart {
 			g.loadLevel(0)
 			return nil
 		}

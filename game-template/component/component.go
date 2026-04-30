@@ -5,17 +5,8 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/audio"
-	"github.com/solarlune/resolv"
 	"github.com/yohamta/donburi"
 )
-
-// ---- Shape (resolv collision shape, owned per-entity) ----
-
-type ShapeData struct {
-	Shape resolv.IShape
-}
-
-var Shape = donburi.NewComponentType[ShapeData]()
 
 // ---- Sprite rendering ----
 
@@ -41,10 +32,6 @@ type ColorData struct {
 
 var Color = donburi.NewComponentType[ColorData]()
 
-// ---- Resolv Space (singleton) ----
-
-var Space = donburi.NewComponentType[resolv.Space]()
-
 // ---- Score (singleton) ----
 
 type ScoreData struct {
@@ -54,16 +41,17 @@ type ScoreData struct {
 
 var Score = donburi.NewComponentType[ScoreData]()
 
-// ---- GameOver (singleton) ----
+// ---- GameState (singleton) ----
 
-type GameOverData struct {
+type GameStateData struct {
 	Dead    bool
 	Started bool // false until first input
 	Restart bool // set by input to signal a level reload
 	Won     bool // true when win condition is met
+	Paused  bool // true while the game is paused
 }
 
-var GameOver = donburi.NewComponentType[GameOverData]()
+var GameState = donburi.NewComponentType[GameStateData]()
 
 // ---- Camera (singleton) ----
 
