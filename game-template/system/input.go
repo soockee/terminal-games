@@ -20,19 +20,23 @@ func UpdateInput(e *ecs.ECS) {
 	}
 
 	// Action input: Space, mouse click, or touch.
-	goEntry, goOK := component.GameOver.First(e.World)
+	goEntry, goOK := component.GameState.First(e.World)
 	actionPressed := inpututil.IsKeyJustPressed(ebiten.KeySpace) ||
 		inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) ||
 		len(inpututil.AppendJustPressedTouchIDs(nil)) > 0
 
 	if goOK && actionPressed {
-		go_ := component.GameOver.Get(goEntry)
-		if go_.Dead || go_.Won {
-			go_.Restart = true
+		gs := component.GameState.Get(goEntry)
+		if gs.Paused {
+			gs.Paused = false
 			return
 		}
-		if !go_.Started {
-			go_.Started = true
+		if gs.Dead || gs.Won {
+			gs.Restart = true
+			return
+		}
+		if !gs.Started {
+			gs.Started = true
 		}
 	}
 

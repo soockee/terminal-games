@@ -2,17 +2,9 @@ package archetype
 
 import (
 	"github.com/hajimehoshi/ebiten/v2/audio"
-	"github.com/solarlune/resolv"
 	"github.com/soockee/terminal-games/game-template/component"
 	"github.com/yohamta/donburi"
 )
-
-// NewSpace creates a singleton entity holding the resolv.Space.
-func NewSpace(w donburi.World, width, height, cellW, cellH int) {
-	e := w.Entry(w.Create(component.Space))
-	space := resolv.NewSpace(width, height, cellW, cellH)
-	component.Space.Set(e, space)
-}
 
 // NewDebug creates the singleton debug toggle entity.
 func NewDebug(w donburi.World) {
@@ -32,10 +24,10 @@ func NewScore(w donburi.World, target int) {
 	component.Score.Set(e, &component.ScoreData{Target: target})
 }
 
-// NewGameOver creates the singleton game-over state entity.
-func NewGameOver(w donburi.World) {
-	e := w.Entry(w.Create(component.GameOver))
-	component.GameOver.Set(e, &component.GameOverData{})
+// NewGameState creates the singleton game state entity.
+func NewGameState(w donburi.World) {
+	e := w.Entry(w.Create(component.GameState))
+	component.GameState.Set(e, &component.GameStateData{})
 }
 
 // NewAudio creates the singleton audio entity with pre-decoded players.
