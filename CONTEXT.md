@@ -2,7 +2,7 @@
 
 ## Stack
 
-Go · Ebiten (game engine) · Donburi (ECS) · Resolv (physics, optional) · ldtk-super-simple-loader (level loading, optional)
+Go · Ebiten (game engine) · Donburi (ECS) · Resolv (physics, optional) · ldtk-super-simple-loader (level loading, optional) · [NATS](https://nats.io/) (networking / net code)
 
 ## Core Values
 
@@ -51,6 +51,22 @@ Systems are named by what they *do* (verb), not what they act on (noun). `moveme
 
 Game state lives as ECS data (components on entities), not as control flow in a scene manager. Levels are spatial regions of the same ECS world. Transitions are camera/viewport changes, not world resets. Special-purpose screens (menu, end screen) are just levels whose entities respond to different input.
 
+
+### LDtk
+
+LDtk defines the authored world, not the living world. Use it for level layout, static tiles, IntGrid semantics, entity placement, entity size, custom fields, spawn points, triggers, doors, camera zones, pickups, and authored paths.
+
+LDtk data is imported into ECS once. The importer converts levels, tiles, IntGrid cells, and entity instances into game-owned data and archetype calls. It is not a gameplay system.
+
+Entity visuals in LDtk are editor previews. Runtime sprites, spritesheets, animation clips, frame timing, current animation state, and rendering behavior belong to Go.
+
+Paths in LDtk describe authored movement intent: points, mode, pauses, speed overrides, and initial direction. Runtime path state — current target, wait timers, interruption, collision-aware movement, and animation changes — belongs to ECS components and systems.
+
+
+### Networking
+
+All networking and net code must use [NATS](https://nats.io/). No other messaging or transport layer (raw TCP/UDP, WebSockets, gRPC, etc.) should be introduced. NATS handles pub/sub, request/reply, and any multiplayer communication. Transport logic lives in its own package (e.g., `network/`); game state sync flows through components and systems.
+
 ## Implementation Conventions
 
 - `Update()` mutates state; `Draw()` only renders. Never mutate in Draw.
@@ -58,3 +74,4 @@ Game state lives as ECS data (components on entities), not as control flow in a 
 - Minimize allocations in the hot loop — pre-allocate, reuse `DrawImageOptions`.
 - Systems are stateless — they read/write components, they don't hold their own state.
 - Load assets once at startup; store as `*ebiten.Image` / `[]byte`.
+- LDtk is load-time data. Normalize positions during import; systems should not depend on LDtk-specific structures.
