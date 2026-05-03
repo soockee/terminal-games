@@ -415,6 +415,30 @@
 					"Loop": false
 				}
 			}
+		],
+		"Coin": [
+			{
+				"id": "Coin",
+				"iid": "f6c263e0-21a0-11f1-875b-590bdfc653b3",
+				"layer": "Entities",
+				"x": 240,
+				"y": 0,
+				"width": 16,
+				"height": 16,
+				"color": 14984818,
+				"customFields" : {}
+			},
+			{
+				"id": "Coin",
+				"iid": "5a7ea870-21a0-11f1-875b-852b2907be6c",
+				"layer": "Entities",
+				"x": 160,
+				"y": 32,
+				"width": 16,
+				"height": 16,
+				"color": 14984818,
+				"customFields" : {}
+			}
 		]
 	}
 }

@@ -1,7 +1,6 @@
 package system
 
 import (
-	"github.com/jakecoffman/cp/v2"
 	"github.com/soockee/terminal-games/super-mario-bros/component"
 	"github.com/yohamta/donburi"
 	"github.com/yohamta/donburi/ecs"
@@ -25,7 +24,7 @@ func UpdateMovement(e *ecs.ECS) {
 		return
 	}
 	gs := component.GameState.Get(gsEntry)
-	if !gs.Started || gs.Dead || gs.Won || gs.Paused {
+	if !gs.IsActive() {
 		return
 	}
 
@@ -42,11 +41,12 @@ func UpdateMovement(e *ecs.ECS) {
 
 		// Jump: override Y velocity when grounded.
 		if pd.JumpInput && grounded {
-			body.SetVelocityVector(cp.Vector{X: body.Velocity().X, Y: -pd.JumpForce})
+			vx, _ := body.Velocity()
+			body.SetVelocity(vx, -pd.JumpForce)
 		}
 
 		// Animation state.
-		velY := body.Velocity().Y
+		_, velY := body.Velocity()
 		if pd.MoveDir != 0 {
 			anim.FlipH = pd.MoveDir < 0
 		}

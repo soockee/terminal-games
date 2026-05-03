@@ -2,6 +2,7 @@ package game
 
 import (
 	"bytes"
+	"image/color"
 	"io"
 	"io/fs"
 	"log"
@@ -13,9 +14,11 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/audio/mp3"
 	"github.com/hajimehoshi/ebiten/v2/audio/vorbis"
 	"github.com/hajimehoshi/ebiten/v2/audio/wav"
-	"github.com/jakecoffman/cp/v2"
+	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	ldtkgo "github.com/soockee/ldtk-super-simple-loader"
 	"github.com/soockee/terminal-games/super-mario-bros/archetype"
+	"github.com/soockee/terminal-games/super-mario-bros/component"
+	"github.com/soockee/terminal-games/super-mario-bros/event"
 	"github.com/soockee/terminal-games/super-mario-bros/system"
 	"github.com/yohamta/donburi"
 	"github.com/yohamta/donburi/ecs"
@@ -55,6 +58,148 @@ type AudioState struct {
 	Ctx     *audio.Context
 	BGMusic *audio.Player
 	SFXData map[string][]byte // raw decoded PCM per SFX (for re-creating players)
+}
+
+// Game holds the loaded level state, LDtk data, and audio.
+// It implements ebiten.Game.
+type Game struct {
+	world *ldtkgo.World
+
+	gameConfig   GameConfig
+	defaultLevel LevelConfig
+	levelConfigs map[string]LevelConfig
+	audioState   *AudioState
+
+	loaded *loadedLevel
+	level  *ldtkgo.Level
+
+	// Level switching keys 1-9.
+	levelKeys []ebiten.Key
+}
+
+// New creates a Game from an LDtk world, a game-wide config, a default
+// level config, per-level overrides, and optional audio state.
+// It loads the first level before returning.
+func New(world *ldtkgo.World, gc GameConfig, defaultLevel LevelConfig, levelConfigs map[string]LevelConfig, audioState *AudioState) *Game {
+	g := &Game{
+		world:        world,
+		gameConfig:   gc,
+		defaultLevel: defaultLevel,
+		levelConfigs: levelConfigs,
+		audioState:   audioState,
+		levelKeys: []ebiten.Key{
+			ebiten.Key1, ebiten.Key2, ebiten.Key3,
+			ebiten.Key4, ebiten.Key5, ebiten.Key6,
+			ebiten.Key7, ebiten.Key8, ebiten.Key9,
+		},
+	}
+	g.loadLevel(0)
+	return g
+}
+
+// ScreenSize returns the virtual screen dimensions (for window sizing).
+func (g *Game) ScreenSize() (w, h int) {
+	return g.loaded.screenW, g.loaded.screenH
+}
+
+// loadLevel builds a fresh ECS world from the given level index.
+func (g *Game) loadLevel(index int) {
+	if index < 0 || index >= len(g.world.Levels) {
+		return
+	}
+
+	level := g.world.Levels[index]
+	g.level = level
+
+	lc := g.defaultLevel
+	if override, ok := g.levelConfigs[level.Identifier]; ok {
+		lc = override
+	}
+
+	g.loaded = build(level, donburi.NewWorld(), g.gameConfig, lc, g.audioState)
+	system.SubscribeAudioEvents(g.loaded.e.World)
+
+	// Start BGM on first load.
+	if g.audioState != nil && g.audioState.BGMusic != nil && !g.audioState.BGMusic.IsPlaying() {
+		g.audioState.BGMusic.Play()
+	}
+}
+
+func (g *Game) Update() error {
+	// Level switching: keys 1-9
+	for i, key := range g.levelKeys {
+		if i >= len(g.world.Levels) {
+			break
+		}
+		if ebiten.IsKeyPressed(key) && g.world.Levels[i] != g.level {
+			g.loadLevel(i)
+			return nil
+		}
+	}
+
+	// Pause toggle (P key).
+	if inpututil.IsKeyJustPressed(ebiten.KeyP) {
+		if entry, ok := component.GameState.First(g.loaded.e.World); ok {
+			gs := component.GameState.Get(entry)
+			before := gs.Phase
+			gs.TogglePause()
+			if gs.Phase != before {
+				event.AudioEvent.Publish(g.loaded.e.World, event.AudioEventData{Name: "pause"})
+			}
+		}
+	}
+
+	// Skip ECS update while paused.
+	if entry, ok := component.GameState.First(g.loaded.e.World); ok {
+		gs := component.GameState.Get(entry)
+		if gs.Phase == component.PhasePaused {
+			system.ProcessEvents(g.loaded.e)
+			return nil
+		}
+	}
+
+	g.loaded.e.Update()
+
+	// Check restart.
+	if entry, ok := component.GameState.First(g.loaded.e.World); ok {
+		gs := component.GameState.Get(entry)
+		if gs.RestartRequested {
+			g.loadLevel(0)
+			return nil
+		}
+	}
+
+	return nil
+}
+
+func (g *Game) Draw(screen *ebiten.Image) {
+	// Fill with the level background color.
+	if g.loaded.bgColor != nil {
+		screen.Fill(g.loaded.bgColor)
+	}
+
+	// Background image scaled to virtual screen.
+	if g.loaded.bgImage != nil {
+		op := &ebiten.DrawImageOptions{}
+		bw := float64(g.loaded.bgImage.Bounds().Dx())
+		bh := float64(g.loaded.bgImage.Bounds().Dy())
+		op.GeoM.Scale(float64(g.loaded.screenW)/bw, float64(g.loaded.screenH)/bh)
+		screen.DrawImage(g.loaded.bgImage, op)
+	}
+
+	// Layer images scaled by virtual-to-world ratio.
+	for _, img := range g.loaded.layerImages {
+		op := &ebiten.DrawImageOptions{}
+		op.GeoM.Scale(g.loaded.scaleX, g.loaded.scaleY)
+		screen.DrawImage(img, op)
+	}
+
+	// ECS renderers (entities, score, HUD, debug).
+	g.loaded.e.Draw(screen)
+}
+
+func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
+	return g.loaded.screenW, g.loaded.screenH
 }
 
 // InitAudio decodes audio assets from the given FS. Returns nil if cfg is empty.
@@ -150,23 +295,22 @@ func InitAudio(fsys fs.FS, cfg AudioConfig) *AudioState {
 	return state
 }
 
-// LoadedLevel is the result of Build: a fully populated ECS world plus
+// loadedLevel is the result of build: a fully populated ECS world plus
 // the Ebiten images needed for rendering.
-type LoadedLevel struct {
-	ECS         *ecs.ECS
-	BGImage     *ebiten.Image
-	LayerImages []*ebiten.Image
-	ScreenW     int
-	ScreenH     int
-	WorldW      int     // LDtk level pixel width
-	WorldH      int     // LDtk level pixel height
-	ScaleX      float64 // virtualW / worldW
-	ScaleY      float64 // virtualH / worldH
+type loadedLevel struct {
+	e           *ecs.ECS
+	bgColor     color.Color
+	bgImage     *ebiten.Image
+	layerImages []*ebiten.Image
+	screenW     int
+	screenH     int
+	scaleX      float64 // virtualW / worldW
+	scaleY      float64 // virtualH / worldH
 }
 
-// Build creates a fresh ECS world from an LDtk level, a game-wide config,
+// build creates a fresh ECS world from an LDtk level, a game-wide config,
 // a per-level config, and optional audio state.
-func Build(level *ldtkgo.Level, w donburi.World, gc GameConfig, lc LevelConfig, audioState *AudioState) *LoadedLevel {
+func build(level *ldtkgo.Level, w donburi.World, gc GameConfig, lc LevelConfig, audioState *AudioState) *loadedLevel {
 	e := ecs.NewECS(w)
 
 	// Register game-wide systems, then level-specific systems.
@@ -203,10 +347,10 @@ func Build(level *ldtkgo.Level, w donburi.World, gc GameConfig, lc LevelConfig, 
 	archetype.NewGameState(e.World)
 
 	// Physics space — Mario-style downward gravity.
-	archetype.NewPhysicsSpace(e.World, cp.Vector{X: 0, Y: 980})
+	archetype.NewPhysicsSpace(e.World, 980)
 
 	// Spawn ECS entities from LDtk level data.
-	archetype.SpawnEntities(e.World, level)
+	spawnEntities(e.World, level)
 
 	// Register physics collision handlers.
 	system.SetupCollisionHandlers(e.World)
@@ -224,21 +368,22 @@ func Build(level *ldtkgo.Level, w donburi.World, gc GameConfig, lc LevelConfig, 
 	}
 
 	// Prepare images.
-	loaded := &LoadedLevel{
-		ECS:     e,
-		ScreenW: vw,
-		ScreenH: vh,
-		WorldW:  level.Width,
-		WorldH:  level.Height,
-		ScaleX:  scaleX,
-		ScaleY:  scaleY,
+	loaded := &loadedLevel{
+		e:       e,
+		bgColor: level.BGColor,
+		screenW: vw,
+		screenH: vh,
+		scaleX:  scaleX,
+		scaleY:  scaleY,
 	}
 
 	if level.BGImage != nil {
-		loaded.BGImage = ebiten.NewImageFromImage(level.BGImage)
+		loaded.bgImage = ebiten.NewImageFromImage(level.BGImage)
 	}
 	for _, l := range level.LoadedLayers {
-		loaded.LayerImages = append(loaded.LayerImages, ebiten.NewImageFromImage(l.Image))
+		if l.Type == ldtkgo.LayerTiles {
+			loaded.layerImages = append(loaded.layerImages, ebiten.NewImageFromImage(l.Image))
+		}
 	}
 
 	return loaded

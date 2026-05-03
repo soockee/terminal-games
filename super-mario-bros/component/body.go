@@ -1,24 +1,21 @@
 package component
 
 import (
-	"github.com/jakecoffman/cp/v2"
+	"github.com/soockee/terminal-games/super-mario-bros/physics"
 	"github.com/yohamta/donburi"
 )
 
-// BodyData links an ECS entity to a cp physics body and its shapes.
-// W and H store the entity's pixel dimensions for coordinate conversion
-// between cp (center-bottom) and ECS (top-left).
+// BodyData links an ECS entity to its physics body.
+// Nil Body means the entity has no physics representation.
 type BodyData struct {
-	Body   *cp.Body
-	Shapes []*cp.Shape
-	W, H   float64
+	Body *physics.Body
 }
 
 var Body = donburi.NewComponentType[BodyData]()
 
-// PhysicsSpaceData holds the cp.Space singleton. One per world.
+// PhysicsSpaceData holds the physics.Space singleton. One per world.
 type PhysicsSpaceData struct {
-	Space *cp.Space
+	Space *physics.Space
 }
 
 var PhysicsSpace = donburi.NewComponentType[PhysicsSpaceData]()

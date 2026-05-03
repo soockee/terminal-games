@@ -34,16 +34,15 @@ func UpdateInput(e *ecs.ECS) {
 
 	if goOK && actionPressed {
 		gs := component.GameState.Get(goEntry)
-		if gs.Paused {
-			gs.Paused = false
+		switch gs.Phase {
+		case component.PhasePaused:
+			gs.Resume()
 			return
-		}
-		if gs.Dead || gs.Won {
-			gs.Restart = true
+		case component.PhaseDead, component.PhaseWon:
+			gs.RequestRestart()
 			return
-		}
-		if !gs.Started {
-			gs.Started = true
+		case component.PhaseIdle:
+			gs.Start()
 		}
 	}
 
@@ -52,7 +51,7 @@ func UpdateInput(e *ecs.ECS) {
 		return
 	}
 	gs := component.GameState.Get(goEntry)
-	if !gs.Started || gs.Dead || gs.Won || gs.Paused {
+	if !gs.IsActive() {
 		return
 	}
 

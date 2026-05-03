@@ -604,6 +604,38 @@
 					"fieldInstances": [{ "__identifier": "To", "__type": "EntityRef", "__value": null, "__tile": null, "defUid": 27, "realEditorValues": [] }],
 					"__worldX": 56,
 					"__worldY": 120
+				},
+				{
+					"__identifier": "Coin",
+					"__grid": [15,0],
+					"__pivot": [0,0],
+					"__tags": ["collectable"],
+					"__tile": { "tilesetUid": 1, "x": 120, "y": 1, "w": 16, "h": 16 },
+					"__smartColor": "#E4A672",
+					"iid": "f6c263e0-21a0-11f1-875b-590bdfc653b3",
+					"width": 16,
+					"height": 16,
+					"defUid": 7,
+					"px": [240,0],
+					"fieldInstances": [],
+					"__worldX": 240,
+					"__worldY": 0
+				},
+				{
+					"__identifier": "Coin",
+					"__grid": [10,2],
+					"__pivot": [0,0],
+					"__tags": ["collectable"],
+					"__tile": { "tilesetUid": 1, "x": 120, "y": 1, "w": 16, "h": 16 },
+					"__smartColor": "#E4A672",
+					"iid": "5a7ea870-21a0-11f1-875b-852b2907be6c",
+					"width": 16,
+					"height": 16,
+					"defUid": 7,
+					"px": [160,32],
+					"fieldInstances": [],
+					"__worldX": 160,
+					"__worldY": 32
 				}
 			]
 		},

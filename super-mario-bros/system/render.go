@@ -60,24 +60,18 @@ func DrawHUD(e *ecs.ECS, screen *ebiten.Image) {
 	cx := bounds.Dx() / 2
 	cy := bounds.Dy() / 2
 
-	if gs.Paused {
+	switch gs.Phase {
+	case component.PhasePaused:
 		ebitenutil.DebugPrintAt(screen, "PAUSED", cx-20, cy-10)
 		ebitenutil.DebugPrintAt(screen, "Press P or tap to resume", cx-75, cy+10)
-		return
-	}
-	if !gs.Started {
+	case component.PhaseIdle:
 		ebitenutil.DebugPrintAt(screen, "Tap or press Space to start", cx-80, cy)
-		return
-	}
-	if gs.Won {
+	case component.PhaseWon:
 		ebitenutil.DebugPrintAt(screen, "YOU WIN!", cx-30, cy-20)
 		ebitenutil.DebugPrintAt(screen, "Tap or press Space to restart", cx-90, cy+10)
-		return
-	}
-	if gs.Dead {
+	case component.PhaseDead:
 		ebitenutil.DebugPrintAt(screen, "GAME OVER", cx-35, cy-20)
 		ebitenutil.DebugPrintAt(screen, "Tap or press Space to restart", cx-90, cy+10)
-		return
 	}
 }
 

@@ -1,19 +1,10 @@
 package system
 
 import (
-	"github.com/jakecoffman/cp/v2"
 	"github.com/soockee/terminal-games/super-mario-bros/component"
+	"github.com/soockee/terminal-games/super-mario-bros/physics"
 	"github.com/yohamta/donburi"
 	"github.com/yohamta/donburi/filter"
-)
-
-// Collision types for cp collision handlers.
-const (
-	CollisionTypePlayer cp.CollisionType = 1
-	CollisionTypeEnemy  cp.CollisionType = 2
-	CollisionTypeGround cp.CollisionType = 3
-	CollisionTypeItem   cp.CollisionType = 4
-	CollisionTypeFoot   cp.CollisionType = 5
 )
 
 // Queries used by collision callbacks to find ECS entries from physics bodies.
@@ -35,37 +26,25 @@ func SetupCollisionHandlers(w donburi.World) {
 	}
 	space := component.PhysicsSpace.Get(entry).Space
 
-	// Foot sensor vs Ground — increment/decrement ground contact counter.
-	footGround := space.NewCollisionHandler(CollisionTypeFoot, CollisionTypeGround)
-	footGround.BeginFunc = makeFootGroundBeginHandler(w)
-	footGround.SeparateFunc = makeFootGroundSeparateHandler(w)
-
-	// Player vs Enemy — closure captures the world for ECS lookups.
-	playerEnemy := space.NewCollisionHandler(CollisionTypePlayer, CollisionTypeEnemy)
-	playerEnemy.BeginFunc = makePlayerEnemyBeginHandler(w)
+	space.OnFootGroundBegin(makeFootGroundBeginHandler(w))
+	space.OnFootGroundSeparate(makeFootGroundSeparateHandler(w))
+	space.OnPlayerEnemyContact(makePlayerEnemyContactHandler(w, space))
 }
 
-// makeFootGroundBeginHandler returns a callback that increments the player's
-// ground contact counter when the foot sensor touches a ground shape.
-func makeFootGroundBeginHandler(w donburi.World) func(*cp.Arbiter, *cp.Space, any) bool {
-	return func(arb *cp.Arbiter, space *cp.Space, _ any) bool {
-		bodyA, _ := arb.Bodies()
+func makeFootGroundBeginHandler(w donburi.World) func(*physics.Body) {
+	return func(playerPhysBody *physics.Body) {
 		collisionPlayerQuery.Each(w, func(entry *donburi.Entry) {
-			if component.Body.Get(entry).Body == bodyA {
+			if component.Body.Get(entry).Body == playerPhysBody {
 				component.Player.Get(entry).GroundContacts++
 			}
 		})
-		return true // sensors always return true
 	}
 }
 
-// makeFootGroundSeparateHandler returns a callback that decrements the player's
-// ground contact counter when the foot sensor leaves a ground shape.
-func makeFootGroundSeparateHandler(w donburi.World) func(*cp.Arbiter, *cp.Space, any) {
-	return func(arb *cp.Arbiter, space *cp.Space, _ any) {
-		bodyA, _ := arb.Bodies()
+func makeFootGroundSeparateHandler(w donburi.World) func(*physics.Body) {
+	return func(playerPhysBody *physics.Body) {
 		collisionPlayerQuery.Each(w, func(entry *donburi.Entry) {
-			if component.Body.Get(entry).Body == bodyA {
+			if component.Body.Get(entry).Body == playerPhysBody {
 				pd := component.Player.Get(entry)
 				pd.GroundContacts--
 				if pd.GroundContacts < 0 {
@@ -76,24 +55,18 @@ func makeFootGroundSeparateHandler(w donburi.World) func(*cp.Arbiter, *cp.Space,
 	}
 }
 
-// makePlayerEnemyBeginHandler returns a collision begin callback that resolves
-// player/enemy ECS entries from the physics bodies and handles stomp vs side hit.
-func makePlayerEnemyBeginHandler(w donburi.World) func(*cp.Arbiter, *cp.Space, any) bool {
-	return func(arb *cp.Arbiter, space *cp.Space, _ any) bool {
-		// A = Player (TypeA), B = Enemy (TypeB).
-		bodyA, bodyB := arb.Bodies()
-
-		// Resolve ECS entries by matching body pointers.
+func makePlayerEnemyContactHandler(w donburi.World, space *physics.Space) func(*physics.Body, *physics.Body, float64) bool {
+	return func(playerPhysBody, enemyPhysBody *physics.Body, normalY float64) bool {
 		var playerEntry *donburi.Entry
-		collisionPlayerQuery.Each(w, func(entry *donburi.Entry) {
-			if component.Body.Get(entry).Body == bodyA {
-				playerEntry = entry
+		collisionPlayerQuery.Each(w, func(e *donburi.Entry) {
+			if component.Body.Get(e).Body == playerPhysBody {
+				playerEntry = e
 			}
 		})
 		var enemyEntry *donburi.Entry
-		collisionEnemyQuery.Each(w, func(entry *donburi.Entry) {
-			if component.Body.Get(entry).Body == bodyB {
-				enemyEntry = entry
+		collisionEnemyQuery.Each(w, func(e *donburi.Entry) {
+			if component.Body.Get(e).Body == enemyPhysBody {
+				enemyEntry = e
 			}
 		})
 		if playerEntry == nil || enemyEntry == nil {
@@ -101,106 +74,134 @@ func makePlayerEnemyBeginHandler(w donburi.World) func(*cp.Arbiter, *cp.Space, a
 		}
 
 		enemyData := component.Enemy.Get(enemyEntry)
-
-		// Ignore enemies that are already dead (cleanup pending).
-		if enemyData.State == component.EnemyDead {
+		kind := ClassifyContact(normalY, enemyData.State)
+		switch kind {
+		case ContactIgnore:
 			return false
-		}
-
-		n := arb.Normal()
-		if n.Y > 0 {
-			// Stomp — player is above the enemy.
-			handleStomp(w, space, playerEntry, enemyEntry)
-		} else {
-			// Side or below hit.
-			// Kooper shells are harmless when idle — only side-hits from
-			// alive enemies kill the player.
-			if enemyData.State == component.EnemyShell {
-				// Treat a side hit on a shell as a second stomp → kill.
-				handleStomp(w, space, playerEntry, enemyEntry)
-			} else {
-				if gsEntry, ok := component.GameState.First(w); ok {
-					component.GameState.Get(gsEntry).Dead = true
-				}
+		case ContactStomp:
+			result := ClassifyStomp(enemyData.Type, enemyData.State)
+			applyStompResult(w, space, playerEntry, enemyEntry, result)
+		case ContactSideHit:
+			if gsEntry, ok := component.GameState.First(w); ok {
+				component.GameState.Get(gsEntry).Die()
 			}
 		}
-		// Reject the contact so the solver doesn't apply normal impulses.
 		return false
 	}
 }
 
-// cleanupDelay is how long (seconds) a dead enemy stays visible before removal.
-const cleanupDelay = 0.5
+// ---- Pure contact classification (no ECS, no physics world needed) ----
 
-// handleStomp advances the enemy state machine and bounces the player.
-//
-// Goomba:  Alive → Dead  (squashed anim, remove body, start cleanup timer)
-// Kooper:  Alive → Shell (shell anim, stop patrol, keep body)
-//
-//	Shell → Dead  (remove body, start cleanup timer)
-func handleStomp(w donburi.World, space *cp.Space, playerEntry, enemyEntry *donburi.Entry) {
-	enemyData := component.Enemy.Get(enemyEntry)
-	enemyAnim := component.Animation.Get(enemyEntry)
+// ContactKind classifies a player/enemy collision outcome.
+type ContactKind int
 
-	// Bounce the player upward (60 % of normal jump force).
-	pd := component.Player.Get(playerEntry)
-	playerBody := component.Body.Get(playerEntry).Body
-	playerBody.SetVelocityVector(cp.Vector{
-		X: playerBody.Velocity().X,
-		Y: -pd.JumpForce * 0.6,
-	})
-	component.Animation.Get(playerEntry).Play("stomp")
+const (
+	ContactIgnore  ContactKind = iota // enemy already dead, no effect
+	ContactStomp                      // player lands on enemy from above
+	ContactSideHit                    // side contact with a live enemy — player dies
+)
 
-	// Increment score.
-	if scoreEntry, ok := component.Score.First(w); ok {
-		component.Score.Get(scoreEntry).Value += 100
+// ClassifyContact returns the ContactKind for a player/enemy collision.
+// normalY is the Y component of the collision normal; positive means the
+// player is above the enemy (a stomp).
+func ClassifyContact(normalY float64, state component.EnemyState) ContactKind {
+	if state == component.EnemyDead {
+		return ContactIgnore
 	}
-
-	switch enemyData.Type {
-	case component.EnemyGoomba:
-		// One-hit kill: Alive → Dead.
-		enemyAnim.Play("squashed")
-		enemyData.State = component.EnemyDead
-		enemyData.CleanupTimer = cleanupDelay
-		removeEnemyBody(space, enemyEntry)
-		stopPatrol(enemyEntry)
-
-	case component.EnemyKooper:
-		switch enemyData.State {
-		case component.EnemyAlive:
-			// First stomp: Alive → Shell.
-			enemyAnim.Play("shell")
-			enemyData.State = component.EnemyShell
-			stopPatrol(enemyEntry)
-			// Stop horizontal movement but keep body for next collision.
-			enemyBd := component.Body.Get(enemyEntry)
-			if enemyBd.Body != nil {
-				enemyBd.Body.SetVelocityVector(cp.Vector{X: 0, Y: enemyBd.Body.Velocity().Y})
-			}
-		case component.EnemyShell:
-			// Second stomp: Shell → Dead.
-			enemyData.State = component.EnemyDead
-			enemyData.CleanupTimer = cleanupDelay
-			removeEnemyBody(space, enemyEntry)
-		}
+	if normalY > 0 || state == component.EnemyShell {
+		// Shell side-hit is treated as a second stomp.
+		return ContactStomp
 	}
+	return ContactSideHit
 }
 
-// removeEnemyBody safely removes the enemy's physics body and shapes via a
-// post-step callback (cannot modify the space during a collision callback).
-func removeEnemyBody(space *cp.Space, enemyEntry *donburi.Entry) {
-	enemyBd := component.Body.Get(enemyEntry)
-	if enemyBd.Body == nil {
-		return
-	}
-	space.AddPostStepCallback(func(s *cp.Space, _ any, _ any) {
-		for _, sh := range enemyBd.Shapes {
-			s.RemoveShape(sh)
+// StompResult describes what should happen to an enemy after a successful stomp.
+type StompResult struct {
+	NextState    component.EnemyState
+	EnemyAnim    string // animation name to play ("squashed", "shell", "")
+	RemoveBody   bool
+	StopPatrol   bool
+	ZeroVelocity bool    // zero horizontal velocity (Kooper Alive→Shell)
+	CleanupTimer float64 // seconds before removal (0 = none)
+	Score        int
+}
+
+const cleanupDelay = 0.5
+
+// ClassifyStomp returns the StompResult for the given enemy type and state.
+func ClassifyStomp(enemyType component.EnemyType, state component.EnemyState) StompResult {
+	const points = 100
+	switch enemyType {
+	case component.EnemyGoomba:
+		return StompResult{
+			NextState:    component.EnemyDead,
+			EnemyAnim:    "squashed",
+			RemoveBody:   true,
+			StopPatrol:   true,
+			CleanupTimer: cleanupDelay,
+			Score:        points,
 		}
-		s.RemoveBody(enemyBd.Body)
-		enemyBd.Body = nil
-		enemyBd.Shapes = nil
-	}, enemyBd.Body, nil)
+	case component.EnemyKooper:
+		switch state {
+		case component.EnemyAlive:
+			return StompResult{
+				NextState:    component.EnemyShell,
+				EnemyAnim:    "shell",
+				StopPatrol:   true,
+				ZeroVelocity: true,
+				Score:        points,
+			}
+		case component.EnemyShell:
+			return StompResult{
+				NextState:    component.EnemyDead,
+				RemoveBody:   true,
+				CleanupTimer: cleanupDelay,
+				Score:        points,
+			}
+		}
+	}
+	return StompResult{}
+}
+
+// ---- Application layer (ECS + physics mutations) ----
+
+func applyStompResult(w donburi.World, space *physics.Space, playerEntry, enemyEntry *donburi.Entry, result StompResult) {
+	// Bounce the player upward (60% of normal jump force) and play stomp anim.
+	pd := component.Player.Get(playerEntry)
+	playerBody := component.Body.Get(playerEntry).Body
+	vx, _ := playerBody.Velocity()
+	playerBody.SetVelocity(vx, -pd.JumpForce*0.6)
+	component.Animation.Get(playerEntry).Play("stomp")
+
+	if result.Score > 0 {
+		if scoreEntry, ok := component.Score.First(w); ok {
+			component.Score.Get(scoreEntry).Value += result.Score
+		}
+	}
+
+	enemyData := component.Enemy.Get(enemyEntry)
+	enemyData.State = result.NextState
+	if result.CleanupTimer > 0 {
+		enemyData.CleanupTimer = result.CleanupTimer
+	}
+	if result.EnemyAnim != "" {
+		component.Animation.Get(enemyEntry).Play(result.EnemyAnim)
+	}
+	if result.StopPatrol {
+		stopPatrol(enemyEntry)
+	}
+	if result.ZeroVelocity {
+		if enemyBody := component.Body.Get(enemyEntry).Body; enemyBody.IsAlive() {
+			_, vy := enemyBody.Velocity()
+			enemyBody.SetVelocity(0, vy)
+		}
+	}
+	if result.RemoveBody {
+		enemyBd := component.Body.Get(enemyEntry)
+		space.RemoveBody(enemyBd.Body, func() {
+			enemyBd.Body = nil
+		})
+	}
 }
 
 // stopPatrol zeroes patrol speed so the AI system no longer moves the enemy.
